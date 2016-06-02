@@ -89,8 +89,11 @@ public abstract class AbstractHandler {
     }
 
     protected Set<Attribute> attributes(final AttributeType attributeType) {
-        Set<Attribute> resultAttributes = new HashSet<Attribute>();
         Set<ScopedAttribute> scopedAttributes = this.attributeTypeMap.get(attributeType);
+        if (null == scopedAttributes) {
+            return Collections.emptySet();
+        }
+        Set<Attribute> resultAttributes = new HashSet<Attribute>();
         for (ScopedAttribute scopedAttribute : scopedAttributes) {
             resultAttributes.add(scopedAttribute.getAttribute());
         }
