@@ -27,13 +27,13 @@ public class GraphSubjectRepository extends GraphGenericRepository<SubjectEntity
     }
 
     @Override
-    public SubjectEntity getByZoneAndSubjectIdentifierWithInheritedAttributes(final ZoneEntity zone,
+    public SubjectEntity getInheritedAttributes(final ZoneEntity zone,
             final String subjectIdentifier) {
         return getEntityWithInheritedAttributes(zone, subjectIdentifier, Collections.emptySet());
     }
 
     @Override
-    public SubjectEntity getByZoneAndSubjectIdentifierAndScopes(final ZoneEntity zone, final String subjectIdentifier,
+    public SubjectEntity getInheritedAttributesForScopes(final ZoneEntity zone, final String subjectIdentifier,
             final Set<Attribute> scopes) {
         return getEntityWithInheritedAttributes(zone, subjectIdentifier, scopes);
     }

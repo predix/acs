@@ -34,8 +34,7 @@ import com.ge.predix.acs.privilege.management.dao.ResourceEntity;
 import com.ge.predix.acs.privilege.management.dao.ResourceHierarchicalRepository;
 import com.ge.predix.acs.privilege.management.dao.ResourceRepository;
 import com.ge.predix.acs.privilege.management.dao.SubjectEntity;
-import com.ge.predix.acs.privilege.management.dao.SubjectHierarchicalRepository;
-import com.ge.predix.acs.privilege.management.dao.SubjectRepository;
+import com.ge.predix.acs.privilege.management.dao.SubjectRepositoryProxy;
 import com.ge.predix.acs.rest.BaseResource;
 import com.ge.predix.acs.rest.BaseSubject;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
@@ -60,12 +59,7 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     private ResourceRepository resourceRepository;
 
     @Autowired
-    @Qualifier("subjectRepository")
-    private SubjectRepository subjectRepository;
-
-    @Autowired(required = false)
-    @Qualifier("subjectHierarchicalRepository")
-    private SubjectHierarchicalRepository subjectHierarchicalRepository;
+    private SubjectRepositoryProxy subjectRepository;
 
     @Autowired(required = false)
     @Qualifier("resourceHierarchicalRepository")
@@ -316,12 +310,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Override
     @Transactional(readOnly = true)
     public BaseSubject getBySubjectIdentifierWithInheritedAttributes(final String subjectIdentifier) {
-        if (null == this.subjectHierarchicalRepository) {
-            return getBySubjectIdentifier(subjectIdentifier);
-        }
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        SubjectEntity subjectEntity = this.subjectHierarchicalRepository
-                .getByZoneAndSubjectIdentifierWithInheritedAttributes(zone, subjectIdentifier);
+        SubjectEntity subjectEntity = this.subjectRepository .getInheritedAttributes(zone, subjectIdentifier);
         return createSubject(subjectIdentifier, zone, subjectEntity);
     }
 
@@ -338,12 +328,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Override
     @Transactional(readOnly = true)
     public BaseSubject getBySubjectIdentifierAndScopes(final String subjectIdentifier, final Set<Attribute> scopes) {
-        if (null == this.subjectHierarchicalRepository) {
-            return getBySubjectIdentifier(subjectIdentifier);
-        }
-
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        SubjectEntity subjectEntity = this.subjectHierarchicalRepository.getByZoneAndSubjectIdentifierAndScopes(zone,
+        SubjectEntity subjectEntity = this.subjectRepository.getInheritedAttributesForScopes(zone,
                 subjectIdentifier, scopes);
         return createSubject(subjectIdentifier, zone, subjectEntity);
     }

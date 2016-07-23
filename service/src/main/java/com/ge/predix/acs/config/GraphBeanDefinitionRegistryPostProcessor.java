@@ -28,7 +28,6 @@ public class GraphBeanDefinitionRegistryPostProcessor implements BeanDefinitionR
         registry.registerBeanDefinition("resourceHierarchicalRepository", resourceRepositoryBeanDefinition);
 
         BeanDefinition subjectRepositoryBeanDefinition = new RootBeanDefinition(GraphSubjectRepository.class);
-        registry.registerBeanDefinition("subjectRepository", subjectRepositoryBeanDefinition);
         registry.registerBeanDefinition("subjectHierarchicalRepository", subjectRepositoryBeanDefinition);
     }
 }

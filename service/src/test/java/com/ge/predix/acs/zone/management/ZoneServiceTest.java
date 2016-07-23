@@ -36,7 +36,6 @@ import com.ge.predix.acs.config.GraphBeanDefinitionRegistryPostProcessor;
 import com.ge.predix.acs.config.GraphConfig;
 import com.ge.predix.acs.config.InMemoryDataSourceConfig;
 import com.ge.predix.acs.privilege.management.dao.GraphResourceRepository;
-import com.ge.predix.acs.privilege.management.dao.GraphSubjectRepository;
 import com.ge.predix.acs.privilege.management.dao.ResourceRepository;
 import com.ge.predix.acs.privilege.management.dao.SubjectRepository;
 import com.ge.predix.acs.rest.Zone;
@@ -54,7 +53,7 @@ import com.ge.predix.uaa.token.lib.ZoneOAuth2Authentication;
 
 @ContextConfiguration(
         classes = { GraphBeanDefinitionRegistryPostProcessor.class, GraphConfig.class, GraphResourceRepository.class,
-                GraphSubjectRepository.class, InMemoryDataSourceConfig.class, SpringSecurityPolicyContextResolver.class,
+                InMemoryDataSourceConfig.class, SpringSecurityPolicyContextResolver.class,
                 SpringSecurityZoneResolver.class, ZoneServiceImpl.class })
 @TestPropertySource("/application.properties")
 @ActiveProfiles(resolver = TestActiveProfilesResolver.class)

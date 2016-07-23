@@ -28,7 +28,6 @@ import com.ge.predix.acs.config.GraphBeanDefinitionRegistryPostProcessor;
 import com.ge.predix.acs.config.GraphConfig;
 import com.ge.predix.acs.config.InMemoryDataSourceConfig;
 import com.ge.predix.acs.privilege.management.dao.GraphResourceRepository;
-import com.ge.predix.acs.privilege.management.dao.GraphSubjectRepository;
 import com.ge.predix.acs.privilege.management.dao.ResourceEntity;
 import com.ge.predix.acs.privilege.management.dao.ResourceRepository;
 import com.ge.predix.acs.privilege.management.dao.SubjectEntity;
@@ -43,7 +42,7 @@ import com.ge.predix.acs.zone.resolver.SpringSecurityZoneResolver;
 
 @ContextConfiguration(
         classes = { GraphBeanDefinitionRegistryPostProcessor.class, GraphConfig.class, GraphResourceRepository.class,
-                GraphSubjectRepository.class, InMemoryDataSourceConfig.class, SpringSecurityPolicyContextResolver.class,
+                InMemoryDataSourceConfig.class, SpringSecurityPolicyContextResolver.class,
                 SpringSecurityZoneResolver.class, ZoneServiceImpl.class })
 @ActiveProfiles(resolver = TestActiveProfilesResolver.class)
 @Test(singleThreaded = true)

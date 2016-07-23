@@ -38,6 +38,7 @@ import com.ge.predix.acs.policy.evaluation.cache.HystrixPolicyEvaluationCacheCir
 import com.ge.predix.acs.policy.evaluation.cache.InMemoryPolicyEvaluationCache;
 import com.ge.predix.acs.privilege.management.dao.GraphResourceRepository;
 import com.ge.predix.acs.privilege.management.dao.GraphSubjectRepository;
+import com.ge.predix.acs.privilege.management.dao.SubjectRepositoryProxy;
 import com.ge.predix.acs.request.context.AcsRequestContextHolder;
 import com.ge.predix.acs.rest.BaseResource;
 import com.ge.predix.acs.rest.BaseSubject;
@@ -52,8 +53,9 @@ import com.ge.predix.acs.zone.resolver.SpringSecurityZoneResolver;
         classes = { AcsRequestContextHolder.class, HystrixPolicyEvaluationCacheCircuitBreaker.class,
                 InMemoryDataSourceConfig.class, InMemoryPolicyEvaluationCache.class,
                 PrivilegeManagementServiceImpl.class, GraphBeanDefinitionRegistryPostProcessor.class, GraphConfig.class,
-                GraphResourceRepository.class, GraphSubjectRepository.class, ZoneServiceImpl.class,
-                SpringSecurityPolicyContextResolver.class, SpringSecurityZoneResolver.class })
+                GraphResourceRepository.class, ZoneServiceImpl.class,
+                SpringSecurityPolicyContextResolver.class, SpringSecurityZoneResolver.class, 
+                SubjectRepositoryProxy.class })
 @ActiveProfiles(resolver = TestActiveProfilesResolver.class)
 @Test
 public class PrivilegeManagementNoRollbackTest extends AbstractTestNGSpringContextTests {
