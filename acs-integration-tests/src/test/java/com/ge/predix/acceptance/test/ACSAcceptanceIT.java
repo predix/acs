@@ -22,6 +22,8 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -61,6 +63,8 @@ import com.ge.predix.test.utils.ZoneHelper;
 @SuppressWarnings({ "nls" })
 @ContextConfiguration("classpath:acceptance-test-spring-context.xml")
 public class ACSAcceptanceIT extends AbstractTestNGSpringContextTests {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ACSAcceptanceIT.class);
 
     @Value("${acsUrl:http://localhost:8181}")
     private String acsBaseUrl;
@@ -103,7 +107,10 @@ public class ACSAcceptanceIT extends AbstractTestNGSpringContextTests {
     private boolean registerWithZac;
 
     @BeforeClass
-    public void setup() throws JsonParseException, JsonMappingException, IOException {
+    public void setup() throws JsonParseException, JsonMappingException, IOException, InterruptedException {
+        if (waitUntilACSisReady(3, 10) == false)  {
+            Assert.fail("ACS service did not startup in 30 seconds.");
+        }
         if (Arrays.asList(this.env.getActiveProfiles()).contains("public")) {
             setupPublicACS();
         } else {
@@ -113,7 +120,7 @@ public class ACSAcceptanceIT extends AbstractTestNGSpringContextTests {
         this.headersWithZoneSubdomain.set("Predix-Zone-Id", this.testZoneSubdomain);
     }
 
-    private void setupPredixACS() throws JsonParseException, JsonMappingException, IOException {
+    private void setupPredixACS() throws JsonParseException, JsonMappingException, IOException, InterruptedException {
         this.zacTestUtil.assumeZacServerAvailable();
 
         this.acsAdminRestTemplate = this.acsRestTemplateFactory.getACSTemplateWithPolicyScope();
@@ -138,9 +145,7 @@ public class ACSAcceptanceIT extends AbstractTestNGSpringContextTests {
 
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<String> heartbeatResponse = restTemplate.exchange(this.acsBaseUrl + "/monitoring/heartbeat",
-                    HttpMethod.GET, new HttpEntity<>(this.headersWithZoneSubdomain), String.class);
-            Assert.assertEquals(heartbeatResponse.getBody(), "alive", "ACS Heartbeat Check Failed");
+            Assert.assertEquals(isACSAlive().getBody(), "alive", "ACS Heartbeat Check Failed");
         } catch (Exception e) {
             Assert.fail("Could not perform ACS Heartbeat Check: " + e.getMessage());
         }
@@ -159,10 +164,30 @@ public class ACSAcceptanceIT extends AbstractTestNGSpringContextTests {
 
     }
 
+    private ResponseEntity<String> isACSAlive () {
+        ResponseEntity<String> heartbeatResponse = new RestTemplate().exchange(this.acsBaseUrl + "/monitoring/heartbeat",
+                HttpMethod.GET, new HttpEntity<>(this.headersWithZoneSubdomain), String.class);
+        return heartbeatResponse;
+    }
+
+    private boolean waitUntilACSisReady(int retryIntervalSeconds, int retryCount) throws InterruptedException {
+        boolean ready = false;
+        int i = 0;
+        do {
+             try {
+                 LOGGER.info("Checking if ACS is ready ?");
+                 ready = isACSAlive().getStatusCode().is2xxSuccessful();
+             } catch (Throwable t) {
+                 //first few calls might throw connection refused exception
+             }
+             Thread.sleep(retryIntervalSeconds * 1000);
+        } while (!ready  && ++i < retryCount);
+        return ready;
+    }
+
     @Test(dataProvider = "endpointProvider")
     public void testCompleteACSFlow(final String endpoint, final HttpHeaders headers,
             final PolicyEvaluationRequestV1 policyEvalRequest, final String subjectIdentifier) throws Exception {
-
         String testPolicyName = null;
         BaseSubject marissa = null;
         BaseResource testResource = null;
