@@ -28,8 +28,7 @@ public class GraphResourceRepository extends GraphGenericRepository<ResourceEnti
     }
 
     @Override
-    public ResourceEntity getByZoneAndResourceIdentifierWithInheritedAttributes(final ZoneEntity zone,
-            final String resourceIdentifier) {
+    public ResourceEntity getResourceWithInheritedAttributes(final ZoneEntity zone, final String resourceIdentifier) {
         return getEntityWithInheritedAttributes(zone, resourceIdentifier, Collections.emptySet());
     }
 
@@ -77,5 +76,10 @@ public class GraphResourceRepository extends GraphGenericRepository<ResourceEnti
         Set<Parent> parentSet = getParents(vertex, RESOURCE_ID_KEY);
         resourceEntity.setParents(parentSet);
         return resourceEntity;
+    }
+
+    @Override
+    public Set<String> getResourceEntityAndDescendantsIds(final ResourceEntity entity) {
+        return getEntityAndDescendantsIds(entity);
     }
 }
