@@ -7,6 +7,7 @@ import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.in;
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.outE;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +35,6 @@ import com.ge.predix.acs.rest.Parent;
 import com.ge.predix.acs.utils.JsonUtils;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 import com.google.common.collect.Sets;
-import com.thinkaurelius.titan.core.QueryException;
 import com.thinkaurelius.titan.core.SchemaViolationException;
 
 public abstract class GraphGenericRepository<E extends ZonableEntity> implements JpaRepository<E, Long> {
@@ -45,6 +45,8 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
     public static final String SCOPE_PROPERTY_KEY = "scope";
     public static final String ZONE_NAME_PROPERTY_KEY = "zoneName";
     public static final String ZONE_ID_KEY = "zoneId";
+    public static final String VERSION_PROPERTY_KEY = "schemaVersion";
+    public static final String VERSION_VERTEX_LABEL = "version";
 
     @Autowired
     private Graph graph;
@@ -229,7 +231,9 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
         if ((null == entity.getId()) || (0 == entity.getId())) {
             verifyEntityNotSelfReferencing(entity);
             String entityId = getEntityId(entity);
+            Assert.notNull(entity.getZone(), "ZonableEntity must have a non-null zone.");
             String zoneId = entity.getZone().getName();
+            Assert.hasText(zoneId, "zoneName is required.");
             Vertex entityVertex = this.graph.addVertex(T.label, getEntityLabel(), ZONE_ID_KEY, zoneId, getEntityIdKey(),
                     entityId);
             updateVertexProperties(entity, entityVertex);
@@ -301,6 +305,64 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
             parents.add(new ParentEntity(vertexToEntity(traversal.next()), parent.getScopes()));
         });
         return parents;
+    }
+
+    public int getVersion() {
+        try {
+            Vertex versionVertex = getOrCreateVersionVertex();
+            VertexProperty<Integer> property = versionVertex.property(VERSION_PROPERTY_KEY);
+            Assert.isTrue(property.isPresent(), String.format(
+                    "The schema version vertex does not contain the expected property '%s'.", VERSION_PROPERTY_KEY));
+            return property.value();
+        } finally {
+            this.graph.tx().commit();
+        }
+
+    }
+
+    public void setVersion(final int version) {
+        try {
+            Vertex versionVertex = getOrCreateVersionVertex();
+            versionVertex.property(VERSION_PROPERTY_KEY, version);
+            this.graph.tx().commit();
+        } catch (Exception e) {
+            this.graph.tx().rollback();
+            throw (e);
+        }
+
+    }
+
+    private Vertex getOrCreateVersionVertex() {
+        try {
+            Vertex versionVertex;
+            // hasLabel() produces a warning that indexing is recommended.
+            // hasNext() produces a warning that indexing is recommended.
+            // Need to define an index (composite or mixed) that supports this query.
+            GraphTraversal<Vertex, Vertex> traversal = getGraph().traversal().V().has(VERSION_PROPERTY_KEY);
+            if (traversal.hasNext()) {
+                versionVertex = traversal.next();
+                // There should be only one version entity with a given version
+                // entity id.
+                Assert.isTrue(!traversal.hasNext(), "There are two schema version vertices in the graph");
+            } else {
+                versionVertex = createVersionVertex(0);
+            }
+
+            return versionVertex;
+        } finally {
+            this.graph.tx().commit();
+        }
+    }
+
+    private Vertex createVersionVertex(final int version) {
+        try {
+            Vertex versionVertex = this.graph.addVertex(T.label, VERSION_VERTEX_LABEL, VERSION_PROPERTY_KEY, version);
+            this.graph.tx().commit();
+            return versionVertex;
+        } catch (Exception e) {
+            this.graph.tx().rollback();
+            throw (e);
+        }
     }
 
     public List<E> findByZone(final ZoneEntity zoneEntity) {
@@ -401,7 +463,7 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
                         attributes.addAll(deserializedAttributes);
                         // This enforces the limit on the count of attributes returned from the traversal, instead of
                         // number of vertices traversed. To do the latter will require traversing the graph twice.
-                        checkTraversalLimitOrFail(attributes);
+                        checkTraversalLimitOrFail(entity, attributes);
                     }
                 });
 
@@ -414,16 +476,18 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
                             Attribute.class);
                     if (deserializedAttributes != null) {
                         attributes.addAll(deserializedAttributes);
-                        checkTraversalLimitOrFail(attributes);
+                        checkTraversalLimitOrFail(entity, attributes);
                     }
                 });
         entity.setAttributes(attributes);
         entity.setAttributesAsJson(JSON_UTILS.serialize(attributes));
     }
 
-    private void checkTraversalLimitOrFail(final Set<Attribute> attributes) {
+    private void checkTraversalLimitOrFail(final E e, final Set<Attribute> attributes) {
         if (attributes.size() > this.traversalLimit) {
-            throw new QueryException("Graph search failed: traversal limit exceeded.");
+            String exceptionMessage = String.format("The number of attributes on this " + e.getEntityType() + " '"
+                    + e.getEntityId() + "' has exceeded the maximum limit of %d", this.traversalLimit);
+            throw new AttributeLimitExceededException(exceptionMessage);
         }
     }
 
@@ -445,6 +509,15 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
 
         });
         return parentSet;
+    }
+
+    public Set<String> getEntityAndDescendantsIds(final E entity) {
+        if (entity == null) {
+            return Collections.emptySet();
+        }
+
+        return this.graph.traversal().V(entity.getId()).has(getEntityIdKey()).emit().repeat(in().has(getEntityIdKey()))
+                .until(eq(null)).values(getEntityIdKey()).toStream().map(Object::toString).collect(Collectors.toSet());
     }
 
     abstract String getEntityId(E entity);
