@@ -40,13 +40,14 @@ public class PolicyEvaluationRequestV1Test {
     }
 
     @Test
-    public void testEqualsSameAttributes() {
+    public void testEqualsSameAttributesAndPolicySetsPriority() {
         PolicyEvaluationRequestV1 a = new PolicyEvaluationRequestV1();
         a.setSubjectIdentifier("subject");
         a.setAction("GET");
         a.setResourceIdentifier("/resource");
         a.setSubjectAttributes(
                 Arrays.asList(new Attribute[] { new Attribute("issuer", "role"), new Attribute("issuer", "group") }));
+        a.setPolicySetsPriority(Arrays.asList(new String[] { "P1", "P2" }));
 
         PolicyEvaluationRequestV1 b = new PolicyEvaluationRequestV1();
         b.setSubjectIdentifier("subject");
@@ -54,6 +55,7 @@ public class PolicyEvaluationRequestV1Test {
         b.setResourceIdentifier("/resource");
         b.setSubjectAttributes(
                 Arrays.asList(new Attribute[] { new Attribute("issuer", "role"), new Attribute("issuer", "group") }));
+        b.setPolicySetsPriority(Arrays.asList(new String[] { "P1", "P2" }));
         Assert.assertEquals(a, b);
     }
 
@@ -142,7 +144,25 @@ public class PolicyEvaluationRequestV1Test {
         Assert.assertNotEquals(a, b);
     }
 
+    @Test
+    public void testEqualsDifferentOrderPolicySetPriorities() {
+        PolicyEvaluationRequestV1 a = new PolicyEvaluationRequestV1();
+        a.setSubjectIdentifier("subject");
+        a.setAction("GET");
+        a.setResourceIdentifier("/resource");
+        a.setSubjectAttributes(
+                Arrays.asList(new Attribute[] { new Attribute("issuer", "role"), new Attribute("issuer", "site") }));
+        a.setPolicySetsPriority(Arrays.asList(new String[] { "P1", "P2" }));
 
+        PolicyEvaluationRequestV1 b = new PolicyEvaluationRequestV1();
+        b.setSubjectIdentifier("subject");
+        b.setAction("GET");
+        b.setResourceIdentifier("/resource");
+        b.setSubjectAttributes(
+                Arrays.asList(new Attribute[] { new Attribute("issuer", "role"), new Attribute("issuer", "site") }));
+        a.setPolicySetsPriority(Arrays.asList(new String[] { "P2", "P1" }));
+        Assert.assertNotEquals(a, b);
+    }
 
     @Test
     public void testHashCodeNoAttributes() {
@@ -159,13 +179,14 @@ public class PolicyEvaluationRequestV1Test {
     }
 
     @Test
-    public void testHashCodeSameAttributes() {
+    public void testHashCodeSameAttributesAndPolicySetsPriority() {
         PolicyEvaluationRequestV1 a = new PolicyEvaluationRequestV1();
         a.setSubjectIdentifier("subject");
         a.setAction("GET");
         a.setResourceIdentifier("/resource");
         a.setSubjectAttributes(
                 Arrays.asList(new Attribute[] { new Attribute("issuer", "role"), new Attribute("issuer", "group") }));
+        a.setPolicySetsPriority(Arrays.asList(new String[] { "P1", "P2" }));
 
         PolicyEvaluationRequestV1 b = new PolicyEvaluationRequestV1();
         b.setSubjectIdentifier("subject");
@@ -173,6 +194,7 @@ public class PolicyEvaluationRequestV1Test {
         b.setResourceIdentifier("/resource");
         b.setSubjectAttributes(
                 Arrays.asList(new Attribute[] { new Attribute("issuer", "role"), new Attribute("issuer", "group") }));
+        b.setPolicySetsPriority(Arrays.asList(new String[] { "P1", "P2" }));
         Assert.assertEquals(a.hashCode(), b.hashCode());
     }
 
@@ -240,6 +262,22 @@ public class PolicyEvaluationRequestV1Test {
         b.setResourceIdentifier("/resource");
         b.setSubjectAttributes(
                 Arrays.asList(new Attribute[] { new Attribute("issuer", "role"), new Attribute("issuer", "group") }));
+        Assert.assertNotEquals(a.hashCode(), b.hashCode());
+    }
+
+    @Test
+    public void testHashCodeDifferentOrderPolicySetsPriority() {
+        PolicyEvaluationRequestV1 a = new PolicyEvaluationRequestV1();
+        a.setSubjectIdentifier("subject");
+        a.setAction("GET");
+        a.setResourceIdentifier("/resource");
+        a.setPolicySetsPriority(Arrays.asList(new String[] { "P1", "P2" }));
+
+        PolicyEvaluationRequestV1 b = new PolicyEvaluationRequestV1();
+        b.setSubjectIdentifier("subject");
+        b.setAction("GET");
+        b.setResourceIdentifier("/resource");
+        b.setPolicySetsPriority(Arrays.asList(new String[] { "P2", "P1" }));
         Assert.assertNotEquals(a.hashCode(), b.hashCode());
     }
 

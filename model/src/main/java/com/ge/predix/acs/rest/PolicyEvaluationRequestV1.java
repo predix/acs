@@ -39,6 +39,8 @@ public class PolicyEvaluationRequestV1 {
 
     private String action;
 
+    private List<String> policySetsPriority;
+
     @ApiModelProperty(value = "The resource URI to be consumed", required = true)
     public String getResourceIdentifier() {
         return this.resourceIdentifier;
@@ -91,6 +93,15 @@ public class PolicyEvaluationRequestV1 {
         this.action = action;
     }
 
+    @ApiModelProperty(value = "Ordered list of policy sets provided by the requestor")
+    public List<String> getPolicySetsPriority() {
+        return this.policySetsPriority;
+    }
+
+    public void setPolicySetsPriority(final List<String> policySetsPriority) {
+        this.policySetsPriority = policySetsPriority;
+    }
+
     @Override
     public int hashCode() {
         HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
@@ -98,6 +109,11 @@ public class PolicyEvaluationRequestV1 {
         if (null != this.subjectAttributes) {
             for (Attribute attribute : this.subjectAttributes) {
                 hashCodeBuilder.append(attribute);
+            }
+        }
+        if (null != this.policySetsPriority) {
+            for (String policyID : this.policySetsPriority) {
+                hashCodeBuilder.append(policyID);
             }
         }
         return hashCodeBuilder.toHashCode();
@@ -109,20 +125,8 @@ public class PolicyEvaluationRequestV1 {
         if (obj instanceof PolicyEvaluationRequestV1) {
             final PolicyEvaluationRequestV1 other = (PolicyEvaluationRequestV1) obj;
             EqualsBuilder equalsBuilder = new EqualsBuilder();
-            if ((null == this.subjectAttributes) && (null != other.subjectAttributes)) {
-                return false;
-            }
-            if ((null != this.subjectAttributes) && (null == other.subjectAttributes)) {
-                return false;
-            }
-            if ((null != this.subjectAttributes) && (this.subjectAttributes.size() != other.subjectAttributes.size())) {
-                return false;
-            }
-            if ((null != this.subjectAttributes) && (this.subjectAttributes.size() == other.subjectAttributes.size())) {
-                for (int i = 0; i < this.subjectAttributes.size(); i++) {
-                    equalsBuilder.append(this.subjectAttributes.get(i), other.subjectAttributes.get(i));
-                }
-            }
+            equalsBuilder.append(this.subjectAttributes, other.subjectAttributes);
+            equalsBuilder.append(this.policySetsPriority, other.policySetsPriority);
             equalsBuilder.append(this.action, other.action).append(this.resourceIdentifier, other.resourceIdentifier)
                     .append(this.subjectIdentifier, other.subjectIdentifier);
             return equalsBuilder.isEquals();

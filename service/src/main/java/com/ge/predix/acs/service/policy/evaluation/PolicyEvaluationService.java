@@ -15,6 +15,7 @@
  *******************************************************************************/
 package com.ge.predix.acs.service.policy.evaluation;
 
+import java.util.List;
 import java.util.Set;
 
 import com.ge.predix.acs.model.Attribute;
@@ -26,4 +27,8 @@ public interface PolicyEvaluationService {
 
     PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
             final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes);
+
+    PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
+            final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes,
+            final List<String> policySetsPriority);
 }

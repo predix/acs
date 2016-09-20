@@ -34,6 +34,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -53,6 +55,7 @@ import com.ge.predix.acs.model.Effect;
 import com.ge.predix.acs.model.Policy;
 import com.ge.predix.acs.model.PolicySet;
 import com.ge.predix.acs.privilege.management.PrivilegeManagementService;
+import com.ge.predix.acs.privilege.management.dao.SubjectEntity;
 import com.ge.predix.acs.rest.BaseResource;
 import com.ge.predix.acs.rest.BaseSubject;
 import com.ge.predix.acs.rest.PolicyEvaluationResult;
@@ -79,6 +82,8 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     private static final String RES_ATTRIB_ROLE_REQUIRED = "role_required";
     private static final String RES_ATTRIB_LOCATION = "location";
     private static final String RES_ATTRIB_LOCATION_VALUE = "sanramon";
+    private static final String ATTRIB_NAME_SITE = "site";
+
     @InjectMocks
     private PolicyEvaluationServiceImpl evaluationService;
     @Mock
@@ -119,15 +124,6 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
         Assert.assertEquals(result.getEffect(), Effect.NOT_APPLICABLE);
         Assert.assertEquals(result.getResourceAttributes().size(), 0);
         Assert.assertEquals(result.getSubjectAttributes().size(), 0);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testEvaluateWithTwoPolicySets() {
-        List<PolicySet> policySets = new ArrayList<>();
-        policySets.add(new PolicySet());
-        policySets.add(new PolicySet());
-        when(this.policyService.getAllPolicySets()).thenReturn(policySets);
-        this.evaluationService.evalPolicy("resource1", "subject1", "GET", EMPTY_ATTRS, EMPTY_ATTRS);
     }
 
     public void testEvaluateWithOnePolicySetNoPolicies() {
@@ -182,6 +178,45 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
                 Assert.assertTrue(evalPolicyResponse.getSubjectAttributes().contains(attribute));
             }
         }
+    }
+
+    @Test(
+            dataProvider = "filterPolicySetsInvalidRequestDataProvider",
+            expectedExceptions = IllegalArgumentException.class)
+    public void testFilterPolicySetsByPriorityForInvalidRequest(final List<PolicySet> allPolicySets,
+            final List<String> policySetsPriority) throws JsonParseException, JsonMappingException, IOException {
+        this.evaluationService.filterPolicySetsByPriority("subject1", "resource1", allPolicySets, policySetsPriority);
+    }
+
+    @Test(dataProvider = "filterPolicySetsDataProvider")
+    public void testFilterPolicySetsByPriority(final List<PolicySet> allPolicySets,
+            final List<String> policySetsPriority, List<PolicySet> expectedFilteredPolicySets)
+            throws JsonParseException, JsonMappingException, IOException {
+        List<PolicySet> actualFilteredPolicySets = this.evaluationService.filterPolicySetsByPriority("subject1",
+                "resource1", allPolicySets, policySetsPriority);
+        Assert.assertEquals(actualFilteredPolicySets, expectedFilteredPolicySets);
+    }
+
+    @Test(dataProvider = "multiplePolicySetsRequestDataProvider")
+    public void testEvaluateWithMultiplePolicySets(final List<PolicySet> allPolicySets,
+            final List<String> policySetsPriority, final Effect effect)
+                    throws JsonParseException, JsonMappingException, IOException {
+        when(this.policyService.getAllPolicySets()).thenReturn(allPolicySets);
+        when(this.policyMatcher.matchForResult(any(PolicyMatchCandidate.class), anyListOf(Policy.class)))
+                .thenAnswer(new Answer<MatchResult>() {
+                    public MatchResult answer(final InvocationOnMock invocation) {
+                        Object[] args = invocation.getArguments();
+                        @SuppressWarnings("unchecked")
+                        List<Policy> policyList = (List<Policy>) args[1];
+                        List<MatchedPolicy> matchedPolicies = new ArrayList<>();
+                        policyList.forEach(policy -> matchedPolicies.add(new MatchedPolicy(policy, EMPTY_ATTRS, EMPTY_ATTRS)));
+                        return new MatchResult(matchedPolicies, new HashSet<String>());
+                    }
+                });
+
+        PolicyEvaluationResult result = this.evaluationService.evalPolicy("anyresource", "anysubject", "GET", EMPTY_ATTRS,
+                EMPTY_ATTRS, policySetsPriority);
+        Assert.assertEquals(result.getEffect(), effect);
     }
 
     /**
@@ -284,4 +319,60 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
         return new Object[][] { { null, "s1", "a1" }, { "r1", null, "a1" }, { "r1", "s1", null }, };
     }
 
+    @DataProvider(name = "filterPolicySetsInvalidRequestDataProvider")
+    private Object[][] filterPolicySetsInvalidRequestDataProvider()
+            throws JsonParseException, JsonMappingException, IOException {
+        return new Object[][] {
+                { createOnePolicySet(), Arrays.asList(new String[] { "Invalid policy set id" }) },
+                { createTwoPolicySets(), Arrays.asList(new String[] {}) },
+                { createTwoPolicySets(), Arrays
+                        .asList(new String[] { "policy-set-with-one-policy-one-condition", "noexistent-policy-set" }) } };
+    }
+
+    @DataProvider(name = "filterPolicySetsDataProvider")
+    private Object[][] filterPolicySetsDataProvider() throws JsonParseException, JsonMappingException, IOException {
+        List<PolicySet> onePolicySet = createOnePolicySet();
+        List<PolicySet> twoPolicySets = createTwoPolicySets();
+        return new Object[][] {
+            { onePolicySet, null, onePolicySet },
+            { onePolicySet, Collections.emptyList(), onePolicySet },
+            { onePolicySet, Arrays.asList(onePolicySet.get(0).getName()), onePolicySet },
+            { twoPolicySets, Arrays.asList(twoPolicySets.get(0).getName()), twoPolicySets.subList(0, 1) },
+            { twoPolicySets, Arrays.asList(twoPolicySets.get(1).getName()), twoPolicySets.subList(1, 2) },
+            { twoPolicySets,
+                Arrays.asList(twoPolicySets.get(0).getName(), twoPolicySets.get(1).getName()), twoPolicySets }
+        };
+    }
+
+    @DataProvider(name = "multiplePolicySetsRequestDataProvider")
+    private Object[][] multiplePolicySetsRequestDataProvider()
+            throws JsonParseException, JsonMappingException, IOException {
+        List<PolicySet> onePolicySet = createOnePolicySet();
+        List<PolicySet> twoPolicySets = createTwoPolicySets();
+        return new Object[][] { 
+            { onePolicySet, Collections.emptyList(), Effect.PERMIT },
+            { onePolicySet, Arrays.asList(onePolicySet.get(0).getName()), Effect.PERMIT },
+            { twoPolicySets, Arrays.asList(twoPolicySets.get(0).getName()), Effect.NOT_APPLICABLE },
+            { twoPolicySets, Arrays.asList(twoPolicySets.get(1).getName()), Effect.DENY },
+            { twoPolicySets, 
+                Arrays.asList(twoPolicySets.get(0).getName(), twoPolicySets.get(1).getName()), Effect.DENY }
+        };
+    }
+
+    private List<PolicySet> createOnePolicySet() throws JsonParseException, JsonMappingException, IOException {
+        List<PolicySet> policySets = new ArrayList<PolicySet>();
+        policySets.add(new ObjectMapper().readValue(
+                new File("src/test/resources/policy-set-with-one-policy-one-condition.json"), PolicySet.class));
+        return policySets;
+    }
+
+    private List<PolicySet> createTwoPolicySets() throws JsonParseException, JsonMappingException, IOException {
+
+        List<PolicySet> policySets = new ArrayList<PolicySet>();
+        policySets.add(new ObjectMapper().readValue(
+                new File("src/test/resources/policy-set-with-one-policy-one-condition-using-attributes.json"), PolicySet.class));
+        policySets.add(new ObjectMapper().readValue(
+                new File("src/test/resources/policy-set-with-one-policy-nocondition.json"), PolicySet.class));
+        return policySets;
+    }
 }
