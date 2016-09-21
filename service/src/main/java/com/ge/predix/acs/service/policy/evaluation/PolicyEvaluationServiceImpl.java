@@ -107,14 +107,19 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
     @Override
     public PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
             final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes) {
+        return evalPolicy(uri, subjectIdentifier, action, supplementalResourceAttributes, supplementalSubjectAttributes,
+                null);
+    }
+
+    @Override
+    public PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
+            final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes,
+            final List<String> policySetsPriority) {
 
         if (uri == null || subjectIdentifier == null || action == null) {
 
-            LOGGER.error(
-                    String.format(
-                            "PolicyEvaluationResult input paramters cannot be null, "
-                                    + "resourceURI=[%s] subjectIdentifier=[%s] action=[%s]",
-                            uri, subjectIdentifier, action));
+            LOGGER.error(String.format("PolicyEvaluationResult input paramters cannot be null, "
+                    + "resourceURI=[%s] subjectIdentifier=[%s] action=[%s]", uri, subjectIdentifier, action));
 
             throw new IllegalArgumentException(
                     "ACS Internal Error: PolicyEvaluationResult input paramters cannot be null.");
@@ -124,25 +129,65 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
 
         if (allPolicySets.isEmpty()) {
             return new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
-        } else if (allPolicySets.size() > 1) {
-            LOGGER.error("Found more than one policy set during policy evaluation. Subject: " + subjectIdentifier
-                    + ", Resource: " + uri);
-            throw new IllegalArgumentException("More than one policy set exists for this zone. "
-                    + "Remove unnecessary policy sets using DELETE /policy-set/{id} and resubmit request.");
-        } else {
-            // NOTE: When multiple policy sets are supported, this code needs to
-            // delegate to a "InterPolicySetDecisionAggregator"
-            PolicyEvaluationResult result = evalPolicySet(allPolicySets.get(0), subjectIdentifier, uri, action,
-                    supplementalResourceAttributes, supplementalSubjectAttributes);
-
-            LOGGER.info(
-                    String.format(
-                            "Processed Policy Evaluation for: "
-                                    + "resourceUri=[%s], subjectIdentifier=[%s], action=[%s]," + " result=[%s]",
-                            uri, subjectIdentifier, action, result.getEffect()));
-
-            return result;
         }
+
+        List<PolicySet> filteredPolicySets = filterPolicySetsByPriority(subjectIdentifier, uri, allPolicySets,
+                policySetsPriority);
+        PolicyEvaluationResult result = new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
+
+        for (PolicySet policySet : filteredPolicySets) {
+            result = evalPolicySet(policySet, subjectIdentifier, uri, action,
+                    supplementalResourceAttributes, supplementalSubjectAttributes);
+            if (result.getEffect() != Effect.NOT_APPLICABLE) {
+                break;
+            }
+            //Continue to the next policy set if evaluation result is NOT_APPLICABLE
+        }
+        LOGGER.info(String.format("Processed Policy Evaluation for: "
+                + "resourceUri=[%s], subjectIdentifier=[%s], action=[%s]," + " result=[%s]", uri, subjectIdentifier,
+                action, result.getEffect()));
+
+        return result;
+    }
+
+    List<PolicySet> filterPolicySetsByPriority(final String subjectIdentifier, final String uri,
+            final List<PolicySet> allPolicySets, final List<String> policySetsPriority)
+            throws IllegalArgumentException {
+        if (allPolicySets.size() > 1 && (policySetsPriority == null || policySetsPriority.isEmpty())) {
+            LOGGER.error("Found more than one policy set during policy evaluation and no priority is provided. "
+                    + "Subject: " + subjectIdentifier + ", Resource: " + uri);
+            throw new IllegalArgumentException("More than one policy set exists for this zone. "
+                    + "Please provide a prioritized list of policy set names to consider for this evaluation and "
+                    + "resubmit the request.");
+        }
+
+        if (policySetsPriority == null || policySetsPriority.isEmpty()) {
+            return allPolicySets;
+        }
+
+        List<PolicySet> filteredPolicySets = new ArrayList<PolicySet>();
+        for (String policySetID : policySetsPriority) {
+            PolicySet policySet = findPolicyByName(allPolicySets, policySetID);
+            if (policySet == null) {
+                LOGGER.error("No existing policy set matches policy set in the priority list of the request. "
+                        + "Subject: " + subjectIdentifier + ", Resource: " + uri);
+                throw new IllegalArgumentException(
+                        "No existing policy set matches policy set in the priority list of the request. "
+                                + "Please review the priority list and resubmit the request.");
+            } else if (!filteredPolicySets.contains(policySet)) {
+                filteredPolicySets.add(policySet);
+            }
+        }
+        return filteredPolicySets;
+    }
+
+    private PolicySet findPolicyByName(final List<PolicySet> allPolicySets, final String policyName) {
+        for (PolicySet policySet : allPolicySets) {
+            if (policySet.getName().equals(policyName)) {
+                return policySet;
+            }
+        }
+        return null;
     }
 
     private PolicyEvaluationResult evalPolicySet(final PolicySet policySet, final String subjectIdentifier,
@@ -225,6 +270,7 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
         LOGGER.error(logMessage.toString(), e);
         return result;
     }
+
     /**
      * @param subjectHandler
      * @param resourceHandler
