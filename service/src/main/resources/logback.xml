@@ -24,7 +24,7 @@
         </encoder>
     </appender>
 
-    <logger name="java" level="WARN" />
+    <logger name="java" level="DEBUG" />
 
     <logger name="org.springframework.security" level="INFO" />
 
@@ -51,7 +51,7 @@
         <appender-ref ref="acsAppender" />
     </logger>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="acsAppender" />
     </root>
 
