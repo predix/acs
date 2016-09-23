@@ -47,7 +47,7 @@
 
     <!-- Note: There is severe performance penalty for turning on DEBUG messages during policy evaluation. Limit
          use for development. -->
-    <logger name="com.ge.predix.acs" level="INFO" additivity="false">
+    <logger name="com.ge.predix.acs" level="DEBUG" additivity="false">
         <appender-ref ref="acsAppender" />
     </logger>
 
