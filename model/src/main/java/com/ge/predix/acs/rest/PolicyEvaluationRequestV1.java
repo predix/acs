@@ -15,6 +15,7 @@
  *******************************************************************************/
 package com.ge.predix.acs.rest;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -39,7 +40,7 @@ public class PolicyEvaluationRequestV1 {
 
     private String action;
 
-    private List<String> policySetsPriority;
+    private List<String> policySetsEvaluationOrder = Collections.emptyList();
 
     @ApiModelProperty(value = "The resource URI to be consumed", required = true)
     public String getResourceIdentifier() {
@@ -93,13 +94,18 @@ public class PolicyEvaluationRequestV1 {
         this.action = action;
     }
 
-    @ApiModelProperty(value = "Ordered list of policy sets provided by the requestor")
-    public List<String> getPolicySetsPriority() {
-        return this.policySetsPriority;
+    @ApiModelProperty(
+            value = "This list of policy set IDs specifies the order in which policy sets will be evaluated. "
+                    + "Evaluation stops when a policy with matching target is found and the condition returns true, "
+                    + "Or all policies are exhausted.")
+    public List<String> getPolicySetsEvaluationOrder() {
+        return this.policySetsEvaluationOrder;
     }
 
-    public void setPolicySetsPriority(final List<String> policySetsPriority) {
-        this.policySetsPriority = policySetsPriority;
+    public void setPolicySetsEvaluationOrder(final List<String> policySetIds) {
+        if (policySetIds != null) {
+            this.policySetsEvaluationOrder = policySetIds;
+        }
     }
 
     @Override
@@ -111,10 +117,8 @@ public class PolicyEvaluationRequestV1 {
                 hashCodeBuilder.append(attribute);
             }
         }
-        if (null != this.policySetsPriority) {
-            for (String policyID : this.policySetsPriority) {
-                hashCodeBuilder.append(policyID);
-            }
+        for (String policyID : this.policySetsEvaluationOrder) {
+            hashCodeBuilder.append(policyID);
         }
         return hashCodeBuilder.toHashCode();
     }
@@ -126,7 +130,7 @@ public class PolicyEvaluationRequestV1 {
             final PolicyEvaluationRequestV1 other = (PolicyEvaluationRequestV1) obj;
             EqualsBuilder equalsBuilder = new EqualsBuilder();
             equalsBuilder.append(this.subjectAttributes, other.subjectAttributes);
-            equalsBuilder.append(this.policySetsPriority, other.policySetsPriority);
+            equalsBuilder.append(this.policySetsEvaluationOrder, other.policySetsEvaluationOrder);
             equalsBuilder.append(this.action, other.action).append(this.resourceIdentifier, other.resourceIdentifier)
                     .append(this.subjectIdentifier, other.subjectIdentifier);
             return equalsBuilder.isEquals();

@@ -98,7 +98,8 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
                 supplementalSubjectAttributes = new HashSet<>(request.getSubjectAttributes());
             }
             result = evalPolicy(request.getResourceIdentifier(), request.getSubjectIdentifier(), request.getAction(),
-                    supplementalResourceAttributes, supplementalSubjectAttributes);
+                    supplementalResourceAttributes, supplementalSubjectAttributes,
+                    request.getPolicySetsEvaluationOrder());
             this.cache.set(key, result);
         }
         return result;
@@ -108,13 +109,13 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
     public PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
             final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes) {
         return evalPolicy(uri, subjectIdentifier, action, supplementalResourceAttributes, supplementalSubjectAttributes,
-                null);
+                Collections.emptyList());
     }
 
     @Override
     public PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
             final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes,
-            final List<String> policySetsPriority) {
+            final List<String> policySetsEvaluationOrder) {
 
         if (uri == null || subjectIdentifier == null || action == null) {
 
@@ -132,7 +133,7 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
         }
 
         List<PolicySet> filteredPolicySets = filterPolicySetsByPriority(subjectIdentifier, uri, allPolicySets,
-                policySetsPriority);
+                policySetsEvaluationOrder);
         PolicyEvaluationResult result = new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
 
         for (PolicySet policySet : filteredPolicySets) {
@@ -151,22 +152,23 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
     }
 
     List<PolicySet> filterPolicySetsByPriority(final String subjectIdentifier, final String uri,
-            final List<PolicySet> allPolicySets, final List<String> policySetsPriority)
+            final List<PolicySet> allPolicySets, final List<String> policySetsEvaluationOrder)
             throws IllegalArgumentException {
-        if (allPolicySets.size() > 1 && (policySetsPriority == null || policySetsPriority.isEmpty())) {
-            LOGGER.error("Found more than one policy set during policy evaluation and no priority is provided. "
-                    + "Subject: " + subjectIdentifier + ", Resource: " + uri);
-            throw new IllegalArgumentException("More than one policy set exists for this zone. "
-                    + "Please provide a prioritized list of policy set names to consider for this evaluation and "
-                    + "resubmit the request.");
-        }
 
-        if (policySetsPriority == null || policySetsPriority.isEmpty()) {
-            return allPolicySets;
+        if (policySetsEvaluationOrder.isEmpty()) {
+            if (allPolicySets.size() > 1) {
+                LOGGER.error("Found more than one policy set during policy evaluation and no priority is provided. "
+                        + "Subject: " + subjectIdentifier + ", Resource: " + uri);
+                throw new IllegalArgumentException("More than one policy set exists for this zone. "
+                        + "Please provide a prioritized list of policy set names to consider for this evaluation and "
+                        + "resubmit the request.");
+            } else {
+                return allPolicySets;
+            }
         }
 
         List<PolicySet> filteredPolicySets = new ArrayList<PolicySet>();
-        for (String policySetID : policySetsPriority) {
+        for (String policySetID : policySetsEvaluationOrder) {
             PolicySet policySet = findPolicyByName(allPolicySets, policySetID);
             if (policySet == null) {
                 LOGGER.error("No existing policy set matches policy set in the priority list of the request. "
