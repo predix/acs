@@ -95,9 +95,8 @@ public class PolicyManagementServiceImpl implements PolicyManagementService {
                         policySetName, zone.toString()));
             }
         }
-        // Since we only support one policy set and we don't want to load that policy set when checking for a
-        // cached invalidation, we use a hard-coded value for the policy set key.
-        this.cache.resetForPolicySet(zone.getName(), "default");
+        
+        this.cache.resetForPolicySet(zone.getName(), policySetName);
         this.policySetRepository.save(policySetEntity);
     }
 
@@ -150,7 +149,7 @@ public class PolicyManagementServiceImpl implements PolicyManagementService {
                     policySetID, zone.getName()));
             // Since we only support one policy set and we don't want to load that policy set when checking for a
             // cached invalidation, we use a hard-coded value for the policy set key.
-            this.cache.resetForPolicySet(zone.getName(), "default");
+            this.cache.resetForPolicySet(zone.getName(), policySetID);
             this.policySetRepository.delete(policySetEntity);
         } else {
             if (LOGGER.isDebugEnabled()) {

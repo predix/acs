@@ -17,6 +17,7 @@
 package com.ge.predix.acs.policy.evaluation.cache;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
@@ -51,7 +52,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
         assertNull(this.cache.get(key));
     }
 
@@ -63,7 +64,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -79,8 +80,9 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setAction("GET");
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
+        request.setPolicySetsEvaluationOrder(Arrays.asList(new String[] { "policyOne" }));
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -89,7 +91,56 @@ public class AbstractPolicyEvaluationCacheTest {
         assertEquals(cachedResult.getEffect(), result.getEffect());
 
         Thread.sleep(1);
-        this.cache.resetForPolicySet(ZONE_NAME, "default");
+        this.cache.resetForPolicySet(ZONE_NAME, "policyOne");
+        assertNull(this.cache.get(key));
+    }
+
+    @Test
+    public void testGetWithResetForMultiplePolicySets() throws Exception {
+
+        PolicyEvaluationRequestV1 request = new PolicyEvaluationRequestV1();
+        request.setAction("GET");
+        request.setSubjectIdentifier("mulder");
+        request.setResourceIdentifier("/x-files");
+        request.setPolicySetsEvaluationOrder(Arrays.asList(new String[] {"policyOne", "policyTwo"}));
+        PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
+                .request(request).build();
+
+        PolicyEvaluationResult result = mockPermitResult();
+        this.cache.set(key, result);
+
+        PolicyEvaluationResult cachedResult = this.cache.get(key);
+        assertNotNull(cachedResult);
+        assertEquals(cachedResult.getEffect(), result.getEffect());
+
+        Thread.sleep(1);
+        this.cache.resetForPolicySet(ZONE_NAME, "policyTwo");
+        assertNull(this.cache.get(key));
+    }
+    
+    @Test
+    public void testGetWithPolicyEvaluationOrderChange() throws Exception {
+
+        PolicyEvaluationRequestV1 request = new PolicyEvaluationRequestV1();
+        request.setAction("GET");
+        request.setSubjectIdentifier("mulder");
+        request.setResourceIdentifier("/x-files");
+        request.setPolicySetsEvaluationOrder(Arrays.asList(new String[] {"policyOne", "policyTwo"}));
+        PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
+                .request(request).build();
+
+        PolicyEvaluationResult result = mockPermitResult();
+        this.cache.set(key, result);
+
+        PolicyEvaluationResult cachedResult = this.cache.get(key);
+        assertNotNull(cachedResult);
+        assertEquals(cachedResult.getEffect(), result.getEffect());
+
+        Thread.sleep(1);
+
+        request.setPolicySetsEvaluationOrder(Arrays.asList(new String[] {"policyTwo", "policyOne"}));
+        key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME).request(request).build();
+
         assertNull(this.cache.get(key));
     }
 
@@ -101,7 +152,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -122,7 +173,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/v1/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -143,7 +194,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -165,7 +216,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -186,7 +237,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -207,7 +258,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -228,7 +279,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);
@@ -250,7 +301,7 @@ public class AbstractPolicyEvaluationCacheTest {
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.cache.set(key, result);

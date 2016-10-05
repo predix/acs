@@ -61,7 +61,7 @@ public class DefaultPolicyEvaluationCacheCircuitBreakerTest extends AbstractTest
         request.setSubjectIdentifier("mulder");
         request.setResourceIdentifier("/x-files");
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
-                .policySetId("default").request(request).build();
+                .request(request).build();
 
         PolicyEvaluationResult result = mockPermitResult();
         this.policyEvaluationCacheCircuitBreaker.set(key, result);

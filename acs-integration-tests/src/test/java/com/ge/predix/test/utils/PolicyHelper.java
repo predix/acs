@@ -107,6 +107,28 @@ public class PolicyHelper {
                 "/alarms/sites/" + String.valueOf(r.nextLong()), subjectAttributes);
     }
 
+    public PolicyEvaluationRequestV1 createMultiplePolicySetsEvalRequest(final String action,
+            final String subjectIdentifier, final String resourceIdentifier, final List<Attribute> subjectAttributes,
+            final List<String> policySetIds) {
+        PolicyEvaluationRequestV1 policyEvaluationRequest = new PolicyEvaluationRequestV1();
+        policyEvaluationRequest.setAction(action);
+        policyEvaluationRequest.setSubjectIdentifier(subjectIdentifier);
+        policyEvaluationRequest.setResourceIdentifier(resourceIdentifier);
+        policyEvaluationRequest.setSubjectAttributes(subjectAttributes);
+        policyEvaluationRequest.setPolicySetsEvaluationOrder(policySetIds);
+        return policyEvaluationRequest;
+    }
+
+    public PolicyEvaluationRequestV1 createMultiplePolicySetsEvalRequest(final String subjectIdentifier,
+            final String site, final List<String> policySetIds) {
+        return createMultiplePolicySetsEvalRequest("GET", subjectIdentifier, "/secured-by-value/sites/" + site, null,
+                policySetIds);
+    }
+    
+    public PolicyEvaluationRequestV1 createMultiplePolicySetsEvalRequest(final BaseSubject subject, final String site, final List<String> policySetIds) {
+        return createMultiplePolicySetsEvalRequest("GET", subject.getSubjectIdentifier(), "/secured-by-value/sites/" + site, null,
+                policySetIds);    }
+    
     public PolicyEvaluationRequestV1 createEvalRequest(final String action, final String subjectIdentifier,
             final String resourceIdentifier, final List<Attribute> subjectAttributes) {
         PolicyEvaluationRequestV1 policyEvaluationRequest = new PolicyEvaluationRequestV1();

@@ -16,6 +16,7 @@
 package com.ge.predix.acs.service.policy.evaluation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,11 +81,45 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
     @Override
     public PolicyEvaluationResult evalPolicy(final PolicyEvaluationRequestV1 request) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        PolicyEvaluationRequestCacheKey key = new Builder().zoneId(zone.getName()).policySetId("default")
-                .request(request).build();
-        PolicyEvaluationResult result = this.cache.get(key);
+        String uri = request.getResourceIdentifier();
+        String subjectIdentifier = request.getSubjectIdentifier();
+        String action = request.getAction();
+        List<String> policySetsEvaluationOrder = request.getPolicySetsEvaluationOrder();
 
+        if (uri == null || subjectIdentifier == null || action == null) {
+            LOGGER.error(
+                    String.format(
+                            "Policy evaluation request is missing required input parameters: "
+                                    + "resourceURI=[%s] subjectIdentifier=[%s] action=[%s]",
+                            uri, subjectIdentifier, action));
+
+            throw new IllegalArgumentException("Policy evaluation request is missing required input parameters. "
+                    + "Please review and resubmit the request.");
+        }
+
+        List<PolicySet> allPolicySets = this.policyService.getAllPolicySets();
+
+        if (allPolicySets.isEmpty()) {
+            return new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
+        }
+
+        List<PolicySet> filteredPolicySets = filterPolicySetsByPriority(subjectIdentifier, uri, allPolicySets,
+                policySetsEvaluationOrder);
+
+        // At this point empty evaluation order means we have only one policy set.
+        // Fixing policy evaluation order so we could build a cache key.
+        PolicyEvaluationRequestCacheKey key;
+        if (policySetsEvaluationOrder.isEmpty()) {
+            key = new Builder().zoneId(zone.getName()).policySetIds(Arrays.asList(filteredPolicySets.get(0).getName()))
+                    .request(request).build();
+        } else {
+            key = new Builder().zoneId(zone.getName()).request(request).build();
+        }
+
+        PolicyEvaluationResult result = this.cache.get(key);
         if (null == result) {
+            result = new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
+
             HashSet<Attribute> supplementalResourceAttributes;
             if (null == request.getResourceAttributes()) {
                 supplementalResourceAttributes = new HashSet<>();
@@ -97,76 +132,45 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
             } else {
                 supplementalSubjectAttributes = new HashSet<>(request.getSubjectAttributes());
             }
-            result = evalPolicy(request.getResourceIdentifier(), request.getSubjectIdentifier(), request.getAction(),
-                    supplementalResourceAttributes, supplementalSubjectAttributes);
+
+            for (PolicySet policySet : filteredPolicySets) {
+                result = evalPolicySet(policySet, subjectIdentifier, uri, action, supplementalResourceAttributes,
+                        supplementalSubjectAttributes);
+                if (result.getEffect() != Effect.NOT_APPLICABLE) {
+                    break;
+                }
+                // Continue to the next policy set if evaluation result is NOT_APPLICABLE
+            }
+
+            LOGGER.info(
+                    String.format(
+                            "Processed Policy Evaluation for: "
+                                    + "resourceUri=[%s], subjectIdentifier=[%s], action=[%s]," + " result=[%s]",
+                            uri, subjectIdentifier, action, result.getEffect()));
+
             this.cache.set(key, result);
         }
         return result;
     }
 
-    @Override
-    public PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
-            final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes) {
-        return evalPolicy(uri, subjectIdentifier, action, supplementalResourceAttributes, supplementalSubjectAttributes,
-                null);
-    }
-
-    @Override
-    public PolicyEvaluationResult evalPolicy(final String uri, final String subjectIdentifier, final String action,
-            final Set<Attribute> supplementalResourceAttributes, final Set<Attribute> supplementalSubjectAttributes,
-            final List<String> policySetsPriority) {
-
-        if (uri == null || subjectIdentifier == null || action == null) {
-
-            LOGGER.error(String.format("PolicyEvaluationResult input paramters cannot be null, "
-                    + "resourceURI=[%s] subjectIdentifier=[%s] action=[%s]", uri, subjectIdentifier, action));
-
-            throw new IllegalArgumentException(
-                    "ACS Internal Error: PolicyEvaluationResult input paramters cannot be null.");
-        }
-
-        List<PolicySet> allPolicySets = this.policyService.getAllPolicySets();
-
-        if (allPolicySets.isEmpty()) {
-            return new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
-        }
-
-        List<PolicySet> filteredPolicySets = filterPolicySetsByPriority(subjectIdentifier, uri, allPolicySets,
-                policySetsPriority);
-        PolicyEvaluationResult result = new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
-
-        for (PolicySet policySet : filteredPolicySets) {
-            result = evalPolicySet(policySet, subjectIdentifier, uri, action,
-                    supplementalResourceAttributes, supplementalSubjectAttributes);
-            if (result.getEffect() != Effect.NOT_APPLICABLE) {
-                break;
-            }
-            //Continue to the next policy set if evaluation result is NOT_APPLICABLE
-        }
-        LOGGER.info(String.format("Processed Policy Evaluation for: "
-                + "resourceUri=[%s], subjectIdentifier=[%s], action=[%s]," + " result=[%s]", uri, subjectIdentifier,
-                action, result.getEffect()));
-
-        return result;
-    }
-
     List<PolicySet> filterPolicySetsByPriority(final String subjectIdentifier, final String uri,
-            final List<PolicySet> allPolicySets, final List<String> policySetsPriority)
+            final List<PolicySet> allPolicySets, final List<String> policySetsEvaluationOrder)
             throws IllegalArgumentException {
-        if (allPolicySets.size() > 1 && (policySetsPriority == null || policySetsPriority.isEmpty())) {
-            LOGGER.error("Found more than one policy set during policy evaluation and no priority is provided. "
-                    + "Subject: " + subjectIdentifier + ", Resource: " + uri);
-            throw new IllegalArgumentException("More than one policy set exists for this zone. "
-                    + "Please provide a prioritized list of policy set names to consider for this evaluation and "
-                    + "resubmit the request.");
-        }
 
-        if (policySetsPriority == null || policySetsPriority.isEmpty()) {
-            return allPolicySets;
+        if (policySetsEvaluationOrder.isEmpty()) {
+            if (allPolicySets.size() > 1) {
+                LOGGER.error("Found more than one policy set during policy evaluation and no priority is provided. "
+                        + "Subject: " + subjectIdentifier + ", Resource: " + uri);
+                throw new IllegalArgumentException("More than one policy set exists for this zone. "
+                        + "Please provide a prioritized list of policy set names to consider for this evaluation and "
+                        + "resubmit the request.");
+            } else {
+                return allPolicySets;
+            }
         }
 
         List<PolicySet> filteredPolicySets = new ArrayList<PolicySet>();
-        for (String policySetID : policySetsPriority) {
+        for (String policySetID : policySetsEvaluationOrder) {
             PolicySet policySet = findPolicyByName(allPolicySets, policySetID);
             if (policySet == null) {
                 LOGGER.error("No existing policy set matches policy set in the priority list of the request. "
