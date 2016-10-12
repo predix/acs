@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -149,5 +150,21 @@ public class SubjectAttributeResolverTest {
         Set<Attribute> combinedSubjectAttributes = resolver.getResult(null);
         Assert.assertNotNull(combinedSubjectAttributes);
         Assert.assertTrue(combinedSubjectAttributes.containsAll(supplementalSubjectAttributes));
+    }
+
+    @Test
+    public void testGetResult() {
+        BaseSubject testSubject = new BaseSubject();
+        testSubject.setSubjectIdentifier("/test/subject");
+
+        Set<Attribute> supplementalSubjectAttributes = new HashSet<>();
+        supplementalSubjectAttributes.add(new Attribute("https://acs.attributes.int", "site", "sanramon"));
+
+        this.privilegeManagementService.getBySubjectIdentifierAndScopes(testSubject.getSubjectIdentifier(), null);
+
+        SubjectAttributeResolver resolver = new SubjectAttributeResolver(this.privilegeManagementService,
+                testSubject.getSubjectIdentifier(), supplementalSubjectAttributes);
+
+        Set<Attribute> combinedSubjectAttributes = resolver.getResult(supplementalSubjectAttributes);
     }
 }
