@@ -240,7 +240,7 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
             saveParentRelationships(entity, entityVertex, false);
             entity.setId((long) entityVertex.id());
         } else {
-            verifyEntityReferencesNotCyclic(entity);
+//            verifyEntityReferencesNotCyclic(entity);
             GraphTraversal<Vertex, Vertex> traversal = this.graph.traversal().V(entity.getId());
             Vertex entityVertex = traversal.next();
             updateVertexProperties(entity, entityVertex);
