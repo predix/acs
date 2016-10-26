@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ge.predix</groupId>
     <artifactId>acs</artifactId>
-    <version>4.6.3</version>
+    <version>4.6.4</version>
     <name>Predix Access Control Services Parent</name>
     <packaging>pom</packaging>
     <organization>
@@ -54,11 +54,11 @@
         <lettuce.version>2.3.3</lettuce.version>
         <springframework.version>4.3.1.RELEASE</springframework.version>
         <springframework-boot.version>1.2.1.RELEASE</springframework-boot.version>
-        <spring-metering-filter.version>1.2.0</spring-metering-filter.version>
+        <spring-metering-filter.version>1.2.1</spring-metering-filter.version>
         <spring-cloud.version>1.0.5.RELEASE</spring-cloud.version>
         <spring-cloud-netflix.version>1.0.7.RELEASE</spring-cloud-netflix.version>
         <spring-data-redis.version>1.6.4.RELEASE</spring-data-redis.version>
-        <spring-log-filter.version>1.0.0</spring-log-filter.version>
+        <spring-log-filter.version>1.0.1</spring-log-filter.version>
         <springfox.swagger.version>2.2.2</springfox.swagger.version>
         <google.guava.version>18.0</google.guava.version>
         <swagger.annotations>1.5.0</swagger.annotations>
@@ -67,10 +67,10 @@
         <flyway.version>3.0</flyway.version>
         <spring-security-oauth2.version>2.0.3.RELEASE</spring-security-oauth2.version>
         <spring-security-jwt.version>1.0.2.RELEASE</spring-security-jwt.version>
-        <titandb.version>1.0.0</titandb.version>
+        <titandb.version>1.1.0-SNAPSHOT</titandb.version>
         <openjpa.version>2.4.0</openjpa.version>
         <postgres.version>9.3-1103-jdbc4</postgres.version>
-        <uaa-token-lib.version>3.1.1</uaa-token-lib.version>
+        <uaa-token-lib.version>3.1.6</uaa-token-lib.version>
 
         <!-- Test Dependency Version -->
         <mockito.version>1.9.0</mockito.version>
@@ -80,6 +80,20 @@
         <cucumber.testng.version>1.2.2</cucumber.testng.version>
         <groovy-all.version>2.4.4</groovy-all.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>staging</id>
+            <name>Maven Staging Repo</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <distributionManagement>
          <repository>

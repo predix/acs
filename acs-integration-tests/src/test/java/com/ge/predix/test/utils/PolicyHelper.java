@@ -20,9 +20,10 @@ import static com.ge.predix.test.utils.ACSTestUtil.ACS_VERSION;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Random;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -102,13 +103,37 @@ public class PolicyHelper {
 
     public PolicyEvaluationRequestV1 createRandomEvalRequest() {
         Random r = new Random(System.currentTimeMillis());
-        List<Attribute> subjectAttributes = new ArrayList<Attribute>();
+        Set<Attribute> subjectAttributes = Collections.emptySet();
         return this.createEvalRequest(ACTIONS[r.nextInt(4)], String.valueOf(r.nextLong()),
                 "/alarms/sites/" + String.valueOf(r.nextLong()), subjectAttributes);
     }
 
+    public PolicyEvaluationRequestV1 createMultiplePolicySetsEvalRequest(final String action,
+            final String subjectIdentifier, final String resourceIdentifier, final Set<Attribute> subjectAttributes,
+            final LinkedHashSet<String> policySetIds) {
+        PolicyEvaluationRequestV1 policyEvaluationRequest = new PolicyEvaluationRequestV1();
+        policyEvaluationRequest.setAction(action);
+        policyEvaluationRequest.setSubjectIdentifier(subjectIdentifier);
+        policyEvaluationRequest.setResourceIdentifier(resourceIdentifier);
+        policyEvaluationRequest.setSubjectAttributes(subjectAttributes);
+        policyEvaluationRequest.setPolicySetsEvaluationOrder(policySetIds);
+        return policyEvaluationRequest;
+    }
+
+    public PolicyEvaluationRequestV1 createMultiplePolicySetsEvalRequest(final String subjectIdentifier,
+            final String site, final LinkedHashSet<String> policySetIds) {
+        return createMultiplePolicySetsEvalRequest("GET", subjectIdentifier, "/secured-by-value/sites/" + site, null,
+                policySetIds);
+    }
+
+    public PolicyEvaluationRequestV1 createMultiplePolicySetsEvalRequest(final BaseSubject subject, final String site,
+            final LinkedHashSet<String> policySetIds) {
+        return createMultiplePolicySetsEvalRequest("GET", subject.getSubjectIdentifier(),
+                "/secured-by-value/sites/" + site, null, policySetIds);
+    }
+
     public PolicyEvaluationRequestV1 createEvalRequest(final String action, final String subjectIdentifier,
-            final String resourceIdentifier, final List<Attribute> subjectAttributes) {
+            final String resourceIdentifier, final Set<Attribute> subjectAttributes) {
         PolicyEvaluationRequestV1 policyEvaluationRequest = new PolicyEvaluationRequestV1();
         policyEvaluationRequest.setAction(action);
         policyEvaluationRequest.setSubjectIdentifier(subjectIdentifier);
