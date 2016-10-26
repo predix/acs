@@ -95,9 +95,8 @@ public class PolicyManagementServiceImpl implements PolicyManagementService {
                         policySetName, zone.toString()));
             }
         }
-        // Since we only support one policy set and we don't want to load that policy set when checking for a
-        // cached invalidation, we use a hard-coded value for the policy set key.
-        this.cache.resetForPolicySet(zone.getName(), "default");
+        
+        this.cache.resetForPolicySet(zone.getName(), policySetName);
         this.policySetRepository.save(policySetEntity);
     }
 
@@ -142,21 +141,21 @@ public class PolicyManagementServiceImpl implements PolicyManagementService {
     }
 
     @Override
-    public void deletePolicySet(final String policySetID) {
+    public void deletePolicySet(final String policySetId) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        PolicySetEntity policySetEntity = this.policySetRepository.getByZoneAndPolicySetId(zone, policySetID);
+        PolicySetEntity policySetEntity = this.policySetRepository.getByZoneAndPolicySetId(zone, policySetId);
         if (policySetEntity != null) {
             LOGGER.info(String.format("Found an existing policy set policySetName=%s, zone=%s, deleting now.",
-                    policySetID, zone.getName()));
+                    policySetId, zone.getName()));
             // Since we only support one policy set and we don't want to load that policy set when checking for a
             // cached invalidation, we use a hard-coded value for the policy set key.
-            this.cache.resetForPolicySet(zone.getName(), "default");
+            this.cache.resetForPolicySet(zone.getName(), policySetId);
             this.policySetRepository.delete(policySetEntity);
         } else {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(String.format(
                         "Cound not find an existing policy set " + "policySetName=%s, zone=%s, Could not delete it.",
-                        policySetID, zone.getName()));
+                        policySetId, zone.getName()));
             }
         }
     }
@@ -192,18 +191,5 @@ public class PolicyManagementServiceImpl implements PolicyManagementService {
             throw new PolicyManagementException(e.getMessage(), e);
         }
 
-        // Ensure there is only 1 policy-set in the repository
-        List<PolicySetEntity> policySets = this.policySetRepository.findByZone(zone);
-        if (policySets.isEmpty()) {
-            return;
-        }
-        String currentPolicySetName = policySets.get(0).getPolicySetID();
-        if (!currentPolicySetName.equals((policySet.getName()))) {
-            String errMsg = String.format(
-                    "Multiple policy sets file is not allowed. "
-                            + "Existing PolicySetName: %s, New PolicySetName: %s, zone: %s .",
-                    currentPolicySetName, policySet.getName(), zone.toString());
-            throw new PolicyManagementException(errMsg);
-        }
     }
 }

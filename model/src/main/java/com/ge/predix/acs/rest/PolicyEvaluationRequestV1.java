@@ -15,7 +15,8 @@
  *******************************************************************************/
 package com.ge.predix.acs.rest;
 
-import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -28,16 +29,19 @@ import io.swagger.annotations.ApiModelProperty;
 @SuppressWarnings({ "javadoc", "nls" })
 @ApiModel(description = "Policy evaluation request for V1.")
 public class PolicyEvaluationRequestV1 {
+    public static final LinkedHashSet<String> EMPTY_POLICY_EVALUATION_ORDER = new LinkedHashSet<String>();
 
     private String resourceIdentifier;
 
     private String subjectIdentifier;
 
-    private List<Attribute> subjectAttributes;
+    private Set<Attribute> subjectAttributes;
 
-    private List<Attribute> resourceAttributes;
+    private Set<Attribute> resourceAttributes;
 
     private String action;
+
+    private LinkedHashSet<String> policySetsEvaluationOrder = EMPTY_POLICY_EVALUATION_ORDER;
 
     @ApiModelProperty(value = "The resource URI to be consumed", required = true)
     public String getResourceIdentifier() {
@@ -58,11 +62,11 @@ public class PolicyEvaluationRequestV1 {
     }
 
     @ApiModelProperty(value = "Supplemental resource attributes provided by the requestor")
-    public List<Attribute> getResourceAttributes() {
+    public Set<Attribute> getResourceAttributes() {
         return this.resourceAttributes;
     }
 
-    public void setResourceAttributes(final List<Attribute> resourceAttributes) {
+    public void setResourceAttributes(final Set<Attribute> resourceAttributes) {
         this.resourceAttributes = resourceAttributes;
     }
 
@@ -70,7 +74,7 @@ public class PolicyEvaluationRequestV1 {
      * @return the subjectAttributes
      */
     @ApiModelProperty(value = "Supplemental subject attributes provided by the requestor")
-    public List<Attribute> getSubjectAttributes() {
+    public Set<Attribute> getSubjectAttributes() {
         return this.subjectAttributes;
     }
 
@@ -78,7 +82,7 @@ public class PolicyEvaluationRequestV1 {
      * @param subjectAttributes
      *            the subjectAttributes to set
      */
-    public void setSubjectAttributes(final List<Attribute> subjectAttributes) {
+    public void setSubjectAttributes(final Set<Attribute> subjectAttributes) {
         this.subjectAttributes = subjectAttributes;
     }
 
@@ -91,6 +95,20 @@ public class PolicyEvaluationRequestV1 {
         this.action = action;
     }
 
+    @ApiModelProperty(
+            value = "This list of policy set IDs specifies the order in which the service will evaluate policies. "
+                    + "Evaluation stops when a policy with matching target is found and the condition returns true, "
+                    + "Or all policies are exhausted.")
+    public LinkedHashSet<String> getPolicySetsEvaluationOrder() {
+        return this.policySetsEvaluationOrder;
+    }
+
+    public void setPolicySetsEvaluationOrder(final LinkedHashSet<String> policySetIds) {
+        if (policySetIds != null) {
+            this.policySetsEvaluationOrder = policySetIds;
+        }
+    }
+
     @Override
     public int hashCode() {
         HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
@@ -99,6 +117,9 @@ public class PolicyEvaluationRequestV1 {
             for (Attribute attribute : this.subjectAttributes) {
                 hashCodeBuilder.append(attribute);
             }
+        }
+        for (String policyID : this.policySetsEvaluationOrder) {
+            hashCodeBuilder.append(policyID);
         }
         return hashCodeBuilder.toHashCode();
     }
@@ -109,20 +130,15 @@ public class PolicyEvaluationRequestV1 {
         if (obj instanceof PolicyEvaluationRequestV1) {
             final PolicyEvaluationRequestV1 other = (PolicyEvaluationRequestV1) obj;
             EqualsBuilder equalsBuilder = new EqualsBuilder();
-            if ((null == this.subjectAttributes) && (null != other.subjectAttributes)) {
-                return false;
-            }
-            if ((null != this.subjectAttributes) && (null == other.subjectAttributes)) {
-                return false;
-            }
-            if ((null != this.subjectAttributes) && (this.subjectAttributes.size() != other.subjectAttributes.size())) {
-                return false;
-            }
-            if ((null != this.subjectAttributes) && (this.subjectAttributes.size() == other.subjectAttributes.size())) {
-                for (int i = 0; i < this.subjectAttributes.size(); i++) {
-                    equalsBuilder.append(this.subjectAttributes.get(i), other.subjectAttributes.get(i));
-                }
-            }
+
+            // Element by element comparison may produce true negative in Sets so use built in equals
+            // From AbstractSet's (HashSet's ancestor) documentation
+            // This implementation first checks if the specified object is this set; if so it returns true.
+            // Then, it checks if the specified object is a set whose size is identical to the size of this set;
+            // if not, it returns false. If so, it returns containsAll((Collection) o).
+            equalsBuilder.append(this.subjectAttributes, other.subjectAttributes);
+            equalsBuilder.append(this.policySetsEvaluationOrder, other.policySetsEvaluationOrder);
+
             equalsBuilder.append(this.action, other.action).append(this.resourceIdentifier, other.resourceIdentifier)
                     .append(this.subjectIdentifier, other.subjectIdentifier);
             return equalsBuilder.isEquals();
