@@ -476,7 +476,7 @@
                                 <service>
                                     <name>${acs.db}</name>
                                     <label>postgres</label>
-                                    <plan><plan>shared-nr</plan></plan>
+                                    <plan>shared-nr</plan>
                                 </service>
                                 <service>
                                     <name>${acs.redis}</name>
