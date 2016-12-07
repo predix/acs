@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.ge.predix</groupId>
         <artifactId>acs</artifactId>
-        <version>4.6.4</version>
+        <version>4.6.5</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -40,7 +40,7 @@
         <acs.appname>acs-ci-${jenkins.build.number}</acs.appname>
         <acs.db>acs-db-ci-${jenkins.build.number}</acs.db>
         <acs.redis>acs-redis-ci-${jenkins.build.number}</acs.redis>
-        <acs.cf.domain>predix-acs-test</acs.cf.domain>
+        <acs.cf.domain>predix-acs-integration</acs.cf.domain>
         <acs.zone.subdomain>test-zone-${zone.var}</acs.zone.subdomain>
         <cf.base.domain>${CF_BASE_DOMAIN}</cf.base.domain>
         <uaa.zone>acs.</uaa.zone>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>com.ge.predix</groupId>
             <artifactId>acs-service</artifactId>
-            <version>4.6.4</version>
+            <version>4.6.5</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -164,6 +164,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-integration</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.nurego</groupId>
@@ -232,6 +242,7 @@
                             <excludes>
                                 <exclude>**/ACSPerformanceIT.java</exclude>
                                 <exclude>**/PolicyEvalCachingWithGraphDBIT.java</exclude>
+                                <exclude>**/Hierarchical*IT.java</exclude>
                             </excludes>
                             <includes>
                                 <include>**/*IT.java</include>
@@ -266,6 +277,7 @@
                             <space>${cf.space}</space>
                             <appname>${acs.appname}</appname>
                             <memory>1024</memory>
+                            <buildpack>java_buildpack</buildpack>
                             <env>
                                 <ACS_BASE_DOMAIN>${acs.cf.domain}.${cf.base.domain}</ACS_BASE_DOMAIN>
                                 <ACS_DB>${acs.db}</ACS_DB>
@@ -282,16 +294,22 @@
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
                                 <ZAC_URL>${ZAC_URL}</ZAC_URL>
                                 <ENABLED_REDIS_HEALTH_CHECK>true</ENABLED_REDIS_HEALTH_CHECK>
+                                <DEPLOYMENT_TYPE>${DEPLOYMENT_TYPE}</DEPLOYMENT_TYPE>
+                                <BASE_APP_NAME>${BASE_APP_NAME}</BASE_APP_NAME>
+                                <CONFIG_CLIENT_ID>${CONFIG_CLIENT_ID}</CONFIG_CLIENT_ID>
+                                <CONFIG_CLIENT_SECRET>${CONFIG_CLIENT_SECRET}</CONFIG_CLIENT_SECRET>
+                                <CONFIG_SERVER_URI>${CONFIG_SERVER_URI}</CONFIG_SERVER_URI>
+                                <CONFIG_OAUTH_TOKEN_URI>${CONFIG_OAUTH_TOKEN_URI}</CONFIG_OAUTH_TOKEN_URI>
                             </env>
                             <services>
                                 <service>
                                     <name>${acs.db}</name>
-                                    <label>postgresql93-1</label>
-                                    <plan>free</plan>
+                                    <label>postgres</label>
+                                    <plan>shared-nr</plan>
                                 </service>
                                 <service>
                                     <name>${acs.redis}</name>
-                                    <label>p-redis</label>
+                                    <label>redis</label>
                                     <plan>shared-vm</plan>
                                 </service>
 <!--                                 <service> -->
@@ -391,6 +409,7 @@
                             </systemPropertyVariables>
                             <excludes>
                                 <exclude>**/ACSPerformanceIT.java</exclude>
+                                <exclude>**/NonHierarchical*IT.java</exclude>
                             </excludes>
                             <includes>
                                 <include>**/*IT.java</include>
@@ -425,6 +444,7 @@
                             <space>${cf.space}</space>
                             <appname>${acs.appname}</appname>
                             <memory>1024</memory>
+                            <buildpack>java_buildpack</buildpack>
                             <env>
                                 <ACS_BASE_DOMAIN>${acs.cf.domain}.${cf.base.domain}</ACS_BASE_DOMAIN>
                                 <ACS_DB>${acs.db}</ACS_DB>
@@ -447,16 +467,22 @@
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
                                 <ZAC_URL>${ZAC_URL}</ZAC_URL>
                                 <ENABLED_REDIS_HEALTH_CHECK>true</ENABLED_REDIS_HEALTH_CHECK>
+                                <DEPLOYMENT_TYPE>${DEPLOYMENT_TYPE}</DEPLOYMENT_TYPE>
+                                <BASE_APP_NAME>${BASE_APP_NAME}</BASE_APP_NAME>
+                                <CONFIG_CLIENT_ID>${CONFIG_CLIENT_ID}</CONFIG_CLIENT_ID>
+                                <CONFIG_CLIENT_SECRET>${CONFIG_CLIENT_SECRET}</CONFIG_CLIENT_SECRET>
+                                <CONFIG_SERVER_URI>${CONFIG_SERVER_URI}</CONFIG_SERVER_URI>
+                                <CONFIG_OAUTH_TOKEN_URI>${CONFIG_OAUTH_TOKEN_URI}</CONFIG_OAUTH_TOKEN_URI>
                             </env>
                             <services>
                                 <service>
                                     <name>${acs.db}</name>
-                                    <label>postgresql93-1</label>
-                                    <plan>free</plan>
+                                    <label>postgres</label>
+                                    <plan>shared-nr</plan>
                                 </service>
                                 <service>
                                     <name>${acs.redis}</name>
-                                    <label>p-redis</label>
+                                    <label>redis</label>
                                     <plan>shared-vm</plan>
                                 </service>
                             </services>
@@ -541,6 +567,7 @@
                             <excludes>
                                 <exclude>**/ACSPerformanceIT.java</exclude>
                                 <exclude>**/PolicyEvalCachingWithGraphDBIT.java</exclude>
+                                <exclude>**/NonHierarchical*IT.java</exclude>
                             </excludes>
                             <includes>
                                 <include>**/*IT.java</include>
@@ -658,6 +685,9 @@
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng-public.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                            <excludes>
+                                <exclude>**/Hierarchical*IT.java</exclude>
+                            </excludes>
                         </configuration>
                         <executions>
                             <execution>
@@ -763,6 +793,9 @@
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng-public-titan.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                            <excludes>
+                                <exclude>**/NonHierarchical*IT.java</exclude>
+                            </excludes>
                         </configuration>
                         <executions>
                             <execution>
@@ -830,6 +863,9 @@
                             <includes>
                                 <include>**/ACSAcceptanceIT.java</include>
                             </includes>
+                            <excludes>
+                                <exclude>**/NonHierarchical*IT.java</exclude>
+                            </excludes>
                         </configuration>
                         <executions>
                             <execution>

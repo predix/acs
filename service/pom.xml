@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.ge.predix</groupId>
         <artifactId>acs</artifactId>
-        <version>4.6.4</version>
+        <version>4.6.5</version>
         <relativePath>../</relativePath>
     </parent>
     <artifactId>acs-service</artifactId>
@@ -41,11 +41,16 @@
  		</dependencies>
  	</dependencyManagement>
     <dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${springframework.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.ge.predix</groupId>
+            <artifactId>security-dynamic-log-configurer</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${springframework.version}</version>
+        </dependency>
         <!-- Begin dependencies added for Hystrix circuit breaker functionality. -->
         <dependency>
             <groupId>commons-configuration</groupId>
@@ -98,6 +103,14 @@
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -119,6 +132,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -139,6 +162,14 @@
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -394,6 +425,9 @@
                         <ZAC_CLIENT_ID>fake-client</ZAC_CLIENT_ID>
                         <ZAC_CLIENT_SECRET>fake-client</ZAC_CLIENT_SECRET>
                     </systemProperties>
+                    <excludes>
+                        <exclude>**/NonHierarchical*IT.java</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -545,6 +579,7 @@
                             <excludes>
                                 <!-- Exclude graph database specific test for postgres profile -->
                                 <exclude>**/PolicyEvalWithGraphDbControllerIT.java</exclude>
+                                <exclude>**/Hierarchical*IT.java</exclude>
                             </excludes>
                         </configuration>
                         <executions>
