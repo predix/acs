@@ -188,11 +188,11 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
             Assert.assertTrue(evalPolicyResponse.getSubjectAttributes()
                     .contains(new Attribute(ISSUER, SUBJECT_ATTRIB_NAME_ROLE, acsSubjectAttributeValue)));
         }
-        if (subjectAttributes != null) {
-            for (Attribute attribute : subjectAttributes) {
-                Assert.assertTrue(evalPolicyResponse.getSubjectAttributes().contains(attribute));
-            }
+        
+        for (Attribute attribute : subjectAttributes) {
+            Assert.assertTrue(evalPolicyResponse.getSubjectAttributes().contains(attribute));
         }
+        
     }
 
     @Test(
