@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright 2016 General Electric Company. 
-   
-    Licensed under the Apache License, Version 2.0 (the "License"); 
-    you may not use this file except in compliance with the License. 
+    Copyright 2016 General Electric Company.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-   
+
     http://www.apache.org/licenses/LICENSE-2.0
-   
-    Unless required by applicable law or agreed to in writing, software 
-    distributed under the License is distributed on an "AS IS" BASIS, 
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-    See the License for the specific language governing permissions and 
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
     limitations under the License.
  -->
 
@@ -53,7 +53,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- All tests in this project are run using failsafe. 
+                    <!-- All tests in this project are run using failsafe.
                         Skip test phase -->
                     <skip>true</skip>
                 </configuration>
@@ -125,7 +125,7 @@
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
             <version>2.0.3.RELEASE</version><!--$NO-MVN-MAN-VER$-->
-            <!-- These transitive dependencies are incompatible with spring 
+            <!-- These transitive dependencies are incompatible with spring
                 core dependencies pulled in by spring boot -->
             <exclusions>
                 <exclusion>
@@ -198,7 +198,7 @@
 
     <profiles>
         <profile>
-            <id>cloud</id>
+            <id>predix-cloud</id>
             <build>
                 <plugins>
                     <plugin>
@@ -366,7 +366,7 @@
         </profile>
 
         <profile>
-            <id>cloud-titan</id>
+            <id>predix-cloud-titan</id>
             <build>
                 <plugins>
                     <plugin>
@@ -536,7 +536,67 @@
         </profile>
 
         <profile>
-            <id>local</id>
+            <id>predix-local</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <forkCount>0</forkCount>
+                            <parallel>methods</parallel>
+                            <argLine></argLine>
+                            <systemPropertyVariables>
+                                <ACS_DEFAULT_ISSUER_ID>${ACS_DEFAULT_ISSUER_ID}</ACS_DEFAULT_ISSUER_ID>
+                                <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
+                                <ACS_URL>http://localhost:8181</ACS_URL>
+                                <NUREGO_API_URL>${NUREGO_API_URL}</NUREGO_API_URL>
+                                <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
+                                <ZAC_URL>http://localhost:8888</ZAC_URL>
+                                <!-- ACS zones (a.k.a tenancies) used for the tests -->
+                                <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
+                                <ZONE1_UAA_URL>${ZONE1_UAA_URL}</ZONE1_UAA_URL>
+                                <ZONE2_NAME>${acs.zone.subdomain}2</ZONE2_NAME>
+                                <ZONE2_UAA_URL>${ZONE2_UAA_URL}</ZONE2_UAA_URL>
+                                <ZONE3_NAME>${acs.zone.subdomain}3</ZONE3_NAME>
+                                <!-- proxy settings -->
+                                <http.nonProxyHosts>${NON_PROXY_HOSTS}</http.nonProxyHosts>
+                                <https.proxyHost>${HTTPS_PROXY_HOST}</https.proxyHost>
+                                <https.proxyPort>${HTTPS_PROXY_PORT}</https.proxyPort>
+                            </systemPropertyVariables>
+                            <excludes>
+                                <exclude>**/ACSPerformanceIT.java</exclude>
+                                <exclude>**/PolicyEvalCachingWithGraphDBIT.java</exclude>
+                                <exclude>**/Hierarchical*IT.java</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*IT.java</include>
+                                <include>**/*Cucumber*.java</include>
+                                <!-- Uncomment to run migration tests, manually -->
+                                <!-- <include>**/migration/AttributeMigrationTest.java</include> -->
+                            </includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integ-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>predix-local-titan</id>
             <build>
                 <plugins>
                     <plugin>
@@ -572,7 +632,7 @@
                             <includes>
                                 <include>**/*IT.java</include>
                                 <include>**/*Cucumber*.java</include>
-                                <!-- Uncomment to run migration tests, manually --> 
+                                <!-- Uncomment to run migration tests, manually -->
                                 <!-- <include>**/migration/AttributeMigrationTest.java</include> -->
                             </includes>
                         </configuration>
