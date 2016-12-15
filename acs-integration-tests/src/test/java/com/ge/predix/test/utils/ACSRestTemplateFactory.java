@@ -141,6 +141,7 @@ public class ACSRestTemplateFactory {
 
         return this.zone2AdminACSTemplate;
     }
+
     public OAuth2RestTemplate getOAuth2ResttemplateForZAC() {
         if (this.zacTemplate == null) {
             ClientCredentialsResourceDetails resource = new ClientCredentialsResourceDetails();
@@ -175,7 +176,8 @@ public class ACSRestTemplateFactory {
     }
 
     public OAuth2RestTemplate getOAuth2RestTemplateForNoPolicyScopeClient() {
-        return getOAuth2RestTemplateForClient(this.acsNoPolicyScopeClientId, this.acsNoPolicyScopeClientSecret, this.uaaTokenUrl);
+        return getOAuth2RestTemplateForClient(this.acsNoPolicyScopeClientId, this.acsNoPolicyScopeClientSecret,
+                this.uaaTokenUrl);
     }
 
     public OAuth2RestTemplate getOAuth2RestTemplateForClient(final String clientId, final String clientSecret,

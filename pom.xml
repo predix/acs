@@ -211,6 +211,7 @@
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <logViolationsToConsole>true</logViolationsToConsole>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <linkXRef>false</linkXRef>
                         </configuration>
                         <goals>

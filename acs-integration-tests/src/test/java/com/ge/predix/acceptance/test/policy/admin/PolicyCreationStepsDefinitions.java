@@ -68,14 +68,14 @@ public class PolicyCreationStepsDefinitions {
     private ZacTestUtil zacTestUtil;
 
     @Autowired
-    Environment env;
+    private Environment env;
 
     @Autowired
     private ACSRestTemplateFactory acsRestTemplateFactory;
 
     private String testPolicyName;
 
-    CreatePolicyStatus status;
+    private CreatePolicyStatus status;
 
     private String zone1Url;
     private OAuth2RestTemplate acsAdminRestTemplate;
@@ -110,33 +110,33 @@ public class PolicyCreationStepsDefinitions {
     }
 
     @Given("^A policy with no action defined$")
-    public void a_policy_with_no_action_defined() throws Throwable {
+    public void aPolicyWithNoActionDefined() throws Throwable {
         this.testPolicyName = "no-defined-action-policy-set";
         this.status = this.policyHelper.createPolicySet("src/test/resources/no-defined-action-policy-set.json",
                 this.acsAdminRestTemplate, this.zone1Url);
     }
 
     @Given("^A policy with single valid action defined$")
-    public void a_policy_with_single_valid_action_defined() throws Throwable {
+    public void aPolicyWithSingleValidActionDefined() throws Throwable {
         this.testPolicyName = "single-action-defined-policy-set";
         this.status = this.policyHelper.createPolicySet("src/test/resources/single-action-defined-policy-set.json",
                 this.acsAdminRestTemplate, this.zone1Url);
     }
 
     @Given("^A policy with multiple valid actions defined$")
-    public void a_policy_with_multiple_valid_actions_defined() throws Throwable {
+    public void aPolicyWithMultipleValidActionsDefined() throws Throwable {
         this.testPolicyName = "multiple-actions-defined-policy-set";
         this.status = this.policyHelper.createPolicySet("src/test/resources/multiple-actions-defined-policy-set.json",
                 this.acsAdminRestTemplate, this.zone1Url);
     }
 
     @Then("^the policy creation returns (.*)$")
-    public void the_policy_creation_returns(final String effect) throws Throwable {
+    public void thePolicyCreationReturns(final String effect) throws Throwable {
         Assert.assertEquals(this.status.toString(), effect);
     }
 
     @Given("^A policy with single invalid action defined")
-    public void policy_with_single_invalid_action_defined() throws Throwable {
+    public void policyWithSingleInvalidActionDefined() throws Throwable {
         this.testPolicyName = "single-invalid-action-defined-policy-set";
         this.status = this.policyHelper.createPolicySet(
                 "src/test/resources/single-invalid-action-defined-policy-set.json", this.acsAdminRestTemplate,
@@ -144,7 +144,7 @@ public class PolicyCreationStepsDefinitions {
     }
 
     @Given("^A policy with multiple actions containing one invalid action defined")
-    public void policy_with_multiple_actions_containing_one_invalid_action_defined() throws Throwable {
+    public void policyWithMultipleActionsContainingOneInvalidActionDefined() throws Throwable {
         this.testPolicyName = "multiple-actions-with-single-invalid-action-defined-policy-set";
         this.status = this.policyHelper.createPolicySet(
                 "src/test/resources/multiple-actions-with-single-invalid-action-defined-policy-set.json",

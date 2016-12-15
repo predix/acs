@@ -86,7 +86,7 @@ public class ZoneEnforcementStepsDefinitions {
     private ZacTestUtil zacTestUtil;
 
     @Autowired
-    Environment env;
+    private Environment env;
 
     private String zone1Url;
 
@@ -137,8 +137,8 @@ public class ZoneEnforcementStepsDefinitions {
         UaaTestUtil uaaTestUtil = new UaaTestUtil(this.acsRestTemplateFactory.getOAuth2RestTemplateForUaaAdmin(),
                 this.uaaUrl);
         uaaTestUtil.setup(Arrays.asList(new String[] { this.zone1Name, this.zone2Name }));
-        uaaTestUtil.setupAcsZoneClient(this.zone1Name,"zone1AdminClient", "zone1AdminClientSecret");
-        uaaTestUtil.setupAcsZoneClient(this.zone2Name,"zone2AdminClient", "zone2AdminClientSecret");
+        uaaTestUtil.setupAcsZoneClient(this.zone1Name, "zone1AdminClient", "zone1AdminClientSecret");
+        uaaTestUtil.setupAcsZoneClient(this.zone2Name, "zone2AdminClient", "zone2AdminClientSecret");
         this.acsAdminRestTemplate = this.acsRestTemplateFactory.getOAuth2RestTemplateForAcsAdmin();
         this.acsZone1Template = this.acsRestTemplateFactory.getOAuth2RestTemplateForZone1AdminClient();
         this.acsZone2Template = this.acsRestTemplateFactory.getOAuth2RestTemplateForZone2AdminClient();
@@ -149,7 +149,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @Given("^zone 1 and zone (.*?)")
-    public void given_zone_1_and_zone(final String subdomainSuffix) throws Throwable {
+    public void givenZone1AndZone(final String subdomainSuffix) throws Throwable {
         Map<String, Object> trustedIssuers = new HashMap<>();
         // create acs zone 2 which trusts the zone 2 issuer
         // for the public profile, the zone 2 issuer is the same as the primary zone issuer
@@ -158,7 +158,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @When("^client_two does a PUT on (.*?) with (.*?) in zone (.*?)$")
-    public void client_two_does_a_PUT_on_subject_with_subject_id__in_zone(final String api, final String identifier,
+    public void clientTwoDoesAPUTOnSubjectWithSubjectIdInZone(final String api, final String identifier,
             final String subdomainSuffix) throws Throwable {
         String clientZoneUrl;
         OAuth2RestTemplate acsTemplate = this.acsZone2Template;
@@ -195,7 +195,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @When("^client_two does a GET on (.*?) with (.*?) in zone (.*?)$")
-    public void client_two_does_a_GET_on_subject_with_subject_id__in_zone(final String api, final String identifier,
+    public void clientTwoDoesAGETOnSubjectWithSubjectIdInZone(final String api, final String identifier,
             final String subdomainSuffix) throws Throwable {
 
         OAuth2RestTemplate acsTemplate = this.acsZone2Template;
@@ -233,7 +233,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @When("^client_one does a PUT on (.*?) with (.*?) in zone 1$")
-    public void client_one_does_a_PUT_on_identifier_in_test_zone(final String api, final String identifier)
+    public void clientOneDoesAPUTOnIdentifierInTestZone(final String api, final String identifier)
             throws Throwable {
         OAuth2RestTemplate acsTemplate = this.acsZone1Template;
         try {
@@ -260,7 +260,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @When("^client_one does a GET on (.*?) with (.*?) in zone 1$")
-    public void client_one_does_a_GET_on_api_with_identifier_in_test_zone_dev(final String api, final String identifier)
+    public void clientOneDoesAGETOnApiWithIdentifierInTestZoneDev(final String api, final String identifier)
             throws Throwable {
         OAuth2RestTemplate acsTemplate = this.acsZone1Template;
         String encodedIdentifier = URLEncoder.encode(identifier, "UTF-8");
@@ -289,7 +289,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @When("^client_one does a DELETE on (.*?) with (.*?) in zone 1$")
-    public void client_one_does_a_DELETE_on_api_with_identifier_in_test_zone_dev(final String api,
+    public void clientOneDoesADELETEOnApiWithIdentifierInTestZoneDev(final String api,
             final String identifier) throws Throwable {
         String encodedIdentifier = URLEncoder.encode(identifier, "UTF-8");
         URI uri = URI.create(this.zoneUrlWithV1 + "/" + api + "/" + encodedIdentifier);
@@ -302,7 +302,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @When("^client_two does a DELETE on (.*?) with (.*?) in zone (.*?)$")
-    public void client_two_does_a_DELETE_on_api_with_identifier_in_test_zone_dev(final String api,
+    public void clientTwoDoesADELETEOnApiWithIdentifierInTestZoneDev(final String api,
             final String identifier, final String subdomain) throws Throwable {
 
         OAuth2RestTemplate acsTemplate = this.acsZone2Template;
@@ -332,7 +332,7 @@ public class ZoneEnforcementStepsDefinitions {
     }
 
     @Then("^the request has status code (\\d+)$")
-    public void the_request_has_status_code(final int statusCode) throws Throwable {
+    public void theRequestHasStatusCode(final int statusCode) throws Throwable {
         // Asserts are done in when statements because global status variable
         // gets reset before this check is done
         Assert.assertEquals(this.status, statusCode);
