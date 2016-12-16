@@ -60,12 +60,11 @@ public class V2_0_1__InitializeIdentityZones implements SpringJdbcMigration {
 
             @Override
             public PreparedStatement createPreparedStatement(final Connection connection) throws SQLException {
-                try (PreparedStatement ps = connection.prepareStatement(insertZoneSql, new String[] { "id" })) {
-                    ps.setString(1, "apm-migrated");
-                    ps.setString(2, "APM Migrated Zone from mvp1");
-                    ps.setString(3, "apm-migrated");
-                    return ps;
-                }
+                PreparedStatement ps = connection.prepareStatement(insertZoneSql, new String[] { "id" });
+                ps.setString(1, "apm-migrated");
+                ps.setString(2, "APM Migrated Zone from mvp1");
+                ps.setString(3, "apm-migrated");
+                return ps;
             }
         }, holder);
 
