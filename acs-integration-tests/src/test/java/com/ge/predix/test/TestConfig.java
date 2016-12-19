@@ -9,7 +9,6 @@ public final class TestConfig {
     
     private TestConfig() {
         //not called
-        throw new IllegalAccessError("Class is non-instantiable");
      }
 
     private static boolean acsStarted;
