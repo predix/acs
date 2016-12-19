@@ -210,8 +210,8 @@
                             <parallel>false</parallel>
                             <!-- us32088: Place test reports outside of target directory so reports are not removed by 'mvn clean'
                                  and retained by Jenkins for each profile -->
-                            <reportsDirectory>${basedir}/failsafe-reports-cloud</reportsDirectory>
-                            <summaryFile>${basedir}/failsafe-reports-cloud/failsafe-summary.xml</summaryFile>
+                            <reportsDirectory>${basedir}/failsafe-reports-predix-cloud</reportsDirectory>
+                            <summaryFile>${basedir}/failsafe-reports-predix-cloud/failsafe-summary.xml</summaryFile>
                             <systemPropertyVariables>
                                 <ACS_CF_DOMAIN>${acs.cf.domain}</ACS_CF_DOMAIN>
                                 <ACS_DEFAULT_ISSUER_ID>${ACS_DEFAULT_ISSUER_ID}</ACS_DEFAULT_ISSUER_ID>
@@ -377,8 +377,8 @@
                             <parallel>false</parallel>
                             <!-- us32088: Place test reports outside of target directory so reports are not removed by 'mvn clean'
                                  and retained by Jenkins for each profile -->
-                            <reportsDirectory>${basedir}/failsafe-reports-cloud-titan</reportsDirectory>
-                            <summaryFile>${basedir}/failsafe-reports-cloud-titan/failsafe-summary.xml</summaryFile>
+                            <reportsDirectory>${basedir}/failsafe-reports-predix-cloud-titan</reportsDirectory>
+                            <summaryFile>${basedir}/failsafe-reports-predix-cloud-titan/failsafe-summary.xml</summaryFile>
                             <systemPropertyVariables>
                                 <ACS_CF_DOMAIN>${acs.cf.domain}</ACS_CF_DOMAIN>
                                 <ACS_DEFAULT_ISSUER_ID>${ACS_DEFAULT_ISSUER_ID}</ACS_DEFAULT_ISSUER_ID>
