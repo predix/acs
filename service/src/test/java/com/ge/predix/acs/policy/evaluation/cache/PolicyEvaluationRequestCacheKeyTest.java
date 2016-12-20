@@ -1,7 +1,6 @@
 package com.ge.predix.acs.policy.evaluation.cache;
 
 import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.testng.annotations.Test;
 
 import java.util.LinkedHashSet;
@@ -72,7 +71,6 @@ public class PolicyEvaluationRequestCacheKeyTest {
     }
 
     @SuppressWarnings("unused")
-    @SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE")
     @Test(expectedExceptions = IllegalStateException.class)
     public void testIllegalStateExceptionForSettingPolicySetIds() {
         PolicyEvaluationRequestV1 request = new PolicyEvaluationRequestV1();
@@ -86,7 +84,6 @@ public class PolicyEvaluationRequestCacheKeyTest {
     }
 
     @SuppressWarnings("unused")
-    @SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE")
     @Test(expectedExceptions = IllegalStateException.class)
     public void testIllegalStateExceptionForSettingSubjectId() {
         PolicyEvaluationRequestV1 request = new PolicyEvaluationRequestV1();
@@ -98,7 +95,6 @@ public class PolicyEvaluationRequestCacheKeyTest {
     }
 
     @SuppressWarnings("unused")
-    @SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE")
     @Test(expectedExceptions = IllegalStateException.class)
     public void testIllegalStateExceptionForSettingResourceId() {
         PolicyEvaluationRequestV1 request = new PolicyEvaluationRequestV1();

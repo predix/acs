@@ -363,7 +363,7 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     private Object[] filterTwoPolisySetsByEmptyList(final List<PolicySet> twoPolicySets) {
-        return new Object[] { twoPolicySets, PolicyEvaluationRequestV1.getEmptyPolicyEvaluationOrder() };
+        return new Object[] { twoPolicySets, PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER };
     }
 
     private Object[] filterTwoPolicySetsByByNonexistentPolicySet(final List<PolicySet> twoPolicySets) {
@@ -408,7 +408,7 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     private Object[] filterOnePolicySetByEmptyEvaluationOrder(final List<PolicySet> onePolicySet) {
-        return new Object[] { onePolicySet, PolicyEvaluationRequestV1.getEmptyPolicyEvaluationOrder(),
+        return new Object[] { onePolicySet, PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER,
                 onePolicySet.stream().collect(Collectors.toCollection(LinkedHashSet::new)) };
     }
 
@@ -449,11 +449,11 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     private Object[] requestEvaluationWithOnePolicySetAndEmptyPriorityList(final List<PolicySet> onePolicySet) {
-        return new Object[] { onePolicySet, PolicyEvaluationRequestV1.getEmptyPolicyEvaluationOrder(), Effect.DENY };
+        return new Object[] { onePolicySet, PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER, Effect.DENY };
     }
 
     private Object[] requestEvaluationWithEmptyPolicySetsListAndEmptyPriorityList() {
-        return new Object[] { Collections.emptyList(), PolicyEvaluationRequestV1.getEmptyPolicyEvaluationOrder(),
+        return new Object[] { Collections.emptyList(), PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER,
                 Effect.NOT_APPLICABLE };
     }
 

@@ -27,7 +27,7 @@ import java.util.Set;
 @SuppressWarnings({ "javadoc", "nls" })
 @ApiModel(description = "Policy evaluation request for V1.")
 public class PolicyEvaluationRequestV1 {
-    private static final LinkedHashSet<String> EMPTY_POLICY_EVALUATION_ORDER = new LinkedHashSet<String>();
+    public static final LinkedHashSet<String> EMPTY_POLICY_EVALUATION_ORDER = new LinkedHashSet<String>();
 
     private String resourceIdentifier;
 
@@ -40,10 +40,6 @@ public class PolicyEvaluationRequestV1 {
     private String action;
 
     private LinkedHashSet<String> policySetsEvaluationOrder = EMPTY_POLICY_EVALUATION_ORDER;
-
-    public static LinkedHashSet<String> getEmptyPolicyEvaluationOrder() {
-        return EMPTY_POLICY_EVALUATION_ORDER;
-    }
 
     @ApiModelProperty(value = "The resource URI to be consumed", required = true)
     public String getResourceIdentifier() {

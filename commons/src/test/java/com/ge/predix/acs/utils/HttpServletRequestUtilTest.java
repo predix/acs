@@ -15,7 +15,6 @@
  *******************************************************************************/
 package com.ge.predix.acs.utils;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -85,7 +84,6 @@ public class HttpServletRequestUtilTest {
         Assert.assertNull(HttpServletRequestUtil.getSubdomain(hostname, domain));
     }
 
-    @SuppressFBWarnings(value = "NP_NULL_PARAM_DEREF_NONVIRTUAL")
     @Test(expectedExceptions = NullPointerException.class)
     public void getSubdomainNullHostname() {
         String hostname = null;

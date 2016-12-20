@@ -138,7 +138,7 @@ public class PolicyEvaluationControllerIT extends AbstractTestNGSpringContextTes
         return new Object[] {
                 createPolicyEvalRequest("GET", this.testResource.getResourceIdentifier(),
                                         this.testSubject.getSubjectIdentifier(),
-                                        PolicyEvaluationRequestV1.getEmptyPolicyEvaluationOrder()),
+                                        PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER),
                 Collections.emptyList(), Effect.NOT_APPLICABLE };
     }
 
@@ -173,7 +173,7 @@ public class PolicyEvaluationControllerIT extends AbstractTestNGSpringContextTes
         return new Object[] {
                 createPolicyEvalRequest("GET", this.testResource.getResourceIdentifier(),
                                         this.testSubject.getSubjectIdentifier(),
-                                        PolicyEvaluationRequestV1.getEmptyPolicyEvaluationOrder()),
+                                        PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER),
                 this.denyPolicySet, Effect.DENY };
     }
 
@@ -208,7 +208,7 @@ public class PolicyEvaluationControllerIT extends AbstractTestNGSpringContextTes
         return new Object[] {
                 createPolicyEvalRequest("GET", this.testResource.getResourceIdentifier(),
                                         this.testSubject.getSubjectIdentifier(),
-                                        PolicyEvaluationRequestV1.getEmptyPolicyEvaluationOrder()),
+                                        PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER),
                 this.notApplicableAndDenyPolicySets };
     }
 
