@@ -16,23 +16,23 @@
 
 package com.ge.predix.acs.policy.evaluation.cache;
 
-import java.util.LinkedHashSet;
-
+import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
+import java.util.Collections;
+import java.util.Set;
 
 public class PolicyEvaluationRequestCacheKey {
 
     private final PolicyEvaluationRequestV1 request;
-    private final LinkedHashSet<String> policySetIds;
+    private final Set<String> policySetIds;
     private final String resourceId;
     private final String subjectId;
     private final String zoneId;
 
     public PolicyEvaluationRequestCacheKey(final PolicyEvaluationRequestV1 request,
-            final LinkedHashSet<String> policySetIds, final String zoneId) {
+            final Set<String> policySetIds, final String zoneId) {
         this.request = request;
         this.policySetIds = policySetIds;
         this.resourceId = request.getResourceIdentifier();
@@ -40,7 +40,7 @@ public class PolicyEvaluationRequestCacheKey {
         this.zoneId = zoneId;
     }
 
-    public PolicyEvaluationRequestCacheKey(final LinkedHashSet<String> policySetIds, final String resourceId,
+    public PolicyEvaluationRequestCacheKey(final Set<String> policySetIds, final String resourceId,
             final String subjectId, final String zoneId) {
         this.request = null;
         this.policySetIds = policySetIds;
@@ -95,7 +95,7 @@ public class PolicyEvaluationRequestCacheKey {
         return this.request;
     }
 
-    public LinkedHashSet<String> getPolicySetIds() {
+    public Set<String> getPolicySetIds() {
         return this.policySetIds;
     }
 
@@ -113,7 +113,7 @@ public class PolicyEvaluationRequestCacheKey {
 
     public static class Builder {
         private PolicyEvaluationRequestV1 builderRequest;
-        private LinkedHashSet<String> builderPolicySetIds = new LinkedHashSet<String>();
+        private Set<String> builderPolicySetIds = Collections.emptySet();
         private String builderResourceId;
         private String builderSubjectId;
         private String builderZoneId;
@@ -123,7 +123,7 @@ public class PolicyEvaluationRequestCacheKey {
             return this;
         }
 
-        public Builder policySetIds(final LinkedHashSet<String> policySets) {
+        public Builder policySetIds(final Set<String> policySets) {
             if (null != this.builderRequest && !this.builderRequest.getPolicySetsEvaluationOrder().isEmpty()) {
                 throw new IllegalStateException(
                         "Cannot set policy sets evaluation order if set in the policy request.");

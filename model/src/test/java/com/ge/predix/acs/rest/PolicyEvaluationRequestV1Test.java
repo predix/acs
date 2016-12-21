@@ -16,23 +16,23 @@
 
 package com.ge.predix.acs.rest;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.ge.predix.acs.model.Attribute;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.ge.predix.acs.model.Attribute;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PolicyEvaluationRequestV1Test {
 
-    public static final LinkedHashSet<String> EVALUATION_ORDER_P1_P2 = Stream.of("P1", "P2")
-            .collect(Collectors.toCollection(LinkedHashSet::new));
-    public static final LinkedHashSet<String> EVALUATION_ORDER_P2_P1 = Stream.of("P2", "P1")
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+    public static final Set<String> EVALUATION_ORDER_P1_P2 =
+        Stream.of("P1", "P2").collect(Collectors.toCollection(LinkedHashSet::new));
+    public static final Set<String> EVALUATION_ORDER_P2_P1 =
+        Stream.of("P2", "P1").collect(Collectors.toCollection(LinkedHashSet::new));
 
     @Test
     public void testEqualsNoAttributes() {

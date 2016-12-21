@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +71,7 @@ public abstract class AbstractPolicyEvaluationCache implements PolicyEvaluationC
 
     private List<String> assembleKeys(final PolicyEvaluationRequestCacheKey key) {
         List<String> keys = new ArrayList<>();
-        LinkedHashSet<String> policySetIds = key.getPolicySetIds();
+        Set<String> policySetIds = key.getPolicySetIds();
         policySetIds.forEach(policySetId -> keys.add(policySetKey(key.getZoneId(), policySetId)));
         keys.add(resourceKey(key.getZoneId(), key.getResourceId()));
         keys.add(subjectKey(key.getZoneId(), key.getSubjectId()));
@@ -83,7 +82,7 @@ public abstract class AbstractPolicyEvaluationCache implements PolicyEvaluationC
     private void logCacheGetDebugMessages(final PolicyEvaluationRequestCacheKey key, final String redisKey,
             final List<String> keys, final List<String> values) {
         if (LOGGER.isDebugEnabled()) {
-            LinkedHashSet<String> policySetIds = key.getPolicySetIds();
+            Set<String> policySetIds = key.getPolicySetIds();
             policySetIds.forEach(policySetId -> LOGGER
                     .debug(String.format("Getting timestamp for policy set: '%s', key: '%s', timestamp:'%s'.",
                             policySetId, keys.get(0), values.get(0))));

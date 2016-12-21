@@ -16,40 +16,39 @@
 
 package com.ge.predix.acs.policy.evaluation.cache;
 
-import static com.ge.predix.acs.testutils.XFiles.AGENT_MULDER;
-import static com.ge.predix.acs.testutils.XFiles.XFILES_ID;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-
 import com.ge.predix.acs.model.Effect;
 import com.ge.predix.acs.privilege.management.dao.ResourceEntity;
 import com.ge.predix.acs.privilege.management.dao.SubjectEntity;
 import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
 import com.ge.predix.acs.rest.PolicyEvaluationResult;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.ge.predix.acs.testutils.XFiles.AGENT_MULDER;
+import static com.ge.predix.acs.testutils.XFiles.XFILES_ID;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 public class AbstractPolicyEvaluationCacheTest {
 
     public static final String ZONE_NAME = "testzone1";
     public static final ZoneEntity ZONE_ENTITY = new ZoneEntity(1L, ZONE_NAME);
     public static final String ACTION_GET = "GET";
-    public static final LinkedHashSet<String> EVALUATION_ORDER_POLICYONE_POLICYTWO = Stream.of("policyOne", "policyTwo")
-            .collect(Collectors.toCollection(LinkedHashSet::new));
-    public static final LinkedHashSet<String> EVALUATION_ORDER_POLICYTWO_POLICYONE = Stream.of("policyTwo", "policyOne")
-            .collect(Collectors.toCollection(LinkedHashSet::new));
-    public static final LinkedHashSet<String> EVALUATION_ORDER_POLICYONE = Stream.of("policyOne")
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+    public static final Set<String> EVALUATION_ORDER_POLICYONE_POLICYTWO =
+        Stream.of("policyOne", "policyTwo").collect(Collectors.toCollection(LinkedHashSet::new));
+    public static final Set<String> EVALUATION_ORDER_POLICYTWO_POLICYONE =
+        Stream.of("policyTwo", "policyOne").collect(Collectors.toCollection(LinkedHashSet::new));
+    public static final Set<String> EVALUATION_ORDER_POLICYONE =
+        Stream.of("policyOne").collect(Collectors.toCollection(LinkedHashSet::new));
 
     private final InMemoryPolicyEvaluationCache cache = new InMemoryPolicyEvaluationCache();
 
