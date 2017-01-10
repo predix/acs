@@ -29,28 +29,28 @@
     <name>Predix Access Control Service Implementation</name>
     <packaging>jar</packaging>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${springframework.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+	<dependencyManagement>
+ 		<dependencies>
+ 			<dependency>
+ 				<groupId>org.springframework</groupId>
+ 				<artifactId>spring-framework-bom</artifactId>
+ 				<version>${springframework.version}</version>
+ 				<type>pom</type>
+ 				<scope>import</scope>
+ 			</dependency>
+ 		</dependencies>
+ 	</dependencyManagement>
     <dependencies>
-        <dependency>
+		<dependency>
             <groupId>com.ge.predix</groupId>
             <artifactId>security-dynamic-log-configurer</artifactId>
             <version>1.1.1</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>${springframework.version}</version>
-        </dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${springframework.version}</version>
+		</dependency>
         <!-- Begin dependencies added for Hystrix circuit breaker functionality. -->
         <dependency>
             <groupId>commons-configuration</groupId>
