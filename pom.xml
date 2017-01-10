@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ge.predix</groupId>
     <artifactId>acs</artifactId>
-    <version>4.6.5</version>
+    <version>4.6.6</version>
     <name>Predix Access Control Services Parent</name>
     <packaging>pom</packaging>
     <organization>
@@ -79,6 +79,7 @@
         <cucumber.version>1.2.2</cucumber.version>
         <cucumber.testng.version>1.2.2</cucumber.testng.version>
         <groovy-all.version>2.4.4</groovy-all.version>
+        
     </properties>
 
     <repositories>
@@ -130,44 +131,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Begin dependencies added for Hystrix circuit breaker functionality. -->
-        <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-core</artifactId>
-            <version>${hystrix.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.netflix.archaius</groupId>
-                    <artifactId>archaius-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.archaius</groupId>
-            <artifactId>archaius-core</artifactId>
-            <version>${archaius.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-javanica</artifactId>
-            <version>${hystrix.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-metrics-event-stream</artifactId>
-            <version>${hystrix.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-commons</artifactId>
-            <version>${spring-cloud.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-netflix-core</artifactId>
-            <version>${spring-cloud-netflix.version}</version>
-        </dependency>
-        <!-- End dependencies added for Hystrix circuit breaker functionality. -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -249,6 +212,7 @@
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <logViolationsToConsole>true</logViolationsToConsole>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <linkXRef>false</linkXRef>
                         </configuration>
                         <goals>
