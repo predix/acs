@@ -73,15 +73,13 @@ public class PolicyHelper {
     }
 
     public CreatePolicyStatus createPolicySet(final String policyFile, final RestTemplate restTemplate,
-            final String zoneName) {
+            final HttpHeaders headers) {
         PolicySet policySet;
         try {
             policySet = new ObjectMapper().readValue(new File(policyFile), PolicySet.class);
             String policyName = policySet.getName();
-            HttpHeaders headersWithZoneSubdomain = new HttpHeaders();
-            headersWithZoneSubdomain.set(PREDIX_ZONE_ID, zoneName);
             restTemplate.put(zoneHelper.getAcsBaseURL() + ACS_POLICY_SET_API_PATH + policyName,
-                    new HttpEntity<>(policySet, headersWithZoneSubdomain));
+                    new HttpEntity<>(policySet, headers));
             return CreatePolicyStatus.SUCCESS;
         } catch (IOException e) {
             return CreatePolicyStatus.JSON_ERROR;
@@ -96,7 +94,9 @@ public class PolicyHelper {
 
     public CreatePolicyStatus createPolicySet(final String policyFile) {
         RestTemplate acs = this.acsRestTemplateFactory.getACSTemplateWithPolicyScope();
-        return createPolicySet(policyFile, acs, this.zoneHelper.getZone1Name());
+        HttpHeaders zoneHeaders = new HttpHeaders();
+        zoneHeaders.set(PolicyHelper.PREDIX_ZONE_ID, this.zoneHelper.getZone1Name());
+        return createPolicySet(policyFile, acs, zoneHeaders);
     }
 
     public ResponseEntity<PolicySet> getPolicySet(final String policyName, final RestTemplate restTemplate,

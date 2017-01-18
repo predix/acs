@@ -94,6 +94,8 @@ public class ZoneEnforcementStepsDefinitions {
 
     private String acsUrl;
 
+    private HttpHeaders zone1Headers;
+
     private final BaseSubject subject = new BaseSubject("subject_id_1");
 
     private final BaseResource resource = new BaseResource("resource_id_1");
@@ -115,6 +117,8 @@ public class ZoneEnforcementStepsDefinitions {
     @Before
     public void setup() throws JsonParseException, JsonMappingException, IOException {
         this.acsUrl = this.zoneHelper.getAcsBaseURL();
+        this.zone1Headers = new HttpHeaders();
+        this.zone1Headers.set(PolicyHelper.PREDIX_ZONE_ID, this.zoneHelper.getZone1Name());
         if (Arrays.asList(this.env.getActiveProfiles()).contains("public")) {
             setupPublicACS();
         } else {
@@ -177,8 +181,7 @@ public class ZoneEnforcementStepsDefinitions {
             case "policy-set":
                 this.testPolicyName = "single-action-defined-policy-set";
                 CreatePolicyStatus s = this.policyHelper.createPolicySet(
-                        "src/test/resources/single-action-defined-policy-set.json", acsTemplate,
-                        getZoneName(subdomainSuffix));
+                        "src/test/resources/single-action-defined-policy-set.json", acsTemplate, zoneHeaders);
                 Assert.assertEquals(s, CreatePolicyStatus.SUCCESS);
                 break;
             default:
@@ -232,22 +235,20 @@ public class ZoneEnforcementStepsDefinitions {
     public void client_one_does_a_PUT_on_identifier_in_test_zone(final String api, final String identifier)
             throws Throwable {
         OAuth2RestTemplate acsTemplate = this.acsZone1Template;
-        HttpHeaders zoneHeaders = new HttpHeaders();
-        zoneHeaders.set(PolicyHelper.PREDIX_ZONE_ID, this.zone1Name);
         try {
             switch (api) {
             case "subject":
-                this.privilegeHelper.putSubject(acsTemplate, this.subject, this.acsUrl, zoneHeaders,
+                this.privilegeHelper.putSubject(acsTemplate, this.subject, this.acsUrl, this.zone1Headers,
                         this.privilegeHelper.getDefaultAttribute());
                 break;
             case "resource":
-                this.privilegeHelper.putResource(acsTemplate, this.resource, this.acsUrl, zoneHeaders,
+                this.privilegeHelper.putResource(acsTemplate, this.resource, this.acsUrl, this.zone1Headers,
                         this.privilegeHelper.getDefaultAttribute());
                 break;
             case "policy-set":
                 this.testPolicyName = "single-action-defined-policy-set";
                 this.policyHelper.createPolicySet("src/test/resources/single-action-defined-policy-set.json",
-                        acsTemplate, this.zone1Name);
+                        acsTemplate, this.zone1Headers);
                 break;
             default:
                 Assert.fail("Api " + api + " does not match/is not yet implemented for this test code.");
@@ -261,27 +262,25 @@ public class ZoneEnforcementStepsDefinitions {
     public void client_one_does_a_GET_on_api_with_identifier_in_test_zone_dev(final String api, final String identifier)
             throws Throwable {
         OAuth2RestTemplate acsTemplate = this.acsZone1Template;
-        HttpHeaders zoneHeaders = new HttpHeaders();
         String encodedIdentifier = URLEncoder.encode(identifier, "UTF-8");
         URI uri = URI.create(this.acsUrl + ACS_VERSION + "/" + api + "/" + encodedIdentifier);
-        zoneHeaders.set(PolicyHelper.PREDIX_ZONE_ID, this.zone1Name);
 
         try {
             switch (api) {
             case "subject":
-                this.responseEntity = acsTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(zoneHeaders),
+                this.responseEntity = acsTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(this.zone1Headers),
                         BaseSubject.class);
                 this.status = this.responseEntity.getStatusCode().value();
                 break;
             case "resource":
                 this.responseEntityForResource = acsTemplate.exchange(uri, HttpMethod.GET,
-                        new HttpEntity<>(zoneHeaders), BaseResource.class);
+                        new HttpEntity<>(this.zone1Headers), BaseResource.class);
                 this.status = this.responseEntityForResource.getStatusCode().value();
                 break;
             case "policy-set":
                 this.policyset = acsTemplate.exchange(
                         this.acsUrl + PolicyHelper.ACS_POLICY_SET_API_PATH + this.testPolicyName, HttpMethod.GET,
-                        new HttpEntity<>(zoneHeaders), PolicySet.class);
+                        new HttpEntity<>(this.zone1Headers), PolicySet.class);
                 this.status = this.policyset.getStatusCode().value();
                 break;
             default:
@@ -297,12 +296,10 @@ public class ZoneEnforcementStepsDefinitions {
     public void client_one_does_a_DELETE_on_api_with_identifier_in_test_zone_dev(final String api,
             final String identifier) throws Throwable {
         String encodedIdentifier = URLEncoder.encode(identifier, "UTF-8");
-        HttpHeaders zoneHeaders = new HttpHeaders();
         URI uri = URI.create(this.acsUrl + ACS_VERSION + "/" + api + "/" + encodedIdentifier);
-        zoneHeaders.set(PolicyHelper.PREDIX_ZONE_ID, this.zone1Name);
         try {
             this.status = this.acsZone1Template
-                    .exchange(uri, HttpMethod.DELETE, new HttpEntity<>(zoneHeaders), ResponseEntity.class)
+                    .exchange(uri, HttpMethod.DELETE, new HttpEntity<>(this.zone1Headers), ResponseEntity.class)
                     .getStatusCode().value();
         } catch (HttpClientErrorException e) {
             Assert.fail("Unable to DELETE identifier: " + identifier + " for api: " + api);
