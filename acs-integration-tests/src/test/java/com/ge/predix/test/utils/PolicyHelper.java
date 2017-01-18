@@ -53,6 +53,8 @@ public class PolicyHelper {
     public static final String DEFAULT_ACTION = "GET";
     public static final String NOT_MATCHING_ACTION = "HEAD";
 
+    public static final String PREDIX_ZONE_ID = "Predix-Zone-Id";
+
     private static final String[] ACTIONS = { "GET", "POST", "DELETE", "PUT" };
 
     @Autowired
@@ -71,12 +73,15 @@ public class PolicyHelper {
     }
 
     public CreatePolicyStatus createPolicySet(final String policyFile, final RestTemplate restTemplate,
-            final String zoneUrl) {
+            final String zoneName) {
         PolicySet policySet;
         try {
             policySet = new ObjectMapper().readValue(new File(policyFile), PolicySet.class);
             String policyName = policySet.getName();
-            restTemplate.put(zoneUrl + ACS_POLICY_SET_API_PATH + policyName, policySet);
+            HttpHeaders headersWithZoneSubdomain = new HttpHeaders();
+            headersWithZoneSubdomain.set(PREDIX_ZONE_ID, zoneName);
+            restTemplate.put(zoneHelper.getAcsBaseURL() + ACS_POLICY_SET_API_PATH + policyName,
+                    new HttpEntity<>(policySet, headersWithZoneSubdomain));
             return CreatePolicyStatus.SUCCESS;
         } catch (IOException e) {
             return CreatePolicyStatus.JSON_ERROR;
@@ -91,7 +96,7 @@ public class PolicyHelper {
 
     public CreatePolicyStatus createPolicySet(final String policyFile) {
         RestTemplate acs = this.acsRestTemplateFactory.getACSTemplateWithPolicyScope();
-        return createPolicySet(policyFile, acs, this.zoneHelper.getZone1Url());
+        return createPolicySet(policyFile, acs, this.zoneHelper.getZone1Name());
     }
 
     public ResponseEntity<PolicySet> getPolicySet(final String policyName, final RestTemplate restTemplate,
@@ -151,14 +156,16 @@ public class PolicyHelper {
     }
 
     /**
+     * @param headers
+     *            TODO
      * @param createRandomEvalRequest
      * @return
      */
     public ResponseEntity<PolicyEvaluationResult> sendEvaluationRequest(final RestTemplate restTemplate,
-            final PolicyEvaluationRequestV1 randomEvalRequest) {
+            final HttpHeaders headers, final PolicyEvaluationRequestV1 randomEvalRequest) {
         ResponseEntity<PolicyEvaluationResult> evaluationResponse = restTemplate.postForEntity(
-                this.zoneHelper.getZone1Url() + ACS_POLICY_EVAL_API_PATH, randomEvalRequest,
-                PolicyEvaluationResult.class);
+                this.zoneHelper.getAcsBaseURL() + ACS_POLICY_EVAL_API_PATH,
+                new HttpEntity<>(randomEvalRequest, headers), PolicyEvaluationResult.class);
         return evaluationResponse;
     }
 
