@@ -203,17 +203,16 @@ public class ZoneEnforcementStepsDefinitions {
         // differentiate between zone 1 and zone 2, which will have slightly different uris
         zoneHeaders.set(PolicyHelper.PREDIX_ZONE_ID, getZoneName(subdomainSuffix));
 
+        URI uri = URI.create(this.acsUrl + ACS_VERSION + "/" + api + "/" + encodedIdentifier);
         try {
             switch (api) {
             case "subject":
-                this.responseEntity = acsTemplate.exchange(
-                        this.acsUrl + ACS_VERSION + "/" + api + "/" + encodedIdentifier, HttpMethod.GET,
-                        new HttpEntity<>(zoneHeaders), BaseSubject.class);
+                this.responseEntity = acsTemplate.exchange(uri, HttpMethod.GET, new HttpEntity<>(zoneHeaders),
+                        BaseSubject.class);
                 this.status = this.responseEntity.getStatusCode().value();
                 break;
             case "resource":
-                this.responseEntityForResource = acsTemplate.exchange(
-                        this.acsUrl + ACS_VERSION + "/" + api + "/" + encodedIdentifier, HttpMethod.GET,
+                this.responseEntityForResource = acsTemplate.exchange(uri, HttpMethod.GET,
                         new HttpEntity<>(zoneHeaders), BaseResource.class);
                 this.status = this.responseEntityForResource.getStatusCode().value();
                 break;

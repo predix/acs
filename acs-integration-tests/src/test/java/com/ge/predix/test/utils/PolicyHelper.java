@@ -52,7 +52,6 @@ public class PolicyHelper {
 
     public static final String DEFAULT_ACTION = "GET";
     public static final String NOT_MATCHING_ACTION = "HEAD";
-
     public static final String PREDIX_ZONE_ID = "Predix-Zone-Id";
 
     private static final String[] ACTIONS = { "GET", "POST", "DELETE", "PUT" };

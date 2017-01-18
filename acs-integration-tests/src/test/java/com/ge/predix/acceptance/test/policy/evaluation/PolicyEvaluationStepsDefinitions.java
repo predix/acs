@@ -91,11 +91,10 @@ public class PolicyEvaluationStepsDefinitions extends AbstractTestNGSpringContex
     @Autowired
     private ACSRestTemplateFactory acsRestTemplateFactory;
 
-    private HttpHeaders zone1Headers;
-
     private String testPolicyName;
     private ResponseEntity<PolicyEvaluationResult> policyEvaluationResponse;
     private String acsUrl;
+    private HttpHeaders zone1Headers;
     private OAuth2RestTemplate acsAdminRestTemplate;
     private boolean registerWithZac;
 

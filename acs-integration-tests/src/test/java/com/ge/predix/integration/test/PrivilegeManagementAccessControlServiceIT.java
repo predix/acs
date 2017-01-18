@@ -420,7 +420,7 @@ public class PrivilegeManagementAccessControlServiceIT extends AbstractTestNGSpr
     }
 
     @Test(dataProvider = "subjectPostProvider")
-    public void testPostSubjectsUpdateAttributes(final BaseSubject subject, final String endpoint) throws Exception {
+    public void testPostSubjectsUpdateAttributes(final BaseSubject subject, final String endpoint) {
         // This test was added to test that the graph repo behaves transactionally.
         try {
             BaseSubject subject2 = new BaseSubject(BOB_V1.getSubjectIdentifier());
@@ -463,8 +463,7 @@ public class PrivilegeManagementAccessControlServiceIT extends AbstractTestNGSpr
             Assert.assertTrue(
                     forEntity.getBody().getAttributes().contains(this.privilegeHelper.getAlternateAttribute()));
         } catch (Exception e) {
-            throw e;
-            //Assert.fail("Unable to create subject.");
+            Assert.fail("Unable to create subject.");
         }
     }
 
