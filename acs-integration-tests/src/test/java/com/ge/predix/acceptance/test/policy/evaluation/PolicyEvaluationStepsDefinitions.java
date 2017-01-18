@@ -96,16 +96,14 @@ public class PolicyEvaluationStepsDefinitions extends AbstractTestNGSpringContex
     private String testPolicyName;
     private ResponseEntity<PolicyEvaluationResult> policyEvaluationResponse;
     private String acsUrl;
-    private String zone1Name;
     private OAuth2RestTemplate acsAdminRestTemplate;
     private boolean registerWithZac;
 
     @Before
     public void setup() throws JsonParseException, JsonMappingException, IOException {
         this.acsUrl = zoneHelper.getAcsBaseURL();
-        this.zone1Name = this.zoneHelper.getZone1Name();
         this.zone1Headers = new HttpHeaders();
-        this.zone1Headers.set(PolicyHelper.PREDIX_ZONE_ID, this.zone1Name);
+        this.zone1Headers.set(PolicyHelper.PREDIX_ZONE_ID, this.zoneHelper.getZone1Name());
         if (Arrays.asList(this.env.getActiveProfiles()).contains("public")) {
             setupPublicACS();
         } else {
