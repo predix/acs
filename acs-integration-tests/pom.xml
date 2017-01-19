@@ -580,10 +580,10 @@
                             <systemPropertyVariables>
                                 <ACS_DEFAULT_ISSUER_ID>${ACS_DEFAULT_ISSUER_ID}</ACS_DEFAULT_ISSUER_ID>
                                 <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
-                                <ACS_URL>http://localhost:8181</ACS_URL>
+                                <ACS_URL>${ACS_URL}</ACS_URL>
                                 <NUREGO_API_URL>${NUREGO_API_URL}</NUREGO_API_URL>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
-                                <ZAC_URL>http://localhost:8888</ZAC_URL>
+                                <ZAC_URL>${ZAC_URL}</ZAC_URL>
                                 <!-- ACS zones (a.k.a tenancies) used for the tests -->
                                 <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
                                 <ZONE1_UAA_URL>${ZONE1_UAA_URL}</ZONE1_UAA_URL>
@@ -642,10 +642,10 @@
                             <systemPropertyVariables>
                                 <ACS_DEFAULT_ISSUER_ID>${ACS_DEFAULT_ISSUER_ID}</ACS_DEFAULT_ISSUER_ID>
                                 <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
-                                <ACS_URL>http://localhost:8181</ACS_URL>
+                                <ACS_URL>${ACS_URL}</ACS_URL>
                                 <NUREGO_API_URL>${NUREGO_API_URL}</NUREGO_API_URL>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
-                                <ZAC_URL>http://localhost:8888</ZAC_URL>
+                                <ZAC_URL>${ZAC_URL}</ZAC_URL>
                                 <!-- ACS zones (a.k.a tenancies) used for the tests -->
                                 <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
                                 <ZONE1_UAA_URL>${ZONE1_UAA_URL}</ZONE1_UAA_URL>
@@ -701,6 +701,9 @@
                         <configuration>
                             <configuration>
                                 <home>${project.build.directory}/tomcat7x/container</home>
+                                <properties>
+                                    <cargo.port.offset>${PORT_OFFSET}</cargo.port.offset>
+                                </properties>
                             </configuration>
                             <container>
                                 <containerId>tomcat7x</containerId>
@@ -748,7 +751,7 @@
                             <environmentVariables>
                                 <SPRING_PROFILES_ACTIVE>h2,public,simple-cache</SPRING_PROFILES_ACTIVE>
                                 <management.health.redis.enabled>false</management.health.redis.enabled>
-                                <uaaCheckHealthUrl>http://localhost:8080/uaa/healthz</uaaCheckHealthUrl>
+                                <uaaCheckHealthUrl>${ACS_UAA_URL}/healthz</uaaCheckHealthUrl>
                                 <cors.xhr.allowed.headers>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method, Access-Control-Request-Headers</cors.xhr.allowed.headers>
                                 <cors.xhr.allowed.origins>^.*\.grc-apps\.svc\.ge\.com$,^.*\.predix\.io$</cors.xhr.allowed.origins>
                                 <cors.xhr.allowed.uris>^/v2/api-docs$</cors.xhr.allowed.uris>
@@ -764,13 +767,13 @@
                             <parallel>false</parallel>
                             <!-- <argLine>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argLine> -->
                             <systemPropertyVariables>
-                                <ACS_URL>http://localhost:8181</ACS_URL>
-                                <ACS_DEFAULT_ISSUER_ID>http://localhost:8080/uaa/oauth/token</ACS_DEFAULT_ISSUER_ID>
+                                <ACS_URL>${ACS_URL}</ACS_URL>
+                                <ACS_DEFAULT_ISSUER_ID>${ACS_UAA_URL}/oauth/token</ACS_DEFAULT_ISSUER_ID>
                                 <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
                                 <ZONE1_NAME>testzone1</ZONE1_NAME>
-                                <ZONE1_UAA_URL>http://localhost:8080/uaa</ZONE1_UAA_URL>
+                                <ZONE1_UAA_URL>${ACS_UAA_URL}</ZONE1_UAA_URL>
                                 <ZONE2_NAME>testzone2</ZONE2_NAME>
-                                <ZONE2_UAA_URL>http://localhost:8080/uaa</ZONE2_UAA_URL>
+                                <ZONE2_UAA_URL>${ACS_UAA_URL}</ZONE2_UAA_URL>
                                 <ZONE3_NAME>testzone3</ZONE3_NAME>
                             </systemPropertyVariables>
                             <suiteXmlFiles>
@@ -808,6 +811,9 @@
                         <configuration>
                             <configuration>
                                 <home>${project.build.directory}/tomcat7x/container</home>
+                                <properties>
+                                    <cargo.port.offset>${PORT_OFFSET}</cargo.port.offset>
+                                </properties>
                             </configuration>
                             <container>
                                 <containerId>tomcat7x</containerId>
@@ -855,7 +861,7 @@
                             <environmentVariables>
                                 <SPRING_PROFILES_ACTIVE>h2,public,simple-cache,titan</SPRING_PROFILES_ACTIVE>
                                 <management.health.redis.enabled>false</management.health.redis.enabled>
-                                <uaaCheckHealthUrl>http://localhost:8080/uaa/healthz</uaaCheckHealthUrl>
+                                <uaaCheckHealthUrl>${ACS_UAA_URL}/healthz</uaaCheckHealthUrl>
                                 <cors.xhr.allowed.headers>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method, Access-Control-Request-Headers</cors.xhr.allowed.headers>
                                 <cors.xhr.allowed.origins>^.*\.grc-apps\.svc\.ge\.com$,^.*\.predix\.io$</cors.xhr.allowed.origins>
                                 <cors.xhr.allowed.uris>^/v2/api-docs$</cors.xhr.allowed.uris>
@@ -869,13 +875,13 @@
                             <parallel>false</parallel>
                             <skipTests>false</skipTests>
                             <systemPropertyVariables>
-                                <ACS_URL>http://localhost:8181</ACS_URL>
-                                <ACS_DEFAULT_ISSUER_ID>http://localhost:8080/uaa/oauth/token</ACS_DEFAULT_ISSUER_ID>
+                                <ACS_URL>${ACS_URL}</ACS_URL>
+                                <ACS_DEFAULT_ISSUER_ID>${ACS_UAA_URL}/oauth/token</ACS_DEFAULT_ISSUER_ID>
                                 <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
                                 <ZONE1_NAME>testzone1</ZONE1_NAME>
-                                <ZONE1_UAA_URL>http://localhost:8080/uaa</ZONE1_UAA_URL>
+                                <ZONE1_UAA_URL>${ACS_UAA_URL}</ZONE1_UAA_URL>
                                 <ZONE2_NAME>testzone2</ZONE2_NAME>
-                                <ZONE2_UAA_URL>http://localhost:8080/uaa</ZONE2_UAA_URL>
+                                <ZONE2_UAA_URL>${ACS_UAA_URL}</ZONE2_UAA_URL>
                                 <ZONE3_NAME>testzone3</ZONE3_NAME>
                             </systemPropertyVariables>
                             <suiteXmlFiles>
