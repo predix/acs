@@ -330,6 +330,7 @@
                                 <ZAC_CLIENT_ID>${ZAC_CLIENT_ID}</ZAC_CLIENT_ID>
                                 <ZAC_CLIENT_SECRET>${ZAC_CLIENT_SECRET}</ZAC_CLIENT_SECRET>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
+                                <ACS_UAA_URL>${ACS_UAA_URL}</ACS_UAA_URL>
                                 <ZAC_URL>${ZAC_URL}</ZAC_URL>
                                 <ENABLED_REDIS_HEALTH_CHECK>true</ENABLED_REDIS_HEALTH_CHECK>
                                 <DEPLOYMENT_TYPE>${DEPLOYMENT_TYPE}</DEPLOYMENT_TYPE>
@@ -499,6 +500,7 @@
                                 <ZAC_CLIENT_ID>${ZAC_CLIENT_ID}</ZAC_CLIENT_ID>
                                 <ZAC_CLIENT_SECRET>${ZAC_CLIENT_SECRET}</ZAC_CLIENT_SECRET>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
+                                <ACS_UAA_URL>${ACS_UAA_URL}</ACS_UAA_URL>
                                 <ZAC_URL>${ZAC_URL}</ZAC_URL>
                                 <ENABLED_REDIS_HEALTH_CHECK>true</ENABLED_REDIS_HEALTH_CHECK>
                                 <DEPLOYMENT_TYPE>${DEPLOYMENT_TYPE}</DEPLOYMENT_TYPE>
