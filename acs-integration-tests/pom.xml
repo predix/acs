@@ -701,6 +701,7 @@
                         <artifactId>cargo-maven2-plugin</artifactId>
                         <version>1.4.19</version>
                         <configuration>
+                            <skip>${maven.test.skip}</skip>
                             <configuration>
                                 <home>${project.build.directory}/tomcat7x/container</home>
                                 <properties>
@@ -811,6 +812,7 @@
                         <artifactId>cargo-maven2-plugin</artifactId>
                         <version>1.4.19</version>
                         <configuration>
+                            <skip>${maven.test.skip}</skip>
                             <configuration>
                                 <home>${project.build.directory}/tomcat7x/container</home>
                                 <properties>
