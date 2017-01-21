@@ -139,7 +139,7 @@
         <dependency>
             <groupId>com.ge.predix</groupId>
             <artifactId>acs-service</artifactId>
-            <version>4.6.6-SNAPSHOT</version>
+            <version>4.7.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
