@@ -239,12 +239,7 @@ public class ACSRestTemplateFactory {
         resource.setClientSecret(this.acsClientSecret);
         resource.setUsername(this.userName);
         resource.setPassword(this.userPassword);
-        System.out.println("HERE");
-        System.out.println(this.accessTokenEndpointUrl);
-        System.out.print(this.acsClientId);
-        System.out.print(this.acsClientSecret);
-        System.out.println(this.userName);
-        System.out.println(this.userPassword);
+
         return resource;
 
     }
