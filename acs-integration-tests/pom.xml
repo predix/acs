@@ -930,6 +930,7 @@
                                 <NUREGO_API_KEY>not-used</NUREGO_API_KEY>
                                 <NUREGO_API_URL>not-used</NUREGO_API_URL>
                                 <ZAC_UAA_URL>https://${uaa.cf.domain}.${cf.base.domain}</ZAC_UAA_URL>
+                                <ACS_UAA_URL>${ACS_UAA_URL}</ACS_UAA_URL>
                                 <ZAC_URL>https://${zac.cf.domain}.${cf.base.domain}</ZAC_URL>
                                 <!-- ACS zones (a.k.a tenancies) used for the tests -->
                                 <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
