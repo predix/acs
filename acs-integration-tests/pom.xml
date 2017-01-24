@@ -939,9 +939,9 @@
                                 <ZONE2_UAA_URL>not-used</ZONE2_UAA_URL>
                                 <ZONE3_NAME>${acs.zone.subdomain}3</ZONE3_NAME>
                                 <!-- OAuth clients and users used for the tests -->
-                                <ACS_CLIENT_ID>acs-acceptance-test-${DEPLOYMENT_TYPE}</ACS_CLIENT_ID>
+                                <ACS_CLIENT_ID>${ACS_CLIENT_ID}</ACS_CLIENT_ID>
                                 <ACS_CLIENT_SECRET>${ACS_CLIENT_SECRET}</ACS_CLIENT_SECRET>
-                                <ACS_TEST_USER>acs-acceptance-test-user-${DEPLOYMENT_TYPE}</ACS_TEST_USER>
+                                <ACS_TEST_USER>${ACS_TEST_USER}</ACS_TEST_USER>
                                 <ACS_TEST_USER_PWD>${ACS_TEST_USER_PWD}</ACS_TEST_USER_PWD>
                                 <APM_CLIENT_ID>not-used</APM_CLIENT_ID>
                                 <APM_CLIENT_SECRET>not-used</APM_CLIENT_SECRET>
