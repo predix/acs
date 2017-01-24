@@ -426,7 +426,7 @@
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
                                 <ZAC_URL>${ZAC_URL}</ZAC_URL>
                                 <!-- ACS zones (a.k.a tenancies) used for the tests -->
-                                <ZONE1_NAME>${acs.zone.subdomain}1</ZONE1_NAME>
+                                <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
                                 <ZONE1_UAA_URL>${ZONE1_UAA_URL}</ZONE1_UAA_URL>
                                 <ZONE2_NAME>${acs.zone.subdomain}2</ZONE2_NAME>
                                 <ZONE2_UAA_URL>${ZONE2_UAA_URL}</ZONE2_UAA_URL>
