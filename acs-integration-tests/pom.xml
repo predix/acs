@@ -282,7 +282,14 @@
                                 <ACS_CF_DOMAIN>${acs.cf.domain}</ACS_CF_DOMAIN>
                                 <ACS_URL>https://${acs.appname}.${cf.base.domain}</ACS_URL>
                                 <CF_BASE_DOMAIN>${cf.base.domain}</CF_BASE_DOMAIN>
+                                <NUREGO_API_URL>${NUREGO_API_URL}</NUREGO_API_URL>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
+                                <!-- ACS zones (a.k.a tenancies) used for the tests -->
+                                <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
+                                <ZONE1_UAA_URL>${ZONE1_UAA_URL}</ZONE1_UAA_URL>
+                                <ZONE2_NAME>${acs.zone.subdomain}2</ZONE2_NAME>
+                                <ZONE2_UAA_URL>${ZONE2_UAA_URL}</ZONE2_UAA_URL>
+                                <ZONE3_NAME>${acs.zone.subdomain}3</ZONE3_NAME>
                                 <!-- OAuth clients and users used for the tests -->
                                 <ACS_CLIENT_SECRET>${ACS_CLIENT_SECRET}</ACS_CLIENT_SECRET>
                                 <ACS_TEST_USER_PWD>${ACS_TEST_USER_PWD}</ACS_TEST_USER_PWD>
@@ -434,7 +441,14 @@
                                 <ACS_CF_DOMAIN>${acs.cf.domain}</ACS_CF_DOMAIN>
                                 <ACS_URL>https://${acs.appname}.${cf.base.domain}</ACS_URL>
                                 <CF_BASE_DOMAIN>${cf.base.domain}</CF_BASE_DOMAIN>
+                                <NUREGO_API_URL>${NUREGO_API_URL}</NUREGO_API_URL>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
+                                <!-- ACS zones (a.k.a tenancies) used for the tests -->
+                                <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
+                                <ZONE1_UAA_URL>${ZONE1_UAA_URL}</ZONE1_UAA_URL>
+                                <ZONE2_NAME>${acs.zone.subdomain}2</ZONE2_NAME>
+                                <ZONE2_UAA_URL>${ZONE2_UAA_URL}</ZONE2_UAA_URL>
+                                <ZONE3_NAME>${acs.zone.subdomain}3</ZONE3_NAME>
                                 <!-- OAuth clients and users used for the tests -->
                                 <ACS_CLIENT_SECRET>${ACS_CLIENT_SECRET}</ACS_CLIENT_SECRET>
                                 <ACS_TEST_USER_PWD>${ACS_TEST_USER_PWD}</ACS_TEST_USER_PWD>
@@ -582,7 +596,6 @@
                             <argLine></argLine>
                             <systemPropertyVariables>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
-                                <ZAC_URL>http://localhost:8888</ZAC_URL>
                             </systemPropertyVariables>
                             <excludes>
                                 <exclude>**/ACSPerformanceIT.java</exclude>
@@ -630,7 +643,6 @@
                             <argLine></argLine>
                             <systemPropertyVariables>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
-                                <ZAC_URL>http://localhost:8888</ZAC_URL>
                             </systemPropertyVariables>
                             <excludes>
                                 <exclude>**/ACSPerformanceIT.java</exclude>
