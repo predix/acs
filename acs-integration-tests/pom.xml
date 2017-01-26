@@ -888,7 +888,6 @@
                             <systemPropertyVariables>
                                 <ACS_DEFAULT_ISSUER_ID>https://${uaa.zone}${uaa.cf.domain}.${cf.base.domain}/oauth/token</ACS_DEFAULT_ISSUER_ID>
                                 <ACS_SERVICE_ID>${acs.service.id}</ACS_SERVICE_ID>
-                                <ACS_URL>${ACS_URL}</ACS_URL>
                                 <CF_BASE_DOMAIN>${cf.base.domain}</CF_BASE_DOMAIN>
                                 <NUREGO_API_KEY>not-used</NUREGO_API_KEY>
                                 <NUREGO_API_URL>not-used</NUREGO_API_URL>
@@ -896,11 +895,8 @@
                                 <ACS_UAA_URL>https://${uaa.cf.domain}.${cf.base.domain}</ACS_UAA_URL>
                                 <ZAC_URL>https://${zac.cf.domain}.${cf.base.domain}</ZAC_URL>
                                 <!-- ACS zones (a.k.a tenancies) used for the tests -->
-                                <ZONE1_NAME>${acs.zone.subdomain}</ZONE1_NAME>
                                 <ZONE1_UAA_URL>https://${uaa.zone}${uaa.cf.domain}.${cf.base.domain}</ZONE1_UAA_URL>
-                                <ZONE2_NAME>${acs.zone.subdomain}2</ZONE2_NAME>
                                 <ZONE2_UAA_URL>not-used</ZONE2_UAA_URL>
-                                <ZONE3_NAME>${acs.zone.subdomain}3</ZONE3_NAME>
                                 <!-- OAuth clients and users used for the tests -->
                                 <ACS_CLIENT_ID>${ACS_CLIENT_ID}</ACS_CLIENT_ID>
                                 <ACS_CLIENT_SECRET>${ACS_CLIENT_SECRET}</ACS_CLIENT_SECRET>
@@ -914,10 +910,6 @@
                                 <READ_ONLY_USER_PASSWORD>not-used</READ_ONLY_USER_PASSWORD>
                                 <NO_READ_ONLY_USER_NAME>not-used</NO_READ_ONLY_USER_NAME>
                                 <NO_READ_ONLY_USER_PASSWORD>not-used</NO_READ_ONLY_USER_PASSWORD>
-                                <!-- proxy settings -->
-                                <http.nonProxyHosts>${NON_PROXY_HOSTS}</http.nonProxyHosts>
-                                <https.proxyHost>${HTTPS_PROXY_HOST}</https.proxyHost>
-                                <https.proxyPort>${HTTPS_PROXY_PORT}</https.proxyPort>
                             </systemPropertyVariables>
                             <includes>
                                 <include>**/ACSAcceptanceIT.java</include>
