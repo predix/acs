@@ -89,7 +89,7 @@
                     <systemPropertyVariables>
                         <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
                         <ACS_DEFAULT_ISSUER_ID>${ACS_DEFAULT_ISSUER_ID}</ACS_DEFAULT_ISSUER_ID>
-                        <ACS_URL>http://localhost:8181</ACS_URL>
+                        <ACS_URL>${ACS_URL}}</ACS_URL>
                         <ZAC_URL>${ZAC_URL}</ZAC_URL>
 
                         <NUREGO_API_URL>${NUREGO_API_URL}</NUREGO_API_URL>
@@ -743,8 +743,9 @@
                             <parallel>false</parallel>
                             <!-- <argLine>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argLine> -->
                             <systemPropertyVariables>
-                                <ACS_DEFAULT_ISSUER_ID>http://localhost:8080/uaa/oauth/token</ACS_DEFAULT_ISSUER_ID>
-                                <NUREGO_API_URL>not-set</NUREGO_API_URL>
+                                <ACS_URL>${ACS_URL}</ACS_URL>
+                                <ACS_DEFAULT_ISSUER_ID>${ACS_UAA_URL}/oauth/token</ACS_DEFAULT_ISSUER_ID>
+                                <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
                                 <ZONE1_NAME>testzone1</ZONE1_NAME>
                                 <ZONE1_UAA_URL>${ACS_UAA_URL}</ZONE1_UAA_URL>
                                 <ZONE2_NAME>testzone2</ZONE2_NAME>
@@ -851,8 +852,9 @@
                             <parallel>false</parallel>
                             <skipTests>false</skipTests>
                             <systemPropertyVariables>
-                                <NUREGO_API_URL>not-set</NUREGO_API_URL>
-                                <ACS_DEFAULT_ISSUER_ID>http://localhost:8080/uaa/oauth/token</ACS_DEFAULT_ISSUER_ID>
+                                <ACS_URL>${ACS_URL}</ACS_URL>
+                                <ACS_DEFAULT_ISSUER_ID>${ACS_UAA_URL}/oauth/token</ACS_DEFAULT_ISSUER_ID>
+                                <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
                                 <ZONE1_NAME>testzone1</ZONE1_NAME>
                                 <ZONE1_UAA_URL>${ACS_UAA_URL}</ZONE1_UAA_URL>
                                 <ZONE2_NAME>testzone2</ZONE2_NAME>
