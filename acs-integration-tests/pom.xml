@@ -629,6 +629,56 @@
         </profile>
 
         <profile>
+            <id>redis</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.ge.predix.audit</groupId>
+                    <artifactId>audit-sdk</artifactId>
+                    <version>${audit-sdk.version}</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <forkCount>0</forkCount>
+                            <parallel>methods</parallel>
+                            <argLine></argLine>
+                            <systemPropertyVariables>
+                                <SPRING_PROFILES_ACTIVE>h2,predix,redis</SPRING_PROFILES_ACTIVE>
+                                <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
+                            </systemPropertyVariables>
+                            <excludes>
+                                <exclude>**/ACSPerformanceIT.java</exclude>
+                                <exclude>**/PolicyEvalCachingWithGraphDBIT.java</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*IT.java</include>
+                                <include>**/*Cucumber*.java</include>
+                            </includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
             <id>predix-local</id>
             <dependencies>
                 <dependency>
