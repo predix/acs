@@ -21,14 +21,12 @@ import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Set;
 
 @SuppressWarnings({ "javadoc", "nls" })
 @ApiModel(description = "Policy evaluation request for V1.")
 public class PolicyEvaluationRequestV1 {
-    public static final LinkedHashSet<String> EMPTY_POLICY_EVALUATION_ORDER = new LinkedHashSet<String>();
-
     private String resourceIdentifier;
 
     private String subjectIdentifier;
@@ -39,7 +37,11 @@ public class PolicyEvaluationRequestV1 {
 
     private String action;
 
-    private LinkedHashSet<String> policySetsEvaluationOrder = EMPTY_POLICY_EVALUATION_ORDER;
+    private Set<String> policySetsEvaluationOrder;
+
+    public PolicyEvaluationRequestV1() {
+        this.policySetsEvaluationOrder = Collections.emptySet();
+    }
 
     @ApiModelProperty(value = "The resource URI to be consumed", required = true)
     public String getResourceIdentifier() {
@@ -97,11 +99,11 @@ public class PolicyEvaluationRequestV1 {
             value = "This list of policy set IDs specifies the order in which the service will evaluate policies. "
                     + "Evaluation stops when a policy with matching target is found and the condition returns true, "
                     + "Or all policies are exhausted.")
-    public LinkedHashSet<String> getPolicySetsEvaluationOrder() {
+    public Set<String> getPolicySetsEvaluationOrder() {
         return this.policySetsEvaluationOrder;
     }
 
-    public void setPolicySetsEvaluationOrder(final LinkedHashSet<String> policySetIds) {
+    public void setPolicySetsEvaluationOrder(final Set<String> policySetIds) {
         if (policySetIds != null) {
             this.policySetsEvaluationOrder = policySetIds;
         }

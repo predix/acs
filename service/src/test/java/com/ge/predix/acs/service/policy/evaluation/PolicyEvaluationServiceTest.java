@@ -198,21 +198,21 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
             dataProvider = "filterPolicySetsInvalidRequestDataProvider",
             expectedExceptions = IllegalArgumentException.class)
     public void testFilterPolicySetsByPriorityForInvalidRequest(final List<PolicySet> allPolicySets,
-            final LinkedHashSet<String> policySetsPriority) {
+            final Set<String> policySetsPriority) {
         this.evaluationService.filterPolicySetsByPriority("subject1", "resource1", allPolicySets, policySetsPriority);
     }
 
     @Test(dataProvider = "filterPolicySetsDataProvider")
     public void testFilterPolicySetsByPriority(final List<PolicySet> allPolicySets,
-            final LinkedHashSet<String> policySetsPriority, final LinkedHashSet<PolicySet> expectedFilteredPolicySets) {
-        LinkedHashSet<PolicySet> actualFilteredPolicySets = this.evaluationService
+            final Set<String> policySetsPriority, final Set<PolicySet> expectedFilteredPolicySets) {
+        Set<PolicySet> actualFilteredPolicySets = this.evaluationService
                 .filterPolicySetsByPriority("subject1", "resource1", allPolicySets, policySetsPriority);
         Assert.assertEquals(actualFilteredPolicySets, expectedFilteredPolicySets);
     }
 
     @Test(dataProvider = "multiplePolicySetsRequestDataProvider")
     public void testEvaluateWithMultiplePolicySets(final List<PolicySet> allPolicySets,
-            final LinkedHashSet<String> policySetsPriority, final Effect effect) {
+            final Set<String> policySetsPriority, final Effect effect) {
         when(this.policyService.getAllPolicySets()).thenReturn(allPolicySets);
         when(this.policyMatcher.matchForResult(any(PolicyMatchCandidate.class), anyListOf(Policy.class)))
                 .thenAnswer(new Answer<MatchResult>() {
@@ -363,7 +363,7 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     private Object[] filterTwoPolisySetsByEmptyList(final List<PolicySet> twoPolicySets) {
-        return new Object[] { twoPolicySets, PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER };
+        return new Object[] { twoPolicySets, Collections.emptySet() };
     }
 
     private Object[] filterTwoPolicySetsByByNonexistentPolicySet(final List<PolicySet> twoPolicySets) {
@@ -408,7 +408,7 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     private Object[] filterOnePolicySetByEmptyEvaluationOrder(final List<PolicySet> onePolicySet) {
-        return new Object[] { onePolicySet, PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER,
+        return new Object[] { onePolicySet, Collections.emptySet(),
                 onePolicySet.stream().collect(Collectors.toCollection(LinkedHashSet::new)) };
     }
 
@@ -449,11 +449,11 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     private Object[] requestEvaluationWithOnePolicySetAndEmptyPriorityList(final List<PolicySet> onePolicySet) {
-        return new Object[] { onePolicySet, PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER, Effect.DENY };
+        return new Object[] { onePolicySet, Collections.emptySet(), Effect.DENY };
     }
 
     private Object[] requestEvaluationWithEmptyPolicySetsListAndEmptyPriorityList() {
-        return new Object[] { Collections.emptyList(), PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER,
+        return new Object[] { Collections.emptyList(), Collections.emptySet(),
                 Effect.NOT_APPLICABLE };
     }
 
@@ -483,7 +483,7 @@ public class PolicyEvaluationServiceTest extends AbstractTestNGSpringContextTest
     }
 
     private PolicyEvaluationRequestV1 createRequest(final String resource, final String subject, final String action,
-                                                    final LinkedHashSet<String> policySetsEvaluationOrder) {
+                                                    final Set<String> policySetsEvaluationOrder) {
         PolicyEvaluationRequestV1 request = new PolicyEvaluationRequestV1();
         request.setAction(action);
         request.setSubjectIdentifier(subject);

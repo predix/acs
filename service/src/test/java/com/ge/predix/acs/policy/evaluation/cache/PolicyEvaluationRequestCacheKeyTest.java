@@ -4,6 +4,7 @@ import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
 import org.testng.annotations.Test;
 
 import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,8 +23,7 @@ public class PolicyEvaluationRequestCacheKeyTest {
     public void testBuild() {
         String subjectId = AGENT_MULDER;
         String resourceId = XFILES_ID;
-        LinkedHashSet<String> policyEvaluationOrder = Stream.of("policyOne")
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> policyEvaluationOrder = Stream.of("policyOne").collect(Collectors.toCollection(LinkedHashSet::new));
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
                 .resourceId(resourceId).subjectId(subjectId).policySetIds(policyEvaluationOrder).build();
 
@@ -58,8 +58,7 @@ public class PolicyEvaluationRequestCacheKeyTest {
         request.setAction(ACTION_GET);
         request.setSubjectIdentifier(AGENT_MULDER);
         request.setResourceIdentifier(XFILES_ID);
-        LinkedHashSet<String> policyEvaluationOrder = Stream.of("policyOne")
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> policyEvaluationOrder = Stream.of("policyOne").collect(Collectors.toCollection(LinkedHashSet::new));
         PolicyEvaluationRequestCacheKey key = new PolicyEvaluationRequestCacheKey.Builder().zoneId(ZONE_NAME)
                 .policySetIds(policyEvaluationOrder).request(request).build();
 

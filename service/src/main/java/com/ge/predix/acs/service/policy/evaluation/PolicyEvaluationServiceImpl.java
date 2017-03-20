@@ -83,7 +83,7 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
         String uri = request.getResourceIdentifier();
         String subjectIdentifier = request.getSubjectIdentifier();
         String action = request.getAction();
-        LinkedHashSet<String> policySetsEvaluationOrder = request.getPolicySetsEvaluationOrder();
+        Set<String> policySetsEvaluationOrder = request.getPolicySetsEvaluationOrder();
 
         if (uri == null || subjectIdentifier == null || action == null) {
             LOGGER.error(
@@ -102,7 +102,7 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
             return new PolicyEvaluationResult(Effect.NOT_APPLICABLE);
         }
 
-        LinkedHashSet<PolicySet> filteredPolicySets = filterPolicySetsByPriority(subjectIdentifier, uri, allPolicySets,
+        Set<PolicySet> filteredPolicySets = filterPolicySetsByPriority(subjectIdentifier, uri, allPolicySets,
                 policySetsEvaluationOrder);
 
         // At this point empty evaluation order means we have only one policy set.
@@ -154,8 +154,8 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
         return result;
     }
 
-    LinkedHashSet<PolicySet> filterPolicySetsByPriority(final String subjectIdentifier, final String uri,
-            final List<PolicySet> allPolicySets, final LinkedHashSet<String> policySetsEvaluationOrder)
+    Set<PolicySet> filterPolicySetsByPriority(final String subjectIdentifier, final String uri,
+            final List<PolicySet> allPolicySets, final Set<String> policySetsEvaluationOrder)
             throws IllegalArgumentException {
 
         if (policySetsEvaluationOrder.isEmpty()) {
@@ -174,7 +174,7 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
 
         Map<String, PolicySet> allPolicySetsMap = allPolicySets.stream()
                 .collect(Collectors.toMap(PolicySet::getName, Function.identity()));
-        LinkedHashSet<PolicySet> filteredPolicySets = new LinkedHashSet<PolicySet>();
+        Set<PolicySet> filteredPolicySets = new LinkedHashSet<>();
         for (String policySetId : policySetsEvaluationOrder) {
             PolicySet policySet = allPolicySetsMap.get(policySetId);
             if (policySet == null) {

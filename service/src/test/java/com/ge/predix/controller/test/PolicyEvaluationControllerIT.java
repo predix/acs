@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -138,7 +139,7 @@ public class PolicyEvaluationControllerIT extends AbstractTestNGSpringContextTes
         return new Object[] {
                 createPolicyEvalRequest("GET", this.testResource.getResourceIdentifier(),
                                         this.testSubject.getSubjectIdentifier(),
-                                        PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER),
+                                        Collections.emptySet()),
                 Collections.emptyList(), Effect.NOT_APPLICABLE };
     }
 
@@ -173,7 +174,7 @@ public class PolicyEvaluationControllerIT extends AbstractTestNGSpringContextTes
         return new Object[] {
                 createPolicyEvalRequest("GET", this.testResource.getResourceIdentifier(),
                                         this.testSubject.getSubjectIdentifier(),
-                                        PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER),
+                                        Collections.emptySet()),
                 this.denyPolicySet, Effect.DENY };
     }
 
@@ -208,7 +209,7 @@ public class PolicyEvaluationControllerIT extends AbstractTestNGSpringContextTes
         return new Object[] {
                 createPolicyEvalRequest("GET", this.testResource.getResourceIdentifier(),
                                         this.testSubject.getSubjectIdentifier(),
-                                        PolicyEvaluationRequestV1.EMPTY_POLICY_EVALUATION_ORDER),
+                                        Collections.emptySet()),
                 this.notApplicableAndDenyPolicySets };
     }
 
@@ -220,7 +221,7 @@ public class PolicyEvaluationControllerIT extends AbstractTestNGSpringContextTes
     }
 
     private PolicyEvaluationRequestV1 createPolicyEvalRequest(final String action, final String resourceIdentifier,
-            final String subjectIdentifier, final LinkedHashSet<String> policySetsPriority) {
+            final String subjectIdentifier, final Set<String> policySetsPriority) {
         PolicyEvaluationRequestV1 policyEvalRequest = new PolicyEvaluationRequestV1();
         policyEvalRequest.setAction("GET");
         policyEvalRequest.setResourceIdentifier(resourceIdentifier);
