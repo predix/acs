@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ge.predix.acs.attribute.readers.AttributeReaderFactory;
 import com.ge.predix.acs.commons.web.UriTemplateUtils;
 import com.ge.predix.acs.model.Attribute;
 import com.ge.predix.acs.model.Policy;
-import com.ge.predix.acs.privilege.management.PrivilegeManagementService;
 import com.ge.predix.acs.service.policy.evaluation.MatchedPolicy;
 import com.ge.predix.acs.service.policy.evaluation.ResourceAttributeResolver;
 import com.ge.predix.acs.service.policy.evaluation.ResourceAttributeResolver.ResourceAttributeResolverResult;
@@ -47,7 +47,7 @@ public class PolicyMatcherImpl implements PolicyMatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyMatcherImpl.class);
 
     @Autowired
-    private PrivilegeManagementService privilegeManagementService;
+    private AttributeReaderFactory attributeReaderFactory;
 
     @Override
     public List<MatchedPolicy> match(final PolicyMatchCandidate candidate, final List<Policy> policies) {
@@ -57,10 +57,10 @@ public class PolicyMatcherImpl implements PolicyMatcher {
     @Override
     public MatchResult matchForResult(final PolicyMatchCandidate candidate, final List<Policy> policies) {
         ResourceAttributeResolver resourceAttributeResolver = new ResourceAttributeResolver(
-                this.privilegeManagementService, candidate.getResourceURI(),
+                this.attributeReaderFactory.getResourceAttributeReader(), candidate.getResourceURI(),
                 candidate.getSupplementalResourceAttributes());
         SubjectAttributeResolver subjectAttributeResolver = new SubjectAttributeResolver(
-                this.privilegeManagementService, candidate.getSubjectIdentifier(),
+                this.attributeReaderFactory.getSubjectAttributeReader(), candidate.getSubjectIdentifier(),
                 candidate.getSupplementalSubjectAttributes());
 
         List<MatchedPolicy> matchedPolicies = new ArrayList<>();
@@ -82,7 +82,7 @@ public class PolicyMatcherImpl implements PolicyMatcher {
     /**
      * @param candidate
      *            policy match candidate
-     * @param policiy
+     * @param policy
      *            to match
      * @return true if the policy meets the criteria
      */

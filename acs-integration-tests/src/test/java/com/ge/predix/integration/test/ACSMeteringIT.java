@@ -50,7 +50,6 @@ import com.nurego.model.Subscription;
 
 @SuppressWarnings({ "nls" })
 @ContextConfiguration("classpath:integration-test-spring-context.xml")
-@Test
 public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
     private static final Logger LOGGER = LoggerFactory.getLogger(ACSMeteringIT.class);
 
@@ -86,7 +85,7 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
 
     private String zoneId;
 
-    private String zoneUrl;
+    private String acsUrl;
 
     private Zone createPrimaryTestZone;
 
@@ -99,7 +98,7 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
 
         this.createPrimaryTestZone = this.zoneHelper.createPrimaryTestZone();
         this.zoneId = this.createPrimaryTestZone.getSubdomain();
-        this.zoneUrl = this.zoneHelper.getZone1Url();
+        this.acsUrl = this.zoneHelper.getAcsBaseURL();
         Nurego.setApiBase(this.nuregoApiBase);
         Nurego.apiKey = this.nuregoApiKey;
 
@@ -108,11 +107,12 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
         waitForSteadyStateEntitlementUsage(POLICY_EVAL_FEATURE_ID, this.zoneId);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testACSMetering() throws Exception {
         String testPolicyName = null;
         PolicyEvaluationRequestV1 policyEvaluationRequest = this.policyHelper
                 .createEvalRequest(MARISSA_V1.getSubjectIdentifier(), "sanramon");
+        OAuth2RestTemplate acsRestTemplate = this.acsRestTemplateFactory.getACSTemplateWithPolicyScope();
         try {
             // Get meter readings before
             Double beforePolicyUpdateMeterCount = getEntitlementUsageByFeatureId(POLICY_UPDATE_FEATURE_ID, this.zoneId);
@@ -121,12 +121,11 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
             LOGGER.info("POLICY UPDATE USAGE BEFORE:" + beforePolicyUpdateMeterCount);
             LOGGER.info("POLICY EVAL USAGE BEFORE:" + beforePolicyEvalMeterCount);
 
-            OAuth2RestTemplate acsRestTemplate = this.acsRestTemplateFactory.getACSTemplateWithPolicyScope();
             String policyFile = "src/test/resources/single-site-based-policy-set.json";
-            testPolicyName = this.policyHelper.setTestPolicy(acsRestTemplate, getZoneHeaders(), this.zoneUrl,
+            testPolicyName = this.policyHelper.setTestPolicy(acsRestTemplate, getZoneHeaders(), this.acsUrl,
                     policyFile);
             ResponseEntity<PolicyEvaluationResult> evalResponse = acsRestTemplate.postForEntity(
-                    this.zoneUrl + PolicyHelper.ACS_POLICY_EVAL_API_PATH,
+                    this.acsUrl + PolicyHelper.ACS_POLICY_EVAL_API_PATH,
                     new HttpEntity<>(policyEvaluationRequest, getZoneHeaders()), PolicyEvaluationResult.class);
 
             Assert.assertEquals(evalResponse.getStatusCode(), HttpStatus.OK);
@@ -157,7 +156,7 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
             Assert.assertEquals(evalMeterCount, 1.0);
         } finally {
             if (testPolicyName != null) {
-                this.policyHelper.deletePolicySet(testPolicyName);
+                this.policyHelper.deletePolicySet(acsRestTemplate, this.acsUrl, testPolicyName, getZoneHeaders());
             }
         }
     }

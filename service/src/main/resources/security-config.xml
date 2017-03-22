@@ -173,6 +173,35 @@
                 after="BASIC_AUTH_FILTER" />
     </http>
         
+    <!-- Authorization Configuration For V1 connector APIS -->
+    <http pattern="/v1/connector/*" request-matcher="ant" create-session="stateless"
+        xmlns="http://www.springframework.org/schema/security"
+        disable-url-rewriting="true" use-expressions="true"
+        entry-point-ref="preAuthenticationEntryPoint">
+        <csrf disabled="true"/>
+
+        <intercept-url pattern="/v1/connector/*" method="GET"
+            access="hasAnyAuthority('acs.connectors.read') " />
+        <intercept-url pattern="/v1/connector/*" method="HEAD"
+            access="hasAnyAuthority('acs.connectors.read') " />
+        <intercept-url pattern="/v1/connector/*" method="OPTIONS"
+            access="hasAnyAuthority('acs.connectors.read') " />
+
+        <intercept-url pattern="/v1/connector/*" method="PUT"
+            access="hasAnyAuthority('acs.connectors.write') " />
+        <intercept-url pattern="/v1/connector/*" method="POST"
+            access="hasAnyAuthority('acs.connectors.write') " />
+        <intercept-url pattern="/v1/connector/*" method="DELETE"
+            access="hasAnyAuthority('acs.connectors.write') " />
+        <intercept-url pattern="/v1/connector/*" method="PATCH"
+            access="hasAnyAuthority('acs.connectors.write') "/>
+
+        <custom-filter ref="oauth2remoteTokenFilter"
+            position="PRE_AUTH_FILTER" />
+        <custom-filter ref="acsRequestEnrichingFilter"
+                after="BASIC_AUTH_FILTER" />
+    </http>
+
     <!-- Authorization Configuration For V1 APIS -->
     <http pattern="/v1/**" request-matcher="ant" create-session="stateless"
         xmlns="http://www.springframework.org/schema/security"
@@ -199,13 +228,14 @@
             <property name="serviceBaseDomain" value="${ACS_BASE_DOMAIN:localhost}" />
             <property name="serviceId" value="${ACS_SERVICE_ID:predix-acs}" />
             <property name="serviceZoneHeaders" value="Predix-Zone-Id,ACS-Zone-Subdomain" />
+            <property name="useSubdomainsForZones" value="false"/>
         </bean>
 
         <bean id="defaultFastTokenService" class="com.ge.predix.uaa.token.lib.FastTokenServices">
             <property name="storeClaims" value="true" />
             <property name="trustedIssuers">
                 <list value-type="java.lang.String">
-                    <value>${TRUSTED_ISSUER_ID:${UAA_URL:http://localhost:8080/uaa}/oauth/token}</value>
+                    <value>${TRUSTED_ISSUER_ID:${ACS_UAA_URL}/oauth/token}</value>
                 </list>
             </property>
             <property name="useHttps" value="${UAA_USE_HTTPS:false}" />
@@ -213,7 +243,7 @@
 
         <bean id="defaultZoneConfig" class="com.ge.predix.uaa.token.lib.DefaultZoneConfiguration">
             <property name="trustedIssuerId"
-                value="${TRUSTED_ISSUER_ID:${UAA_URL:http://localhost:8080/uaa}/oauth/token}" />
+                value="${TRUSTED_ISSUER_ID:${ACS_UAA_URL}/oauth/token}" />
             <property name="allowedUriPatterns">
                 <list>
                     <value>/v1/zone/**</value>
@@ -240,6 +270,7 @@
             <property name="serviceBaseDomain" value="${ACS_BASE_DOMAIN}" />
             <property name="storeClaims" value="true" />
             <property name="oauth2RestTemplate" ref="zacRestTemplate" />
+            <property name="useSubdomainsForZones" value="false"/>
         </bean>
 
         <bean id="zacRestTemplate"

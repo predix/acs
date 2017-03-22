@@ -15,6 +15,7 @@
  *******************************************************************************/
 package com.ge.predix.acs.zone.management.dao;
 
+import java.io.IOException;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -31,8 +32,10 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ge.predix.acs.privilege.management.dao.ResourceEntity;
 import com.ge.predix.acs.privilege.management.dao.SubjectEntity;
+import com.ge.predix.acs.rest.AttributeConnector;
 import com.ge.predix.acs.service.policy.admin.dao.PolicySetEntity;
 
 @Entity
@@ -41,6 +44,8 @@ import com.ge.predix.acs.service.policy.admin.dao.PolicySetEntity;
         uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }),
                 @UniqueConstraint(columnNames = { "subdomain" }) })
 public class ZoneEntity {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Id
     @Column(name = "id")
@@ -73,6 +78,16 @@ public class ZoneEntity {
             cascade = { CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE },
             fetch = FetchType.LAZY)
     private Set<PolicySetEntity> policySets;
+
+    @Column(name = "resource_attribute_connector_json", nullable = true)
+    private String resourceConnectorJson;
+
+    @Column(name = "subject_attribute_connector_json", nullable = true)
+    private String subjectConnectorJson;
+
+    private AttributeConnector cachedResourceConnector;
+
+    private AttributeConnector cachedSubjectConnector;
 
     public ZoneEntity() {
     }
@@ -136,5 +151,57 @@ public class ZoneEntity {
     public String toString() {
         return "ZoneEntity [id=" + this.id + ", name=" + this.name + ", description=" + this.description
                 + ", subdomain=" + this.subdomain + "]";
+    }
+
+    public AttributeConnector getResourceAttributeConnector() {
+        if (null == this.cachedResourceConnector) {
+            this.cachedResourceConnector = connectorFromJson(this.resourceConnectorJson);
+        }
+        return this.cachedResourceConnector;
+    }
+
+    public void setResourceAttributeConnector(final AttributeConnector connector) {
+        this.resourceConnectorJson = jsonFromConnector(connector);
+        this.cachedResourceConnector = connector;
+    }
+
+    public AttributeConnector getSubjectAttributeConnector() {
+        if (null == this.cachedSubjectConnector) {
+            this.cachedSubjectConnector = connectorFromJson(this.subjectConnectorJson);
+        }
+        return this.cachedSubjectConnector;
+    }
+
+    public void setSubjectAttributeConnector(final AttributeConnector connector) {
+        this.subjectConnectorJson = jsonFromConnector(connector);
+        this.cachedSubjectConnector = connector;
+    }
+    
+    private String jsonFromConnector(final AttributeConnector connector) {
+        if (null == connector) {
+            return null;
+        }
+
+        String connectorJson;
+        try {
+            connectorJson = OBJECT_MAPPER.writeValueAsString(connector);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return connectorJson;
+    }
+
+    private AttributeConnector connectorFromJson(final String connectorJson) {
+        if (null == connectorJson) {
+            return null;
+        }
+
+        AttributeConnector connector;
+        try {
+            connector = OBJECT_MAPPER.readValue(connectorJson, AttributeConnector.class);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return connector;
     }
 }

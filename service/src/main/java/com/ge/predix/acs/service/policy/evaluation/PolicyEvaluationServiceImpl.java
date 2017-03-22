@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ge.predix.acs.attribute.readers.AttributeRetrievalException;
 import com.ge.predix.acs.commons.policy.condition.ConditionAssertionFailedException;
 import com.ge.predix.acs.commons.policy.condition.ConditionScript;
 import com.ge.predix.acs.commons.policy.condition.ConditionShell;
@@ -49,9 +50,7 @@ import com.ge.predix.acs.model.Target;
 import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationCacheCircuitBreaker;
 import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationRequestCacheKey;
 import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationRequestCacheKey.Builder;
-import com.ge.predix.acs.privilege.management.PrivilegeManagementService;
 import com.ge.predix.acs.privilege.management.dao.AttributeLimitExceededException;
-import com.ge.predix.acs.rest.BaseSubject;
 import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
 import com.ge.predix.acs.rest.PolicyEvaluationResult;
 import com.ge.predix.acs.service.policy.admin.PolicyManagementService;
@@ -76,8 +75,6 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
     private PolicyMatcher policyMatcher;
     @Autowired
     private PolicySetValidator policySetValidator;
-    @Autowired
-    private PrivilegeManagementService privilegeService;
     @Autowired
     private ZoneResolver zoneResolver;
 
@@ -253,8 +250,6 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
             }
             result = new PolicyEvaluationResult(effect, subjectAttributes,
                     new ArrayList<>(resourceAttributes), resolvedResourceUris);
-        } catch (AttributeLimitExceededException ae) {
-            result = handlePolicyEvaluationException(policySet, subjectIdentifier, resourceURI, ae);
         } catch (Throwable e) {
             result = handlePolicyEvaluationException(policySet, subjectIdentifier, resourceURI, e);
         }
@@ -268,7 +263,7 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
         logMessage.append("Exception occured while evaluating the policy set. Policy Set ID:'")
                 .append(policySet.getName()).append("' subject:'").append(subjectIdentifier)
                 .append("', Resource URI: '").append(resourceURI).append("'");
-        if (e instanceof AttributeLimitExceededException) {
+        if (e instanceof AttributeLimitExceededException || e instanceof AttributeRetrievalException) {
             result.setMessage(e.getMessage());
         }
         LOGGER.error(logMessage.toString(), e);
@@ -309,15 +304,6 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
             }
         }
         return result;
-    }
-
-    Set<Attribute> getSubjectAttributes(final String subjectIdentifier) {
-        Set<Attribute> subjectAttributes = Collections.emptySet();
-        BaseSubject subject = this.privilegeService.getBySubjectIdentifier(subjectIdentifier);
-        if (subject != null) {
-            subjectAttributes = subject.getAttributes();
-        }
-        return subjectAttributes;
     }
 
     private Map<String, Object> getAttributeBindingsMap(final Set<Attribute> subjectAttributes,
