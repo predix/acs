@@ -207,7 +207,7 @@ public class AttributeConnectorServiceImpl implements AttributeConnectorService 
         if (CollectionUtils.isEmpty(adapters)) {
             return Collections.emptySet();
         }
-        adapters.forEach(adapter -> adapter.setUaaClientSecret(this.encryptor.encrypt(adapter.getUaaClientSecret())));
+        //adapters.forEach(adapter -> adapter.setUaaClientSecret(this.encryptor.encrypt(adapter.getUaaClientSecret())));
         return adapters;
     }
 
@@ -216,7 +216,7 @@ public class AttributeConnectorServiceImpl implements AttributeConnectorService 
         if (CollectionUtils.isEmpty(adapters)) {
             return Collections.emptySet();
         }
-        adapters.forEach(adapter -> adapter.setUaaClientSecret(this.encryptor.decrypt(adapter.getUaaClientSecret())));
+        //adapters.forEach(adapter -> adapter.setUaaClientSecret(this.encryptor.decrypt(adapter.getUaaClientSecret())));
         return adapters;
     }
 
