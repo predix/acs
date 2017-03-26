@@ -9,16 +9,14 @@ public class EncryptorTest {
 
     @Test
     public void testEncryptCompleteFlow() {
-        Encryptor encryption = new Encryptor();
-        encryption.setEncryptionKey("FooBarFooBarFooB");
+        Encryptor encryption = new Encryptor("FooBarFooBarFooB");
         Assert.assertNotEquals(encryption.encrypt(VALUE_TO_ENCRYPT), VALUE_TO_ENCRYPT);
         Assert.assertEquals(encryption.decrypt(encryption.encrypt(VALUE_TO_ENCRYPT)), VALUE_TO_ENCRYPT);
     }
 
     @Test(expectedExceptions = { SymmetricKeyValidationException.class })
     public void testCreateEncryptionWithWrongKeySize() {
-        Encryptor encryption = new Encryptor();
-        encryption.setEncryptionKey("Key_With_Wrong_Size");
+        Encryptor encryption = new Encryptor("Key_With_Wrong_Size");
     }
 
 }

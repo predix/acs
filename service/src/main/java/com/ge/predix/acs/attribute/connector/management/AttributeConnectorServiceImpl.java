@@ -37,12 +37,11 @@ public class AttributeConnectorServiceImpl implements AttributeConnectorService 
 
     @PostConstruct
     public void postConstruct() {
-        setEncryptionKey(this.encryptionKey);
+        initEncryptor(this.encryptionKey);
     }
 
-    void setEncryptionKey(final String encryptionKey) {
-        this.encryptor = new Encryptor();
-        this.encryptor.setEncryptionKey(encryptionKey);
+    void initEncryptor(final String key) {
+        this.encryptor = new Encryptor(key);
     }
 
     @Override

@@ -1,82 +1,69 @@
 package com.ge.predix.acs.encryption;
 
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.Bytes;
-
 public final class Encryptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Encryptor.class);
-    private static final String ALGO_WITH_PADDING = "AES/CBC/PKCS5PADDING";
-    private static final String ALGO = "AES";
-    private static final String ENCODING = "UTF-8";
-    private static final int IV_LENGTH_IN_BYTES = 16;
+    private static final String ALGO = "Blowfish";
     private static final int KEY_LENGTH_IN_BYTES = 16;
 
-    private Cipher cipher;
-    private String encryptionKey;
+    private SecretKeySpec secretKeySpec;
+    private final ThreadLocal<Cipher> encipher;
+    private final ThreadLocal<Cipher> decipher;
 
-    public Encryptor() {
+    private Encryptor() {
+        throw new AssertionError("Encryptor class requires an encryption key upon construction");
+    }
+
+    public Encryptor(final String encryptionKey) {
+        if (null == encryptionKey || encryptionKey.length() != KEY_LENGTH_IN_BYTES) {
+            throw new SymmetricKeyValidationException("Encryption key must be string of length " + KEY_LENGTH_IN_BYTES);
+        }
+
+        this.secretKeySpec = new SecretKeySpec(encryptionKey.getBytes(), ALGO);
+        this.encipher = ThreadLocal.withInitial(() -> initCipherInstance(Cipher.ENCRYPT_MODE));
+        this.decipher = ThreadLocal.withInitial(() -> initCipherInstance(Cipher.DECRYPT_MODE));
+    }
+
+    private Cipher initCipherInstance(final int opmode) {
         try {
-            this.cipher = Cipher.getInstance(ALGO_WITH_PADDING);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            LOGGER.error("Can not created instance of cipher with algorithm" + ALGO_WITH_PADDING);
+            Cipher cipher = Cipher.getInstance(ALGO);
+            cipher.init(opmode, this.secretKeySpec);
+            return cipher;
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+            throw new CipherInitializationFailureException(e);
         }
     }
 
-    public String encrypt(final String value) {
+    public String encrypt(final String plainText) {
         try {
-            byte[] ivBytes = new byte[IV_LENGTH_IN_BYTES];
-            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            IvParameterSpec iv = new IvParameterSpec(ivBytes);
-            SecretKeySpec skeySpec = new SecretKeySpec(this.encryptionKey.getBytes(ENCODING), ALGO);
-
-            this.cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
-
-            byte[] encrypted = this.cipher.doFinal(value.getBytes());
-            byte[] result = Bytes.concat(ivBytes, encrypted);
-
-            return Base64.encodeBase64String(result);
-        } catch (Throwable ex) {
+            byte[] encrypted = plainText.getBytes();
+            encrypted = this.encipher.get().doFinal(encrypted);
+            return Base64.encodeBase64String(encrypted);
+        } catch (Throwable e) {
             LOGGER.error("Unable to encrypt");
-            throw new EncryptionFailureException(ex);
+            throw new EncryptionFailureException(e);
         }
     }
 
     public String decrypt(final String encrypted) {
         try {
-            byte[] encryptedBytes = Base64.decodeBase64(encrypted);
-            byte[] ivBytes = Arrays.copyOfRange(encryptedBytes, 0, IV_LENGTH_IN_BYTES);
-            byte[] encryptedSecretBytes = Arrays.copyOfRange(encryptedBytes, IV_LENGTH_IN_BYTES, encryptedBytes.length);
-
-            IvParameterSpec iv = new IvParameterSpec(ivBytes);
-            SecretKeySpec skeySpec = new SecretKeySpec(this.encryptionKey.getBytes(ENCODING), ALGO);
-
-            this.cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
-            byte[] original = this.cipher.doFinal(encryptedSecretBytes);
-
-            return new String(original);
-        } catch (Throwable ex) {
+            byte[] decrypted = Base64.decodeBase64(encrypted);
+            decrypted = this.decipher.get().doFinal(decrypted);
+            return new String(decrypted);
+        } catch (Throwable e) {
             LOGGER.error("Unable to decrypt");
-            throw new DecryptionFailureException(ex);
+            throw new DecryptionFailureException(e);
         }
-    }
-
-    public void setEncryptionKey(final String encryptionKey) {
-        if (null == encryptionKey || encryptionKey.length() != KEY_LENGTH_IN_BYTES) {
-            throw new SymmetricKeyValidationException("Encryption key must be string of length " + KEY_LENGTH_IN_BYTES);
-        }
-        this.encryptionKey = encryptionKey;
     }
 }

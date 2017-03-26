@@ -34,7 +34,7 @@ public class AttributeConnectorServiceTest {
     @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.connectorService.setEncryptionKey("1234567890123456");
+        this.connectorService.initEncryptor("1234567890123456");
     }
 
     @Test(dataProvider = "validConnectorProvider")
