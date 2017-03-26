@@ -26,6 +26,7 @@ public final class Encryptor {
 
     private Cipher cipher;
     private String encryptionKey;
+    private static SecureRandom scRandom = new SecureRandom();
 
     public Encryptor() {
         try {
@@ -38,8 +39,6 @@ public final class Encryptor {
     public String encrypt(final String value) {
         try {
             byte[] ivBytes = new byte[IV_LENGTH_IN_BYTES];
-        
-            SecureRandom scRandom = new SecureRandom();
             scRandom.nextBytes(ivBytes);
             IvParameterSpec iv = new IvParameterSpec(ivBytes);
             SecretKeySpec skeySpec = new SecretKeySpec(this.encryptionKey.getBytes(ENCODING), ALGO);
