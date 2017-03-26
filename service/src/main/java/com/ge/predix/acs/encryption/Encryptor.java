@@ -38,10 +38,11 @@ public final class Encryptor {
     public String encrypt(final String value) {
         try {
             byte[] ivBytes = new byte[IV_LENGTH_IN_BYTES];
-            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+        
+            SecureRandom scRandom = new SecureRandom();
+            scRandom.nextBytes(ivBytes);
             IvParameterSpec iv = new IvParameterSpec(ivBytes);
             SecretKeySpec skeySpec = new SecretKeySpec(this.encryptionKey.getBytes(ENCODING), ALGO);
-
             this.cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
 
             byte[] encrypted = this.cipher.doFinal(value.getBytes());
