@@ -212,11 +212,7 @@
         <dependency>
             <groupId>com.ge.predix</groupId>
             <artifactId>acs-service</artifactId>
-<<<<<<< HEAD
             <version>4.7.1</version>
-=======
-            <version>4.7.0</version>
->>>>>>> master
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
