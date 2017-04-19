@@ -41,6 +41,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.internal.thread.ThreadUtil;
 
 import com.ge.predix.acs.config.GraphConfig;
 import com.ge.predix.acs.model.Attribute;
@@ -96,31 +97,39 @@ public class GraphResourceRepositoryTest {
         assertThat(this.resourceRepository.count(), equalTo(2L));
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testDelete() {
-        ResourceEntity resourceEntity = persistRandomResourcetoZone1AndAssert();
-        long id = resourceEntity.getId();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity resourceEntity = persistRandomResourcetoZone1AndAssert();
+            long id = resourceEntity.getId();
 
-        this.resourceRepository.delete(id);
-        assertThat(this.resourceRepository.findOne(id), nullValue());
+            this.resourceRepository.delete(id);
+            assertThat(this.resourceRepository.findOne(id), nullValue());
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testDeleteMultiple() {
-        List<ResourceEntity> resourceEntities = new ArrayList<>();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            List<ResourceEntity> resourceEntities = new ArrayList<>();
 
-        ResourceEntity resourceEntity1 = persistRandomResourcetoZone1AndAssert();
-        Long resourceId1 = resourceEntity1.getId();
-        resourceEntities.add(resourceEntity1);
+            ResourceEntity resourceEntity1 = persistRandomResourcetoZone1AndAssert();
+            Long resourceId1 = resourceEntity1.getId();
+            resourceEntities.add(resourceEntity1);
 
-        ResourceEntity resourceEntity2 = persistRandomResourcetoZone1AndAssert();
-        Long resourceId2 = resourceEntity2.getId();
-        resourceEntities.add(resourceEntity2);
+            ResourceEntity resourceEntity2 = persistRandomResourcetoZone1AndAssert();
+            Long resourceId2 = resourceEntity2.getId();
+            resourceEntities.add(resourceEntity2);
 
-        this.resourceRepository.delete(resourceEntities);
+            this.resourceRepository.delete(resourceEntities);
 
-        assertThat(this.resourceRepository.findOne(resourceId1), nullValue());
-        assertThat(this.resourceRepository.findOne(resourceId2), nullValue());
+            assertThat(this.resourceRepository.findOne(resourceId1), nullValue());
+            assertThat(this.resourceRepository.findOne(resourceId2), nullValue());
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
     @Test
@@ -151,71 +160,94 @@ public class GraphResourceRepositoryTest {
         assertThat(resources, hasItems(resourceEntity1, resourceEntity2));
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testFindByZone() {
-        ResourceEntity resourceEntity1 = persistRandomResourcetoZone1AndAssert();
-        ResourceEntity resourceEntity2 = persistRandomResourcetoZone1AndAssert();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity resourceEntity1 = persistRandomResourcetoZone1AndAssert();
+            ResourceEntity resourceEntity2 = persistRandomResourcetoZone1AndAssert();
 
-        List<ResourceEntity> resources = this.resourceRepository.findByZone(TEST_ZONE_1);
-        assertThat(resources, hasItems(resourceEntity1, resourceEntity2));
+            List<ResourceEntity> resources = this.resourceRepository.findByZone(TEST_ZONE_1);
+            assertThat(resources, hasItems(resourceEntity1, resourceEntity2));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetByZoneAndResourceIdentifier() {
-        ResourceEntity resourceEntity1 = persist2LevelRandomResourcetoZone1();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity resourceEntity1 = persist2LevelRandomResourcetoZone1();
 
-        ResourceEntity resource = this.resourceRepository.getByZoneAndResourceIdentifier(TEST_ZONE_1,
-                resourceEntity1.getResourceIdentifier());
-        assertThat(resource, equalTo(resourceEntity1));
-        assertThat(resource.getAttributes().contains(TYPE_MONSTER_OF_THE_WEEK), equalTo(true));
-        
-        //Check that the result does not contain inherited attribute. use getResourceWithInheritedAttributes inherit 
-        //attributes 
-        assertThat(resource.getAttributes().contains(SITE_BASEMENT), equalTo(false));
+            ResourceEntity resource = this.resourceRepository.getByZoneAndResourceIdentifier(TEST_ZONE_1,
+                    resourceEntity1.getResourceIdentifier());
+            assertThat(resource, equalTo(resourceEntity1));
+            assertThat(resource.getAttributes().contains(TYPE_MONSTER_OF_THE_WEEK), equalTo(true));
+
+            //Check that the result does not contain inherited attribute.
+            // use getResourceWithInheritedAttributes inherit attributes
+            assertThat(resource.getAttributes().contains(SITE_BASEMENT), equalTo(false));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
-    
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+
+    @Test
     public void testGetResourceWithInheritedAttributesWithInheritedAttributes() {
-        ResourceEntity resourceEntity1 = persist2LevelRandomResourcetoZone1();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity resourceEntity1 = persist2LevelRandomResourcetoZone1();
 
-        ResourceEntity resource = this.resourceRepository.getResourceWithInheritedAttributes(TEST_ZONE_1,
-                resourceEntity1.getResourceIdentifier());
-        assertThat(resource.getZone().getName(), equalTo(resourceEntity1.getZone().getName()));
-        assertThat(resource.getResourceIdentifier(), equalTo(resourceEntity1.getResourceIdentifier()));
-        assertThat(resource.getAttributes().contains(TYPE_MONSTER_OF_THE_WEEK), equalTo(true));
-        // Check that the result contains inherited attribute
-        assertThat(resource.getAttributes().contains(SITE_BASEMENT), equalTo(true));
+            ResourceEntity resource = this.resourceRepository.getResourceWithInheritedAttributes(TEST_ZONE_1,
+                    resourceEntity1.getResourceIdentifier());
+            assertThat(resource.getZone().getName(), equalTo(resourceEntity1.getZone().getName()));
+            assertThat(resource.getResourceIdentifier(), equalTo(resourceEntity1.getResourceIdentifier()));
+            assertThat(resource.getAttributes().contains(TYPE_MONSTER_OF_THE_WEEK), equalTo(true));
+            // Check that the result contains inherited attribute
+            assertThat(resource.getAttributes().contains(SITE_BASEMENT), equalTo(true));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetByZoneAndResourceIdentifierWithEmptyAttributes() {
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity persistedResourceEntity = persistResourceToZoneAndAssert(TEST_ZONE_1,
+                    DRIVE_ID + getRandomNumber(), Collections.emptySet());
 
-        ResourceEntity persistedResourceEntity = persistResourceToZoneAndAssert(TEST_ZONE_1,
-                DRIVE_ID + getRandomNumber(), Collections.emptySet());
-
-        ResourceEntity resource = this.resourceRepository.getByZoneAndResourceIdentifier(TEST_ZONE_1,
-                persistedResourceEntity.getResourceIdentifier());
-        assertThat(resource, equalTo(persistedResourceEntity));
+            ResourceEntity resource = this.resourceRepository.getByZoneAndResourceIdentifier(TEST_ZONE_1,
+                    persistedResourceEntity.getResourceIdentifier());
+            assertThat(resource, equalTo(persistedResourceEntity));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetByZoneAndResourceIdentifierWithNullAttributes() {
-        ResourceEntity persistedResourceEntity = persistResourceToZoneAndAssert(TEST_ZONE_1,
-                DRIVE_ID + getRandomNumber(), null);
-        ResourceEntity resource = this.resourceRepository.getByZoneAndResourceIdentifier(TEST_ZONE_1,
-                persistedResourceEntity.getResourceIdentifier());
-        assertThat(resource, equalTo(persistedResourceEntity));
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity persistedResourceEntity = persistResourceToZoneAndAssert(TEST_ZONE_1,
+                    DRIVE_ID + getRandomNumber(), null);
+            ResourceEntity resource = this.resourceRepository.getByZoneAndResourceIdentifier(TEST_ZONE_1,
+                    persistedResourceEntity.getResourceIdentifier());
+            assertThat(resource, equalTo(persistedResourceEntity));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetByZoneAndResourceIdentifierWithInheritedAttributes3LevelHierarchical() {
-        String resourceIdentifier = persist3LevelRandomResourcetoZone1().getResourceIdentifier();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            String resourceIdentifier = persist3LevelRandomResourcetoZone1().getResourceIdentifier();
 
-        ResourceEntity resource = this.resourceRepository.getResourceWithInheritedAttributes(TEST_ZONE_1,
-                resourceIdentifier);
-        assertThat(resource.getAttributes().contains(SITE_BASEMENT), equalTo(true));
-        assertThat(resource.getAttributes().contains(TYPE_MONSTER_OF_THE_WEEK), equalTo(true));
-        assertThat(resource.getAttributes().contains(TOP_SECRET_CLASSIFICATION), equalTo(true));
+            ResourceEntity resource = this.resourceRepository.getResourceWithInheritedAttributes(TEST_ZONE_1,
+                    resourceIdentifier);
+            assertThat(resource.getAttributes().contains(SITE_BASEMENT), equalTo(true));
+            assertThat(resource.getAttributes().contains(TYPE_MONSTER_OF_THE_WEEK), equalTo(true));
+            assertThat(resource.getAttributes().contains(TOP_SECRET_CLASSIFICATION), equalTo(true));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
     @Test(expectedExceptions = SchemaViolationException.class)
@@ -265,15 +297,19 @@ public class GraphResourceRepositoryTest {
         Assert.fail("save() did not throw the expected exception.");
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testSave() {
-        String resourceId = persistRandomResourcetoZone1AndAssert().getResourceIdentifier();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            String resourceId = persistRandomResourcetoZone1AndAssert().getResourceIdentifier();
 
-        GraphTraversalSource g = this.graph.traversal();
-        GraphTraversal<Vertex, Vertex> traversal = g.V().has(RESOURCE_ID_KEY, resourceId);
+            GraphTraversalSource g = this.graph.traversal();
+            GraphTraversal<Vertex, Vertex> traversal = g.V().has(RESOURCE_ID_KEY, resourceId);
 
-        assertThat(traversal.hasNext(), equalTo(true));
-        assertThat(traversal.next().property(RESOURCE_ID_KEY).value(), equalTo(resourceId));
+            assertThat(traversal.hasNext(), equalTo(true));
+            assertThat(traversal.next().property(RESOURCE_ID_KEY).value(), equalTo(resourceId));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -291,41 +327,49 @@ public class GraphResourceRepositoryTest {
         this.resourceRepository.save(resourceEntity);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testSaveHierarchical() {
-        ResourceEntity childResource = persist2LevelRandomResourcetoZone1();
-        String childResourceId = childResource.getResourceIdentifier();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity childResource = persist2LevelRandomResourcetoZone1();
+            String childResourceId = childResource.getResourceIdentifier();
 
-        GraphTraversalSource g = this.graph.traversal();
-        GraphTraversal<Vertex, Vertex> traversal = g.V().has(RESOURCE_ID_KEY, childResourceId);
-        assertThat(traversal.hasNext(), equalTo(true));
-        Vertex childResourceVertex = traversal.next();
-        assertThat(childResourceVertex.property(RESOURCE_ID_KEY).value(), equalTo(childResourceId));
+            GraphTraversalSource g = this.graph.traversal();
+            GraphTraversal<Vertex, Vertex> traversal = g.V().has(RESOURCE_ID_KEY, childResourceId);
+            assertThat(traversal.hasNext(), equalTo(true));
+            Vertex childResourceVertex = traversal.next();
+            assertThat(childResourceVertex.property(RESOURCE_ID_KEY).value(), equalTo(childResourceId));
 
-        Parent parent = (Parent) childResource.getParents().toArray()[0];
-        traversal = this.graph.traversal().V(childResourceVertex.id()).out("parent").has(RESOURCE_ID_KEY,
-                parent.getIdentifier());
-        assertThat(traversal.hasNext(), equalTo(true));
-        Vertex parentVertex = traversal.next();
-        assertThat(parentVertex.property(RESOURCE_ID_KEY).value(), equalTo(parent.getIdentifier()));
+            Parent parent = (Parent) childResource.getParents().toArray()[0];
+            traversal = this.graph.traversal().V(childResourceVertex.id()).out("parent").has(RESOURCE_ID_KEY,
+                    parent.getIdentifier());
+            assertThat(traversal.hasNext(), equalTo(true));
+            Vertex parentVertex = traversal.next();
+            assertThat(parentVertex.property(RESOURCE_ID_KEY).value(), equalTo(parent.getIdentifier()));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testUpdateAttachedEntity() {
-        ResourceEntity resourceEntity = persistRandomResourcetoZone1AndAssert();
-        String resourceId = resourceEntity.getResourceIdentifier();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity resourceEntity = persistRandomResourcetoZone1AndAssert();
+            String resourceId = resourceEntity.getResourceIdentifier();
 
-        GraphTraversalSource g = this.graph.traversal();
-        GraphTraversal<Vertex, Vertex> traversal = g.V().has(RESOURCE_ID_KEY, resourceId);
-        assertThat(traversal.hasNext(), equalTo(true));
-        assertThat(traversal.next().property(RESOURCE_ID_KEY).value(), equalTo(resourceId));
+            GraphTraversalSource g = this.graph.traversal();
+            GraphTraversal<Vertex, Vertex> traversal = g.V().has(RESOURCE_ID_KEY, resourceId);
+            assertThat(traversal.hasNext(), equalTo(true));
+            assertThat(traversal.next().property(RESOURCE_ID_KEY).value(), equalTo(resourceId));
 
-        // Update the resource.
-        String updateJSON = "{\'status':'test'}";
-        resourceEntity.setAttributesAsJson(updateJSON);
-        saveWithRetry(this.resourceRepository, resourceEntity, 3);
-        assertThat(this.resourceRepository.getEntity(TEST_ZONE_1, resourceEntity.getResourceIdentifier())
-                .getAttributesAsJson(), equalTo(updateJSON));
+            // Update the resource.
+            String updateJSON = "{\'status':'test'}";
+            resourceEntity.setAttributesAsJson(updateJSON);
+            saveWithRetry(this.resourceRepository, resourceEntity, 3);
+            assertThat(this.resourceRepository.getEntity(TEST_ZONE_1, resourceEntity.getResourceIdentifier())
+                    .getAttributesAsJson(), equalTo(updateJSON));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
     @Test(expectedExceptions = SchemaViolationException.class)
@@ -341,18 +385,22 @@ public class GraphResourceRepositoryTest {
         persistResourceToZoneAndAssert(TEST_ZONE_1, resourceId, DRIVE_ATTRIBUTES);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testSaveMultiple() {
-        List<ResourceEntity> resourceEntitiesToSave = new ArrayList<>();
-        ResourceEntity resourceEntity1 = new ResourceEntity(TEST_ZONE_1, DRIVE_ID + getRandomNumber());
-        ResourceEntity resourceEntity2 = new ResourceEntity(TEST_ZONE_1, JOSECHUNG_ID + getRandomNumber());
-        resourceEntitiesToSave.add(resourceEntity1);
-        resourceEntitiesToSave.add(resourceEntity2);
-        this.resourceRepository.save(resourceEntitiesToSave);
-        assertThat(this.resourceRepository.getEntity(TEST_ZONE_1, resourceEntity1.getResourceIdentifier()),
-                equalTo(resourceEntity1));
-        assertThat(this.resourceRepository.getEntity(TEST_ZONE_1, resourceEntity2.getResourceIdentifier()),
-                equalTo(resourceEntity2));
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            List<ResourceEntity> resourceEntitiesToSave = new ArrayList<>();
+            ResourceEntity resourceEntity1 = new ResourceEntity(TEST_ZONE_1, DRIVE_ID + getRandomNumber());
+            ResourceEntity resourceEntity2 = new ResourceEntity(TEST_ZONE_1, JOSECHUNG_ID + getRandomNumber());
+            resourceEntitiesToSave.add(resourceEntity1);
+            resourceEntitiesToSave.add(resourceEntity2);
+            this.resourceRepository.save(resourceEntitiesToSave);
+            assertThat(this.resourceRepository.getEntity(TEST_ZONE_1, resourceEntity1.getResourceIdentifier()),
+                    equalTo(resourceEntity1));
+            assertThat(this.resourceRepository.getEntity(TEST_ZONE_1, resourceEntity2.getResourceIdentifier()),
+                    equalTo(resourceEntity2));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
     @Test
@@ -372,7 +420,7 @@ public class GraphResourceRepositoryTest {
             return;
         }
         Assert.fail("save() did not throw the expected IllegalStateException exception.");
-        
+
     }
 
     @Test(enabled = false)
@@ -425,57 +473,60 @@ public class GraphResourceRepositoryTest {
         }
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetResourceEntityAndDescendantsIds() {
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            ResourceEntity basement = persistResourceToZoneAndAssert(TEST_ZONE_1, BASEMENT_SITE_ID + getRandomNumber(),
+                    BASEMENT_ATTRIBUTES);
 
-        ResourceEntity basement = persistResourceToZoneAndAssert(TEST_ZONE_1, BASEMENT_SITE_ID + getRandomNumber(),
-                BASEMENT_ATTRIBUTES);
+            ResourceEntity drive = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1, DRIVE_ID + getRandomNumber(),
+                    DRIVE_ATTRIBUTES,
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(basement.getResourceIdentifier()) })));
+            ResourceEntity ascension = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1,
+                    ASCENSION_ID + getRandomNumber(), ASCENSION_ATTRIBUTES,
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(basement.getResourceIdentifier()) })));
 
-        ResourceEntity drive = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1, DRIVE_ID + getRandomNumber(),
-                DRIVE_ATTRIBUTES,
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(basement.getResourceIdentifier()) })));
-        ResourceEntity ascension = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1,
-                ASCENSION_ID + getRandomNumber(), ASCENSION_ATTRIBUTES,
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(basement.getResourceIdentifier()) })));
+            ResourceEntity implant = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1,
+                    EVIDENCE_IMPLANT_ID + getRandomNumber(), EVIDENCE_IMPLANT_ATTRIBUTES,
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(drive.getResourceIdentifier()),
+                            new Parent(ascension.getResourceIdentifier()) })));
+            ResourceEntity scullysTestimony = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1,
+                    EVIDENCE_SCULLYS_TESTIMONY_ID + getRandomNumber(), SCULLYS_TESTIMONY_ATTRIBUTES,
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(ascension.getResourceIdentifier()) })));
 
-        ResourceEntity implant = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1,
-                EVIDENCE_IMPLANT_ID + getRandomNumber(), EVIDENCE_IMPLANT_ATTRIBUTES,
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(drive.getResourceIdentifier()),
-                        new Parent(ascension.getResourceIdentifier()) })));
-        ResourceEntity scullysTestimony = persistResourceWithParentsToZoneAndAssert(TEST_ZONE_1,
-                EVIDENCE_SCULLYS_TESTIMONY_ID + getRandomNumber(), SCULLYS_TESTIMONY_ATTRIBUTES,
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(ascension.getResourceIdentifier()) })));
+            Set<String> descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(basement);
+            assertThat(descendantsIds, hasSize(5));
+            assertThat(descendantsIds,
+                    hasItems(basement.getResourceIdentifier(), drive.getResourceIdentifier(),
+                            ascension.getResourceIdentifier(), implant.getResourceIdentifier(),
+                            scullysTestimony.getResourceIdentifier()));
 
-        Set<String> descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(basement);
-        assertThat(descendantsIds, hasSize(5));
-        assertThat(descendantsIds,
-                hasItems(basement.getResourceIdentifier(), drive.getResourceIdentifier(),
-                        ascension.getResourceIdentifier(), implant.getResourceIdentifier(),
-                        scullysTestimony.getResourceIdentifier()));
+            descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(ascension);
+            assertThat(descendantsIds, hasSize(3));
+            assertThat(descendantsIds, hasItems(ascension.getResourceIdentifier(), implant.getResourceIdentifier(),
+                    scullysTestimony.getResourceIdentifier()));
 
-        descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(ascension);
-        assertThat(descendantsIds, hasSize(3));
-        assertThat(descendantsIds, hasItems(ascension.getResourceIdentifier(), implant.getResourceIdentifier(),
-                scullysTestimony.getResourceIdentifier()));
+            descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(drive);
+            assertThat(descendantsIds, hasSize(2));
+            assertThat(descendantsIds, hasItems(drive.getResourceIdentifier(), implant.getResourceIdentifier()));
 
-        descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(drive);
-        assertThat(descendantsIds, hasSize(2));
-        assertThat(descendantsIds, hasItems(drive.getResourceIdentifier(), implant.getResourceIdentifier()));
+            descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(implant);
+            assertThat(descendantsIds, hasSize(1));
+            assertThat(descendantsIds, hasItems(implant.getResourceIdentifier()));
 
-        descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(implant);
-        assertThat(descendantsIds, hasSize(1));
-        assertThat(descendantsIds, hasItems(implant.getResourceIdentifier()));
+            descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(scullysTestimony);
+            assertThat(descendantsIds, hasSize(1));
+            assertThat(descendantsIds, hasItems(scullysTestimony.getResourceIdentifier()));
 
-        descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(scullysTestimony);
-        assertThat(descendantsIds, hasSize(1));
-        assertThat(descendantsIds, hasItems(scullysTestimony.getResourceIdentifier()));
+            descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(null);
+            assertThat(descendantsIds, empty());
 
-        descendantsIds = this.resourceRepository.getResourceEntityAndDescendantsIds(null);
-        assertThat(descendantsIds, empty());
-
-        descendantsIds = this.resourceRepository
-                .getResourceEntityAndDescendantsIds(new ResourceEntity(TEST_ZONE_1, "/nonexistent-resource"));
-        assertThat(descendantsIds, empty());
+            descendantsIds = this.resourceRepository
+                    .getResourceEntityAndDescendantsIds(new ResourceEntity(TEST_ZONE_1, "/nonexistent-resource"));
+            assertThat(descendantsIds, empty());
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
@@ -548,7 +599,7 @@ public class GraphResourceRepositoryTest {
 
     //Because of unique indices, saves on ZonableEntity can throw a lock exception due to contention on the index
     //update. This method allows does a sleep and retry the save.
-    
+
     /*
      * Sample Exception: [Z: C:] 2016-11-03 15:13:33 ERROR [TestNG] database.StandardTitanGraph
      * [StandardTitanGraph.java:779] Could not commit transaction [10] due to exceptionsg

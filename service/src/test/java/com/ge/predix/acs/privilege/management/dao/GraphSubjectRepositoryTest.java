@@ -38,6 +38,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.internal.thread.ThreadUtil;
 
 import com.ge.predix.acs.config.GraphConfig;
 import com.ge.predix.acs.model.Attribute;
@@ -66,155 +67,189 @@ public class GraphSubjectRepositoryTest {
         this.subjectRepository.setGraph(this.graph);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetByZoneAndSubjectIdentifier() {
-        SubjectEntity subjectEntityForZone1 = persistRandomSubjectToZone1AndAssert();
-        SubjectEntity subjectEntityForZone2 = persistRandomSubjectToZone2AndAssert();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            SubjectEntity subjectEntityForZone1 = persistRandomSubjectToZone1AndAssert();
+            SubjectEntity subjectEntityForZone2 = persistRandomSubjectToZone2AndAssert();
 
-        SubjectEntity actualSubjectForZone1 = this.subjectRepository.getByZoneAndSubjectIdentifier(TEST_ZONE_1,
-                subjectEntityForZone1.getSubjectIdentifier());
-        SubjectEntity actualSubjectForZone2 = this.subjectRepository.getByZoneAndSubjectIdentifier(TEST_ZONE_2,
-                subjectEntityForZone2.getSubjectIdentifier());
-        assertThat(actualSubjectForZone1, equalTo(subjectEntityForZone1));
-        assertThat(actualSubjectForZone2, equalTo(subjectEntityForZone2));
+            SubjectEntity actualSubjectForZone1 = this.subjectRepository.getByZoneAndSubjectIdentifier(TEST_ZONE_1,
+                    subjectEntityForZone1.getSubjectIdentifier());
+            SubjectEntity actualSubjectForZone2 = this.subjectRepository.getByZoneAndSubjectIdentifier(TEST_ZONE_2,
+                    subjectEntityForZone2.getSubjectIdentifier());
+            assertThat(actualSubjectForZone1, equalTo(subjectEntityForZone1));
+            assertThat(actualSubjectForZone2, equalTo(subjectEntityForZone2));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetByZoneAndSubjectIdentifierAndScopes() {
-        SubjectEntity expectedSubject = persistScopedHierarchy(AGENT_MULDER + getRandomNumber(), SITE_BASEMENT);
-        String subjectIdentifier = expectedSubject.getSubjectIdentifier();
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            SubjectEntity expectedSubject = persistScopedHierarchy(AGENT_MULDER + getRandomNumber(), SITE_BASEMENT);
+            String subjectIdentifier = expectedSubject.getSubjectIdentifier();
 
-        HashSet<Attribute> expectedAttributes = new HashSet<>(
-                Arrays.asList(new Attribute[] { SECRET_CLASSIFICATION, TOP_SECRET_CLASSIFICATION, SITE_BASEMENT }));
-        expectedSubject.setAttributes(expectedAttributes);
-        expectedSubject.setAttributesAsJson(JSON_UTILS.serialize(expectedAttributes));
+            HashSet<Attribute> expectedAttributes = new HashSet<>(
+                    Arrays.asList(new Attribute[] { SECRET_CLASSIFICATION, TOP_SECRET_CLASSIFICATION, SITE_BASEMENT }));
+            expectedSubject.setAttributes(expectedAttributes);
+            expectedSubject.setAttributesAsJson(JSON_UTILS.serialize(expectedAttributes));
 
-        SubjectEntity actualSubject = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(TEST_ZONE_1,
-                subjectIdentifier, new HashSet<>(Arrays.asList(new Attribute[] { SITE_BASEMENT })));
-        assertThat(actualSubject, equalTo(expectedSubject));
+            SubjectEntity actualSubject = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(TEST_ZONE_1,
+                    subjectIdentifier, new HashSet<>(Arrays.asList(new Attribute[] { SITE_BASEMENT })));
+            assertThat(actualSubject, equalTo(expectedSubject));
 
-        expectedAttributes = new HashSet<>(Arrays.asList(new Attribute[] { SECRET_CLASSIFICATION, SITE_BASEMENT }));
-        expectedSubject.setAttributes(expectedAttributes);
-        expectedSubject.setAttributesAsJson(JSON_UTILS.serialize(expectedAttributes));
-        actualSubject = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(TEST_ZONE_1,
-                subjectIdentifier, new HashSet<>(Arrays.asList(new Attribute[] { SITE_PENTAGON })));
-        assertThat(actualSubject, equalTo(expectedSubject));
+            expectedAttributes = new HashSet<>(Arrays.asList(new Attribute[] { SECRET_CLASSIFICATION, SITE_BASEMENT }));
+            expectedSubject.setAttributes(expectedAttributes);
+            expectedSubject.setAttributesAsJson(JSON_UTILS.serialize(expectedAttributes));
+            actualSubject = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(TEST_ZONE_1,
+                    subjectIdentifier, new HashSet<>(Arrays.asList(new Attribute[] { SITE_PENTAGON })));
+            assertThat(actualSubject, equalTo(expectedSubject));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testParentAndChildSameAttribute() {
-        SubjectEntity agentScully = new SubjectEntity(TEST_ZONE_1, AGENT_SCULLY + getRandomNumber());
-        agentScully.setAttributes(MULDERS_ATTRIBUTES);
-        agentScully.setAttributesAsJson(JSON_UTILS.serialize(agentScully.getAttributes()));
-        saveWithRetry(agentScully, 3);
-        SubjectEntity agentMulder = new SubjectEntity(TEST_ZONE_1, AGENT_MULDER + getRandomNumber());
-        agentMulder.setAttributes(MULDERS_ATTRIBUTES);
-        agentMulder.setAttributesAsJson(JSON_UTILS.serialize(agentMulder.getAttributes()));
-        agentMulder.setParents(
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(agentScully.getSubjectIdentifier()) })));
-        saveWithRetry(agentMulder, 3);
-        SubjectEntity actualAgentMulder = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(TEST_ZONE_1,
-                agentMulder.getSubjectIdentifier(), null);
-        assertThat(actualAgentMulder.getAttributesAsJson(),
-                equalTo("[{\"issuer\":\"acs.example.org\",\"name\":\"site\",\"value\":\"basement\"}]"));
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            SubjectEntity agentScully = new SubjectEntity(TEST_ZONE_1, AGENT_SCULLY + getRandomNumber());
+            agentScully.setAttributes(MULDERS_ATTRIBUTES);
+            agentScully.setAttributesAsJson(JSON_UTILS.serialize(agentScully.getAttributes()));
+            saveWithRetry(agentScully, 3);
+            SubjectEntity agentMulder = new SubjectEntity(TEST_ZONE_1, AGENT_MULDER + getRandomNumber());
+            agentMulder.setAttributes(MULDERS_ATTRIBUTES);
+            agentMulder.setAttributesAsJson(JSON_UTILS.serialize(agentMulder.getAttributes()));
+            agentMulder.setParents(
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(agentScully.getSubjectIdentifier()) })));
+            saveWithRetry(agentMulder, 3);
+            SubjectEntity actualAgentMulder = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(
+                    TEST_ZONE_1, agentMulder.getSubjectIdentifier(), null);
+            assertThat(actualAgentMulder.getAttributesAsJson(),
+                    equalTo("[{\"issuer\":\"acs.example.org\",\"name\":\"site\",\"value\":\"basement\"}]"));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testParentAndChildAttributeSameNameDifferentValues() {
-        SubjectEntity agentScully = new SubjectEntity(TEST_ZONE_1, AGENT_SCULLY + getRandomNumber());
-        agentScully.setAttributes(PENTAGON_ATTRIBUTES);
-        agentScully.setAttributesAsJson(JSON_UTILS.serialize(agentScully.getAttributes()));
-        saveWithRetry(agentScully, 3);
-        SubjectEntity agentMulder = new SubjectEntity(TEST_ZONE_1, AGENT_MULDER + getRandomNumber());
-        agentMulder.setAttributes(MULDERS_ATTRIBUTES);
-        agentMulder.setAttributesAsJson(JSON_UTILS.serialize(agentMulder.getAttributes()));
-        agentMulder.setParents(
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(agentScully.getSubjectIdentifier()) })));
-        saveWithRetry(agentMulder, 3);
-        SubjectEntity actualAgentMulder = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(TEST_ZONE_1,
-                agentMulder.getSubjectIdentifier(), null);
-        assertThat(actualAgentMulder.getAttributesAsJson(),
-                equalTo("[{\"issuer\":\"acs.example.org\",\"name\":\"site\",\"value\":\"basement\"},"
-                        + "{\"issuer\":\"acs.example.org\",\"name\":\"site\",\"value\":\"pentagon\"}]"));
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            SubjectEntity agentScully = new SubjectEntity(TEST_ZONE_1, AGENT_SCULLY + getRandomNumber());
+            agentScully.setAttributes(PENTAGON_ATTRIBUTES);
+            agentScully.setAttributesAsJson(JSON_UTILS.serialize(agentScully.getAttributes()));
+            saveWithRetry(agentScully, 3);
+            SubjectEntity agentMulder = new SubjectEntity(TEST_ZONE_1, AGENT_MULDER + getRandomNumber());
+            agentMulder.setAttributes(MULDERS_ATTRIBUTES);
+            agentMulder.setAttributesAsJson(JSON_UTILS.serialize(agentMulder.getAttributes()));
+            agentMulder.setParents(
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(agentScully.getSubjectIdentifier()) })));
+            saveWithRetry(agentMulder, 3);
+            SubjectEntity actualAgentMulder = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(
+                    TEST_ZONE_1, agentMulder.getSubjectIdentifier(), null);
+            assertThat(actualAgentMulder.getAttributesAsJson(),
+                    equalTo("[{\"issuer\":\"acs.example.org\",\"name\":\"site\",\"value\":\"basement\"},"
+                            + "{\"issuer\":\"acs.example.org\",\"name\":\"site\",\"value\":\"pentagon\"}]"));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testSave() {
-        String subjectId = persistRandomSubjectToZone1AndAssert().getSubjectIdentifier();
-        GraphTraversalSource g = this.graph.traversal();
-        GraphTraversal<Vertex, Vertex> traversal = g.V().has(SUBJECT_ID_KEY, subjectId);
-        assertThat(traversal.hasNext(), equalTo(true));
-        assertThat(traversal.next().property(SUBJECT_ID_KEY).value(), equalTo(subjectId));
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            String subjectId = persistRandomSubjectToZone1AndAssert().getSubjectIdentifier();
+            GraphTraversalSource g = this.graph.traversal();
+            GraphTraversal<Vertex, Vertex> traversal = g.V().has(SUBJECT_ID_KEY, subjectId);
+            assertThat(traversal.hasNext(), equalTo(true));
+            assertThat(traversal.next().property(SUBJECT_ID_KEY).value(), equalTo(subjectId));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testSaveWithNoAttributes() {
-        SubjectEntity subject = new SubjectEntity(TEST_ZONE_1, AGENT_SCULLY + getRandomNumber());
-        saveWithRetry(subject, 3);
-        assertThat(this.subjectRepository.getByZoneAndSubjectIdentifier(TEST_ZONE_1, subject.getSubjectIdentifier()),
-                equalTo(subject));
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            SubjectEntity subject = new SubjectEntity(TEST_ZONE_1, AGENT_SCULLY + getRandomNumber());
+            saveWithRetry(subject, 3);
+            assertThat(this.subjectRepository.getByZoneAndSubjectIdentifier(TEST_ZONE_1,
+                    subject.getSubjectIdentifier()), equalTo(subject));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testSaveScopes() {
-        SubjectEntity subject = persistScopedHierarchy(AGENT_MULDER + getRandomNumber(), SITE_BASEMENT);
-        assertThat(IteratorUtils.count(this.graph.traversal().V(subject.getId()).outE(PARENT_EDGE_LABEL)), equalTo(2L));
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            SubjectEntity subject = persistScopedHierarchy(AGENT_MULDER + getRandomNumber(), SITE_BASEMENT);
+            assertThat(IteratorUtils.count(this.graph.traversal().V(subject.getId()).outE(PARENT_EDGE_LABEL)),
+                    equalTo(2L));
 
-        // Persist again (i.e. update) and make sure vertex and edge count are stable.
-        this.subjectRepository.save(subject);
-        assertThat(IteratorUtils.count(this.graph.traversal().V(subject.getId()).outE(PARENT_EDGE_LABEL)), equalTo(2L));
+            // Persist again (i.e. update) and make sure vertex and edge count are stable.
+            this.subjectRepository.save(subject);
+            assertThat(IteratorUtils.count(this.graph.traversal().V(subject.getId()).outE(PARENT_EDGE_LABEL)),
+                    equalTo(2L));
 
-        Parent parent = null;
-        for (Parent tempParent : this.subjectRepository.findOne(subject.getId()).getParents()) {
-            if (tempParent.getIdentifier().contains(TOP_SECRET_GROUP)) {
-                parent = tempParent;
+            Parent parent = null;
+            for (Parent tempParent : this.subjectRepository.findOne(subject.getId()).getParents()) {
+                if (tempParent.getIdentifier().contains(TOP_SECRET_GROUP)) {
+                    parent = tempParent;
+                }
             }
-        }
-        assertThat(parent, notNullValue());
-        assertThat("Expected scope not found on subject.", parent.getScopes().contains(SITE_BASEMENT));
+            assertThat(parent, notNullValue());
+            assertThat("Expected scope not found on subject.", parent.getScopes().contains(SITE_BASEMENT));
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
-    @Test(threadPoolSize = CONCURRENT_TEST_THREAD_COUNT, invocationCount = CONCURRENT_TEST_INVOCATIONS)
+    @Test
     public void testGetSubjectEntityAndDescendantsIds() {
+        // Workaround so that code coverage can be generated per test
+        // (instead of using TestNG's threadPoolSize/invocationCount)
+        ThreadUtil.execute(Collections.nCopies(CONCURRENT_TEST_INVOCATIONS, () -> {
+            SubjectEntity fbi = persistSubjectToZoneAndAssert(TEST_ZONE_1, FBI + getRandomNumber(), FBI_ATTRIBUTES);
 
-        SubjectEntity fbi = persistSubjectToZoneAndAssert(TEST_ZONE_1, FBI + getRandomNumber(), FBI_ATTRIBUTES);
+            SubjectEntity specialAgentsGroup = persistSubjectWithParentsToZoneAndAssert(TEST_ZONE_1,
+                    SPECIAL_AGENTS_GROUP + getRandomNumber(), SPECIAL_AGENTS_GROUP_ATTRIBUTES,
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(fbi.getSubjectIdentifier()) })));
 
-        SubjectEntity specialAgentsGroup = persistSubjectWithParentsToZoneAndAssert(TEST_ZONE_1,
-                SPECIAL_AGENTS_GROUP + getRandomNumber(), SPECIAL_AGENTS_GROUP_ATTRIBUTES,
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(fbi.getSubjectIdentifier()) })));
+            SubjectEntity topSecretGroup = persistSubjectToZoneAndAssert(TEST_ZONE_1,
+                    TOP_SECRET_GROUP + getRandomNumber(), TOP_SECRET_GROUP_ATTRIBUTES);
 
-        SubjectEntity topSecretGroup = persistSubjectToZoneAndAssert(TEST_ZONE_1, TOP_SECRET_GROUP + getRandomNumber(),
-                TOP_SECRET_GROUP_ATTRIBUTES);
+            SubjectEntity agentMulder = persistSubjectWithParentsToZoneAndAssert(TEST_ZONE_1,
+                    AGENT_MULDER + getRandomNumber(), MULDERS_ATTRIBUTES,
+                    new HashSet<>(Arrays.asList(new Parent[] { new Parent(specialAgentsGroup.getSubjectIdentifier()),
+                            new Parent(topSecretGroup.getSubjectIdentifier()) })));
 
-        SubjectEntity agentMulder = persistSubjectWithParentsToZoneAndAssert(TEST_ZONE_1,
-                AGENT_MULDER + getRandomNumber(), MULDERS_ATTRIBUTES,
-                new HashSet<>(Arrays.asList(new Parent[] { new Parent(specialAgentsGroup.getSubjectIdentifier()),
-                        new Parent(topSecretGroup.getSubjectIdentifier()) })));
+            Set<String> descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(fbi);
+            assertThat(descendantsIds, hasSize(3));
+            assertThat(descendantsIds, hasItems(fbi.getSubjectIdentifier(), specialAgentsGroup.getSubjectIdentifier(),
+                    agentMulder.getSubjectIdentifier()));
 
-        Set<String> descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(fbi);
-        assertThat(descendantsIds, hasSize(3));
-        assertThat(descendantsIds, hasItems(fbi.getSubjectIdentifier(), specialAgentsGroup.getSubjectIdentifier(),
-                agentMulder.getSubjectIdentifier()));
+            descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(specialAgentsGroup);
+            assertThat(descendantsIds, hasSize(2));
+            assertThat(descendantsIds,
+                    hasItems(specialAgentsGroup.getSubjectIdentifier(), agentMulder.getSubjectIdentifier()));
 
-        descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(specialAgentsGroup);
-        assertThat(descendantsIds, hasSize(2));
-        assertThat(descendantsIds,
-                hasItems(specialAgentsGroup.getSubjectIdentifier(), agentMulder.getSubjectIdentifier()));
+            descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(topSecretGroup);
+            assertThat(descendantsIds, hasSize(2));
+            assertThat(descendantsIds, hasItems(topSecretGroup.getSubjectIdentifier(),
+                    agentMulder.getSubjectIdentifier()));
 
-        descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(topSecretGroup);
-        assertThat(descendantsIds, hasSize(2));
-        assertThat(descendantsIds, hasItems(topSecretGroup.getSubjectIdentifier(), agentMulder.getSubjectIdentifier()));
+            descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(agentMulder);
+            assertThat(descendantsIds, hasSize(1));
+            assertThat(descendantsIds, hasItems(agentMulder.getSubjectIdentifier()));
 
-        descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(agentMulder);
-        assertThat(descendantsIds, hasSize(1));
-        assertThat(descendantsIds, hasItems(agentMulder.getSubjectIdentifier()));
+            descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(null);
+            assertThat(descendantsIds, empty());
 
-        descendantsIds = this.subjectRepository.getSubjectEntityAndDescendantsIds(null);
-        assertThat(descendantsIds, empty());
-
-        descendantsIds = this.subjectRepository
-                .getSubjectEntityAndDescendantsIds(new SubjectEntity(TEST_ZONE_1, "/nonexistent-subject"));
-        assertThat(descendantsIds, empty());
+            descendantsIds = this.subjectRepository
+                    .getSubjectEntityAndDescendantsIds(new SubjectEntity(TEST_ZONE_1, "/nonexistent-subject"));
+            assertThat(descendantsIds, empty());
+        }), CONCURRENT_TEST_THREAD_COUNT, 0, true);
     }
 
     private SubjectEntity persistRandomSubjectToZone1AndAssert() {
@@ -272,7 +307,7 @@ public class GraphSubjectRepositoryTest {
                 new Parent(secretGroup.getSubjectIdentifier()) })));
         return this.subjectRepository.save(agentMulder);
     }
-    
+
     private SubjectEntity saveWithRetry(final SubjectEntity subject, final int retryCount) throws TitanException {
         return GraphResourceRepositoryTest.saveWithRetry(this.subjectRepository, subject, retryCount);
     }

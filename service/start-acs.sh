@@ -24,6 +24,7 @@ export DIR=$( dirname "$( python -c "import os; print os.path.abspath('${BASH_SO
 if [ "$#" -eq 0 ]; then
     unset JAVA_DEBUG_OPTS
     unset LOGGING_OPTS
+    unset JACOCO_OPTS
 fi
 
 main() {
@@ -37,6 +38,10 @@ main() {
                 LOGGING_OPTS="-Dlog4j.debug -Dlog4j.configuration=file:${DIR}/src/main/resources/log4j-dev.xml"
                 shift
                 ;;
+            'jacoco')
+                JACOCO_OPTS="-javaagent:${HOME}/.m2/repository/org/jacoco/org.jacoco.agent/0.7.9/org.jacoco.agent-0.7.9-runtime.jar=output=tcpserver,address=*,dumponexit=false,destfile=$( python -c "import os; print os.path.abspath('${DIR}/../target/jacoco-it.exec')" )"
+                shift
+                ;;
             *)
                 break
                 ;;
@@ -44,7 +49,7 @@ main() {
     done
 
     cp "${DIR}"/target/acs-service-*-exec.jar "${DIR}"/.acs-service-copy.jar
-    java -Xms1g -Xmx1g $JAVA_DEBUG_OPTS $LOGGING_OPTS $PROXY_OPTS -jar "${DIR}"/.acs-service-copy.jar
+    java -Xms1g -Xmx1g $JAVA_DEBUG_OPTS $LOGGING_OPTS $JACOCO_OPTS $PROXY_OPTS -jar "${DIR}"/.acs-service-copy.jar
 }
 
 main "$@"

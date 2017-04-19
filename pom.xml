@@ -90,7 +90,12 @@
         <testng.version>6.9.10</testng.version>
         <cucumber.version>1.2.5</cucumber.version>
         <groovy-all.version>2.4.4</groovy-all.version>
+        <jacoco.version>0.7.9</jacoco.version>
 
+        <!-- Sonar-related properties -->
+        <jacoco_ut_exec>../target/jacoco.exec</jacoco_ut_exec>
+        <sonar.jacoco.reportPaths>${jacoco_ut_exec}</sonar.jacoco.reportPaths>
+        <sonar.language>java</sonar.language>
     </properties>
 
     <repositories>
@@ -208,6 +213,20 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.sonarsource.java</groupId>
+            <artifactId>sonar-jacoco-listeners</artifactId>
+            <!-- Version should be the same as the Sonar Java plugin: http://localhost:9000/updatecenter/installed -->
+            <version>4.5.0.8398</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <version>${jacoco.version}</version>
+            <classifier>runtime</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -230,6 +249,26 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>org.sonar.java.jacoco.TestNGListener</value>
+                        </property>
+                    </properties>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>org.sonar.java.jacoco.TestNGListener</value>
+                        </property>
+                    </properties>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -319,68 +358,58 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>2.2</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
     <profiles>
         <profile>
             <id>with.jacoco</id>
-            <activation>
-                <property>
-                    <name>profile-name</name>
-                    <value>with.jacoco</value>
-                </property>
-            </activation>
-            <properties>
-                <jacoco.version>0.7.2.201409121644</jacoco.version>
-                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-                <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
-                <sonar.language>java</sonar.language>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${jacoco.version}</version>
                         <configuration>
-                            <destFile>${sonar.jacoco.reportPath}</destFile>
-                            <append>true</append>
-                            <excludes>
-                                <exclude>com/ge/predix/acs/model/*.class</exclude>
-                                <exclude>com/ge/predix/acs/rest/*.class</exclude>
-                                <exclude>com/ge/predix/acs/privilege/management/dao/*.class</exclude>
-                                <exclude>com/ge/predix/acs/issuer/management/dao/*.class</exclude>
-                                <exclude>com/ge/predix/acs/zone/management/dao/*.class</exclude>
-                                <exclude>com/ge/predix/acs/service/policy/admin/dao/*.class</exclude>
-                                <exclude>com/ge/predix/acs/jmx/*.class</exclude>
-                                <exclude>com/ge/predix/acs/AccessControlService.class</exclude>
-                                <exclude>db/postgres/*.class</exclude>
-                                <!-- The below classes are covered in integration
-                                    tests and these can be commented back in to get the actual code coverage
-                                    report -->
-                                <!-- <exclude>com/ge/predix/acs/privilege/management/ResourcePrivilegeManagementController.class</exclude>
-                                    <exclude>com/ge/predix/acs/monitoring/AcsMonitoringController.class</exclude>
-                                    <exclude>com/ge/predix/acs/privilege/management/SubjectPrivilegeManagementController.class</exclude>
-                                    <exclude>com/ge/predix/acs/service/policy/admin/PolicyManagementController.class</exclude>
-                                    <exclude>com/ge/predix/acs/service/policy/evaluation/PolicyEvaluationController.class</exclude>
-                                    <exclude>com/ge/predix/acs/zone/management/ZoneController.class</exclude>
-                                    <exclude>com/ge/predix/acs/config/CloudDataSourceConfig.class </exclude> -->
-                            </excludes>
+                            <destFile>${jacoco_ut_exec}</destFile>
+                            <dataFile>${jacoco_ut_exec}</dataFile>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>agent</id>
+                                <id>jacoco-pre-unit-test</id>
+                                <phase>test-compile</phase>
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
                             <execution>
-                                <id>post-unit-test</id>
+                                <id>jacoco-post-unit-test</id>
                                 <phase>test</phase>
                                 <goals>
                                     <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>jacoco-pre-integration-test</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>jacoco-post-integration-test</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>report-integration</goal>
                                 </goals>
                             </execution>
                         </executions>

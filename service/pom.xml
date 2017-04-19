@@ -426,6 +426,9 @@
     <properties>
         <start-class>com.ge.predix.acs.AccessControlService</start-class>
         <jenkins.build.number>dev</jenkins.build.number>
+
+        <!-- Sonar-related properties -->
+        <sonar.junit.reportsPath>${basedir}/failsafe-reports</sonar.junit.reportsPath>
     </properties>
 
     <build>
@@ -487,12 +490,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- us32088: Place test reports outside of target directory so reports are not removed by 'mvn clean'
-                         and retained by Jenkins for each profile -->
-                    <reportsDirectory>${basedir}/surefire-reports</reportsDirectory>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/unit-tests.xml</suiteXmlFile>
-                    </suiteXmlFiles>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
 
@@ -502,8 +500,8 @@
                 <configuration>
                     <!-- us32088: Place test reports outside of target directory so reports are not removed by 'mvn clean'
                          and retained by Jenkins for each profile -->
-                    <reportsDirectory>${basedir}/surefire-reports/controller-tests</reportsDirectory>
-                    <summaryFile>${basedir}/surefire-reports/controller-tests/failsafe-summary.xml</summaryFile>
+                    <reportsDirectory>${basedir}/failsafe-reports</reportsDirectory>
+                    <summaryFile>${basedir}/failsafe-reports/failsafe-summary.xml</summaryFile>
                     <systemProperties>
                         <ZAC_URL>${ZAC_URL}</ZAC_URL>
                         <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
@@ -512,6 +510,10 @@
                         <ZAC_CLIENT_ID>fake-client</ZAC_CLIENT_ID>
                         <ZAC_CLIENT_SECRET>fake-client</ZAC_CLIENT_SECRET>
                     </systemProperties>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*IT.java</include>
+                    </includes>
                     <excludes>
                         <exclude>**/NonHierarchical*IT.java</exclude>
                     </excludes>
