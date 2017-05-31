@@ -255,15 +255,20 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
         try {
             this.cache.resetForSubjects(zone.getName(), subjectEntities);
             this.subjectRepository.save(subjectEntities);
-        } catch (Exception e) {
-            String message = String.format("Unable to persist Subject(s) for zone = %s. Transaction was rolled back.",
+        } catch (Throwable t) {
+            String message = String.format("Unable to persist Subject(s) for zone = %s. " + this.getRootCauseMessage(t),
                     zone.toString());
-            if (constrainViolation(e)) {
-                message = String.format("Duplicate Subject(s) identified by zone = %s", zone.toString());
-            }
-            LOGGER.error(message, e);
-            throw new PrivilegeManagementException(message, e);
+            LOGGER.error(message, t);
+            throw new PrivilegeManagementException(message, t);
         }
+    }
+
+    private String getRootCauseMessage(final Throwable t) {
+        Throwable root = t;
+        while (root.getCause() != null) {
+            root = root.getCause();
+        }
+        return root.getMessage();
     }
 
     @Override

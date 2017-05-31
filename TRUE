@@ -1,0 +1,355 @@
+
+[1;38mREQUEST:[0m [2017-04-26T13:16:01-07:00]
+GET /v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/services?q=label%3Atest-predix-acs HTTP/1.1
+Host: api.system.aws-usw02-dev.ice.predix.io
+Accept: application/json
+Authorization: [PRIVATE DATA HIDDEN]
+Content-Type: application/json
+User-Agent: go-cli 6.14.1+dc6adf6 / darwin
+
+
+
+[1;38mRESPONSE:[0m [2017-04-26T13:16:01-07:00]
+HTTP/1.1 200 OK
+Content-Length: 986
+Content-Type: application/json;charset=utf-8
+Date: Wed, 26 Apr 2017 20:16:01 GMT
+Server: nginx
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: 1604ab59-12ca-4b22-47e3-c331a18918bf
+X-Vcap-Request-Id: 1604ab59-12ca-4b22-47e3-c331a18918bf::a5f5216e-a189-4e36-ae1b-4e8e7bc35254
+
+{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "9f84373d-630f-46ed-879d-9f34a649a66e",
+        "url": "/v2/services/9f84373d-630f-46ed-879d-9f34a649a66e",
+        "created_at": "2016-11-18T23:37:39Z",
+        "updated_at": null
+      },
+      "entity": {
+        "label": "test-predix-acs",
+        "provider": null,
+        "url": null,
+        "description": "For TEST ONLY - acs",
+        "long_description": null,
+        "version": null,
+        "info_url": null,
+        "active": 1,
+        "bindable": 1,
+        "unique_id": "test-predix-acs",
+        "extra": "{}",
+        "tags": [
+
+        ],
+        "requires": [
+
+        ],
+        "documentation_url": null,
+        "service_broker_guid": "83037a59-62fd-4436-91ec-da3b5e271d44",
+        "plan_updateable": 1,
+        "service_plans_url": "/v2/services/9f84373d-630f-46ed-879d-9f34a649a66e/service_plans"
+      }
+    }
+  ]
+}
+
+[1;38mREQUEST:[0m [2017-04-26T13:16:01-07:00]
+GET /v2/service_plans?q=service_guid%3A9f84373d-630f-46ed-879d-9f34a649a66e HTTP/1.1
+Host: api.system.aws-usw02-dev.ice.predix.io
+Accept: application/json
+Authorization: [PRIVATE DATA HIDDEN]
+Content-Type: application/json
+User-Agent: go-cli 6.14.1+dc6adf6 / darwin
+
+
+
+[1;38mRESPONSE:[0m [2017-04-26T13:16:02-07:00]
+HTTP/1.1 200 OK
+Content-Length: 2911
+Content-Type: application/json;charset=utf-8
+Date: Wed, 26 Apr 2017 20:16:02 GMT
+Server: nginx
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: 3bbc89bd-ab29-4613-7438-bc2bbd942b4d
+X-Vcap-Request-Id: 3bbc89bd-ab29-4613-7438-bc2bbd942b4d::c6f15c75-1657-4fc8-bc10-1aad665e1e1b
+
+{
+  "total_results": 2,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "11eb1737-0367-4552-89d4-77327d7a31b9",
+        "url": "/v2/service_plans/11eb1737-0367-4552-89d4-77327d7a31b9",
+        "created_at": "2016-11-18T23:37:39Z",
+        "updated_at": null
+      },
+      "entity": {
+        "name": "test-predix-acs-plan-1",
+        "free": false,
+        "description": "FOR TESTS ONLY",
+        "service_guid": "9f84373d-630f-46ed-879d-9f34a649a66e",
+        "extra": "{\"features\":{\"data\":[{\"id\":\"id\",\"name\":\"recurring\",\"elementType\":\"recurring\",\"price\":0.0,\"min_unit\":0,\"max_unit\":0,\"period\":\"monthly\",\"billingPeriodInterval\":1}],\"count\":1,\"object\":\"list\",\"url\":null},\"credit_card\":false,\"discounts\":{\"data\":[{\"id\":\"test-predix-acs-discount-id\",\"name\":\"Basic-Free\",\"discountType\":\"trial\",\"price\":0.0,\"percent\":100.0,\"maxRedemptions\":0,\"redeemBy\":null,\"timesToApply\":0,\"daysToApply\":60,\"providerId\":\"test-predix-acs-provider\",\"guid\":\"test-predix-acs-provider-guid\"}],\"count\":1,\"object\":\"list\",\"url\":null},\"plan_order\":1,\"plan_status\":\"active\"}",
+        "unique_id": "test-predix-acs-plan-1",
+        "public": false,
+        "active": true,
+        "service_url": "/v2/services/9f84373d-630f-46ed-879d-9f34a649a66e",
+        "service_instances_url": "/v2/service_plans/11eb1737-0367-4552-89d4-77327d7a31b9/service_instances"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "2ce213c8-f352-4722-9c65-359947753283",
+        "url": "/v2/service_plans/2ce213c8-f352-4722-9c65-359947753283",
+        "created_at": "2016-11-18T23:37:39Z",
+        "updated_at": null
+      },
+      "entity": {
+        "name": "test-predix-acs-plan-2",
+        "free": false,
+        "description": "FOR TESTS ONLY",
+        "service_guid": "9f84373d-630f-46ed-879d-9f34a649a66e",
+        "extra": "{\"features\":{\"data\":[{\"id\":\"id\",\"name\":\"recurring\",\"elementType\":\"recurring\",\"price\":0.0,\"min_unit\":0,\"max_unit\":0,\"period\":\"monthly\",\"billingPeriodInterval\":1}],\"count\":1,\"object\":\"list\",\"url\":null},\"credit_card\":false,\"discounts\":{\"data\":[{\"id\":\"test-predix-acs-discount-id\",\"name\":\"Basic-Free\",\"discountType\":\"trial\",\"price\":0.0,\"percent\":100.0,\"maxRedemptions\":0,\"redeemBy\":null,\"timesToApply\":0,\"daysToApply\":60,\"providerId\":\"test-predix-acs-provider\",\"guid\":\"test-predix-acs-provider-guid\"}],\"count\":1,\"object\":\"list\",\"url\":null},\"plan_order\":1,\"plan_status\":\"active\"}",
+        "unique_id": "test-predix-acs-plan-2",
+        "public": false,
+        "active": true,
+        "service_url": "/v2/services/9f84373d-630f-46ed-879d-9f34a649a66e",
+        "service_instances_url": "/v2/service_plans/2ce213c8-f352-4722-9c65-359947753283/service_instances"
+      }
+    }
+  ]
+}
+
+[1;38mREQUEST:[0m [2017-04-26T13:16:02-07:00]
+POST /v2/service_instances?accepts_incomplete=true HTTP/1.1
+Host: api.system.aws-usw02-dev.ice.predix.io
+Accept: application/json
+Authorization: [PRIVATE DATA HIDDEN]
+Content-Type: application/json
+User-Agent: go-cli 6.14.1+dc6adf6 / darwin
+
+{"name":"my-predix-acs","space_guid":"59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0","service_plan_guid":"11eb1737-0367-4552-89d4-77327d7a31b9","parameters":{"trustedIssuerIds":"http://myurl.com/oauth/token"}}
+
+[1;38mRESPONSE:[0m [2017-04-26T13:16:02-07:00]
+HTTP/1.1 201 Created
+Content-Length: 1147
+Content-Type: application/json;charset=utf-8
+Date: Wed, 26 Apr 2017 20:16:02 GMT
+Location: /v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0
+Server: nginx
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: 58b08bd9-1a8a-4b81-7a1b-7cfa2c21a71a
+X-Vcap-Request-Id: 58b08bd9-1a8a-4b81-7a1b-7cfa2c21a71a::5eef2144-a3ce-42d3-9d47-679f26639ef9
+
+{
+  "metadata": {
+    "guid": "4d7579eb-3eac-4457-a986-ca1fdd9c2df0",
+    "url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0",
+    "created_at": "2017-04-26T20:16:02Z",
+    "updated_at": null
+  },
+  "entity": {
+    "name": "my-predix-acs",
+    "credentials": {
+
+    },
+    "service_plan_guid": "11eb1737-0367-4552-89d4-77327d7a31b9",
+    "space_guid": "59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0",
+    "gateway_data": null,
+    "dashboard_url": null,
+    "type": "managed_service_instance",
+    "last_operation": {
+      "type": "create",
+      "state": "succeeded",
+      "description": "",
+      "updated_at": null,
+      "created_at": "2017-04-26T20:16:02Z"
+    },
+    "tags": [
+
+    ],
+    "space_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0",
+    "service_plan_url": "/v2/service_plans/11eb1737-0367-4552-89d4-77327d7a31b9",
+    "service_bindings_url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0/service_bindings",
+    "service_keys_url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0/service_keys",
+    "routes_url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0/routes"
+  }
+}
+
+[1;38mREQUEST:[0m [2017-04-26T13:16:02-07:00]
+GET /v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/service_instances?return_user_provided_service_instances=true&q=name%3Amy-predix-acs&inline-relations-depth=1 HTTP/1.1
+Host: api.system.aws-usw02-dev.ice.predix.io
+Accept: application/json
+Authorization: [PRIVATE DATA HIDDEN]
+Content-Type: application/json
+User-Agent: go-cli 6.14.1+dc6adf6 / darwin
+
+
+
+[1;38mRESPONSE:[0m [2017-04-26T13:16:03-07:00]
+HTTP/1.1 200 OK
+Content-Length: 4528
+Content-Type: application/json;charset=utf-8
+Date: Wed, 26 Apr 2017 20:16:03 GMT
+Server: nginx
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: fd3d3888-1745-485e-5c00-4308041d8e91
+X-Vcap-Request-Id: fd3d3888-1745-485e-5c00-4308041d8e91::d4972812-7903-4daa-933b-fe6701de9365
+
+{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "4d7579eb-3eac-4457-a986-ca1fdd9c2df0",
+        "url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0",
+        "created_at": "2017-04-26T20:16:02Z",
+        "updated_at": null
+      },
+      "entity": {
+        "name": "my-predix-acs",
+        "credentials": {
+
+        },
+        "service_plan_guid": "11eb1737-0367-4552-89d4-77327d7a31b9",
+        "space_guid": "59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0",
+        "gateway_data": null,
+        "dashboard_url": null,
+        "type": "managed_service_instance",
+        "last_operation": {
+          "type": "create",
+          "state": "succeeded",
+          "description": "",
+          "updated_at": null,
+          "created_at": "2017-04-26T20:16:02Z"
+        },
+        "tags": [
+
+        ],
+        "space_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0",
+        "space": {
+          "metadata": {
+            "guid": "59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0",
+            "url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0",
+            "created_at": "2016-06-01T14:01:04Z",
+            "updated_at": null
+          },
+          "entity": {
+            "name": "integration",
+            "organization_guid": "050e3f85-4706-4d88-8e87-7488cc84089c",
+            "space_quota_definition_guid": null,
+            "isolation_segment_guid": null,
+            "allow_ssh": true,
+            "organization_url": "/v2/organizations/050e3f85-4706-4d88-8e87-7488cc84089c",
+            "developers_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/developers",
+            "managers_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/managers",
+            "auditors_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/auditors",
+            "apps_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/apps",
+            "routes_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/routes",
+            "domains_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/domains",
+            "service_instances_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/service_instances",
+            "app_events_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/app_events",
+            "events_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/events",
+            "security_groups_url": "/v2/spaces/59cb0bf8-c18d-4e2a-90ae-bc35eb07fea0/security_groups"
+          }
+        },
+        "service_plan_url": "/v2/service_plans/11eb1737-0367-4552-89d4-77327d7a31b9",
+        "service_plan": {
+          "metadata": {
+            "guid": "11eb1737-0367-4552-89d4-77327d7a31b9",
+            "url": "/v2/service_plans/11eb1737-0367-4552-89d4-77327d7a31b9",
+            "created_at": "2016-11-18T23:37:39Z",
+            "updated_at": null
+          },
+          "entity": {
+            "name": "test-predix-acs-plan-1",
+            "free": false,
+            "description": "FOR TESTS ONLY",
+            "service_guid": "9f84373d-630f-46ed-879d-9f34a649a66e",
+            "extra": "{\"features\":{\"data\":[{\"id\":\"id\",\"name\":\"recurring\",\"elementType\":\"recurring\",\"price\":0.0,\"min_unit\":0,\"max_unit\":0,\"period\":\"monthly\",\"billingPeriodInterval\":1}],\"count\":1,\"object\":\"list\",\"url\":null},\"credit_card\":false,\"discounts\":{\"data\":[{\"id\":\"test-predix-acs-discount-id\",\"name\":\"Basic-Free\",\"discountType\":\"trial\",\"price\":0.0,\"percent\":100.0,\"maxRedemptions\":0,\"redeemBy\":null,\"timesToApply\":0,\"daysToApply\":60,\"providerId\":\"test-predix-acs-provider\",\"guid\":\"test-predix-acs-provider-guid\"}],\"count\":1,\"object\":\"list\",\"url\":null},\"plan_order\":1,\"plan_status\":\"active\"}",
+            "unique_id": "test-predix-acs-plan-1",
+            "public": false,
+            "active": true,
+            "service_url": "/v2/services/9f84373d-630f-46ed-879d-9f34a649a66e",
+            "service_instances_url": "/v2/service_plans/11eb1737-0367-4552-89d4-77327d7a31b9/service_instances"
+          }
+        },
+        "service_bindings_url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0/service_bindings",
+        "service_bindings": [
+
+        ],
+        "service_keys_url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0/service_keys",
+        "service_keys": [
+
+        ],
+        "routes_url": "/v2/service_instances/4d7579eb-3eac-4457-a986-ca1fdd9c2df0/routes",
+        "routes": [
+
+        ]
+      }
+    }
+  ]
+}
+
+[1;38mREQUEST:[0m [2017-04-26T13:16:03-07:00]
+GET /v2/services/9f84373d-630f-46ed-879d-9f34a649a66e HTTP/1.1
+Host: api.system.aws-usw02-dev.ice.predix.io
+Accept: application/json
+Authorization: [PRIVATE DATA HIDDEN]
+Content-Type: application/json
+User-Agent: go-cli 6.14.1+dc6adf6 / darwin
+
+
+
+[1;38mRESPONSE:[0m [2017-04-26T13:16:03-07:00]
+HTTP/1.1 200 OK
+Content-Length: 772
+Content-Type: application/json;charset=utf-8
+Date: Wed, 26 Apr 2017 20:16:03 GMT
+Server: nginx
+X-Content-Type-Options: nosniff
+X-Vcap-Request-Id: a3aee694-b6d8-4b48-7c5d-203e9487515a
+X-Vcap-Request-Id: a3aee694-b6d8-4b48-7c5d-203e9487515a::2cdfd902-c641-42d1-a4ab-dc12fbb70af5
+
+{
+  "metadata": {
+    "guid": "9f84373d-630f-46ed-879d-9f34a649a66e",
+    "url": "/v2/services/9f84373d-630f-46ed-879d-9f34a649a66e",
+    "created_at": "2016-11-18T23:37:39Z",
+    "updated_at": null
+  },
+  "entity": {
+    "label": "test-predix-acs",
+    "provider": null,
+    "url": null,
+    "description": "For TEST ONLY - acs",
+    "long_description": null,
+    "version": null,
+    "info_url": null,
+    "active": true,
+    "bindable": true,
+    "unique_id": "test-predix-acs",
+    "extra": "{}",
+    "tags": [
+
+    ],
+    "requires": [
+
+    ],
+    "documentation_url": null,
+    "service_broker_guid": "83037a59-62fd-4436-91ec-da3b5e271d44",
+    "plan_updateable": true,
+    "service_plans_url": "/v2/services/9f84373d-630f-46ed-879d-9f34a649a66e/service_plans"
+  }
+}

@@ -8,7 +8,7 @@
 
             <class name="com.ge.predix.acs.cloudfoundry.ApplicationHealthChecks"/>
 
-            <class name="com.ge.predix.acceptance.test.ACSAcceptanceIT"/>
+<!--             <class name="com.ge.predix.acceptance.test.ACSAcceptanceIT"/>
             <class name="com.ge.predix.acceptance.test.policy.admin.PolicyCreationCucumberTest"/>
             <class name="com.ge.predix.acceptance.test.policy.evaluation.PolicyEvaluationCucumberTest"/>
             <class name="com.ge.predix.acceptance.test.zone.admin.DefaultZoneAuthorizationIT"/>
@@ -21,7 +21,11 @@
             <class name="com.ge.predix.integration.test.PolicyEvaluationCachingIT"/>
             <class name="com.ge.predix.integration.test.PolicyEvaluationWithAttributeConnectorIT"/>
             <class name="com.ge.predix.integration.test.PredixAuditIT"/>
-            <class name="com.ge.predix.integration.test.PrivilegeManagementAccessControlServiceIT"/>
+ -->            <class name="com.ge.predix.integration.test.PrivilegeManagementAccessControlServiceIT">
+                    <methods>
+                        <include name="testBatchSubjectsDataConstraintViolationSubjectIdentifier"/>
+                    </methods>
+                </class>
 
             <class name="com.ge.predix.acs.cloudfoundry.DeleteApplications"/>
         </classes>
