@@ -49,7 +49,7 @@ public class PolicyEvaluationRequestCacheKey {
         this.zoneId = zoneId;
     }
 
-    public String toRedisKey() {
+    public String toDecisionKey() {
         StringBuilder keyBuilder = new StringBuilder();
         if (null == this.zoneId) {
             keyBuilder.append("*:");
@@ -113,7 +113,7 @@ public class PolicyEvaluationRequestCacheKey {
 
     public static class Builder {
         private PolicyEvaluationRequestV1 builderRequest;
-        private LinkedHashSet<String> builderPolicySetIds = new LinkedHashSet<String>();
+        private LinkedHashSet<String> builderPolicySetIds = new LinkedHashSet<>();
         private String builderResourceId;
         private String builderSubjectId;
         private String builderZoneId;

@@ -28,14 +28,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.data.redis.connection.DefaultStringRedisConnection;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -53,7 +47,8 @@ public class RedisPolicyEvaluationCache extends AbstractPolicyEvaluationCache im
     public void afterPropertiesSet() {
         LOGGER.info("Starting Redis policy evaluation cache.");
         try {
-            LOGGER.info("Redis server ping: " + this.redisTemplate.getConnectionFactory().getConnection().ping());
+            String pingResult = this.redisTemplate.getConnectionFactory().getConnection().ping();
+            LOGGER.info("Redis server ping: {}", pingResult);
         } catch (RedisConnectionFailureException ex) {
             LOGGER.error("Redis server ping failed.", ex);
         }
@@ -75,11 +70,6 @@ public class RedisPolicyEvaluationCache extends AbstractPolicyEvaluationCache im
     }
 
     @Override
-    Set<String> getResourceTranslations(final String fromKey) {
-        return this.redisTemplate.opsForSet().members(fromKey);
-    }
-
-    @Override
     Set<String> keys(final String key) {
         return this.redisTemplate.keys(key);
     }
@@ -89,22 +79,6 @@ public class RedisPolicyEvaluationCache extends AbstractPolicyEvaluationCache im
         return this.redisTemplate.opsForValue().multiGet(keys);
     }
 
-    @Override
-    List<Object> multiGetResourceTranslations(final List<String> fromKeys) {
-        // Pipelining makes sure we don't pay excessive RTT penalties.
-        return this.redisTemplate.executePipelined(new RedisCallback<List<Object>>() {
-            @Override
-            public List<Object> doInRedis(final RedisConnection connection) throws DataAccessException {
-                StringRedisConnection stringRedisConn = new DefaultStringRedisConnection(connection);
-                for (String fromKey : fromKeys) {
-                    stringRedisConn.sMembers(fromKey);
-                }
-                return null;
-            }
-        }, new StringRedisSerializer());
-    }
-
-    @Override
     void multiSet(final Map<String, String> map) {
         this.redisTemplate.opsForValue().multiSet(map);
     }
@@ -122,22 +96,7 @@ public class RedisPolicyEvaluationCache extends AbstractPolicyEvaluationCache im
         this.cachedEvalTimeToLiveSeconds = cachedEvalTimeToLiveSeconds;
     }
 
-    @Override
-    void setResourceTranslation(final String fromKey, final String toKey) {
-        this.redisTemplate.opsForSet().add(fromKey, toKey);
-    }
-
-    @Override
-    void setResourceTranslations(final Set<String> fromKeys, final String toKey) {
-        this.redisTemplate.execute(new RedisCallback<List<Object>>() {
-            @Override
-            public List<Object> doInRedis(final RedisConnection connection) throws DataAccessException {
-                StringRedisConnection stringRedisConn = new DefaultStringRedisConnection(connection);
-                for (String fromKey : fromKeys) {
-                    stringRedisConn.sAdd(fromKey, toKey);
-                }
-                return null;
-            }
-        });
+    void setIfNotExists(final String key, final String value) {
+        this.redisTemplate.boundValueOps(key).setIfAbsent(value);
     }
 }

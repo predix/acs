@@ -1,7 +1,7 @@
 package com.ge.predix.acs.privilege.management.dao;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 public class ResourceRepositoryProxy implements ResourceRepository, ResourceHierarchicalRepository, InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceRepositoryProxy.class);
+    private static final String MESSAGE = "method not supported";
 
     @Autowired(required = false)
     private GraphResourceRepository graphRepository;
@@ -49,17 +51,32 @@ public class ResourceRepositoryProxy implements ResourceRepository, ResourceHier
 
     @Override
     public List<ResourceEntity> findAll() {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public List<ResourceEntity> findAll(final Sort arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public List<ResourceEntity> findAll(final Iterable<Long> arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
+    }
+
+    @Override
+    public <S extends ResourceEntity> Page<S> findAll(final Example<S> example, final Pageable pageable) {
+        throw new UnsupportedOperationException(MESSAGE);
+    }
+
+    @Override
+    public <S extends ResourceEntity> List<S> findAll(final Example<S> example, final Sort sort) {
+        throw new UnsupportedOperationException(MESSAGE);
+    }
+
+    @Override
+    public <S extends ResourceEntity> List<S> findAll(final Example<S> example) {
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
@@ -69,32 +86,32 @@ public class ResourceRepositoryProxy implements ResourceRepository, ResourceHier
 
     @Override
     public void flush() {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public <S extends ResourceEntity> S saveAndFlush(final S arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public void deleteInBatch(final Iterable<ResourceEntity> arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public void deleteAllInBatch() {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public ResourceEntity getOne(final Long arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public Page<ResourceEntity> findAll(final Pageable arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
@@ -104,17 +121,32 @@ public class ResourceRepositoryProxy implements ResourceRepository, ResourceHier
 
     @Override
     public ResourceEntity findOne(final Long arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
+    }
+
+    @Override
+    public <S extends ResourceEntity> S findOne(final Example<S> example) {
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public boolean exists(final Long arg0) {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
     public long count() {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
+    }
+
+    @Override
+    public <S extends ResourceEntity> long count(final Example<S> example) {
+        throw new UnsupportedOperationException(MESSAGE);
+    }
+
+    @Override
+    public <S extends ResourceEntity> boolean exists(final Example<S> example) {
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
@@ -135,7 +167,7 @@ public class ResourceRepositoryProxy implements ResourceRepository, ResourceHier
 
     @Override
     public void deleteAll() {
-        throw new RuntimeException("method not supported");
+        throw new UnsupportedOperationException(MESSAGE);
     }
 
     @Override
@@ -162,7 +194,7 @@ public class ResourceRepositoryProxy implements ResourceRepository, ResourceHier
         if (this.activeRepository == this.graphRepository) { // i.e. titan is enabled
             return this.graphRepository.getResourceEntityAndDescendantsIds(entity);
         } else {
-            return new HashSet<String>(Arrays.asList(entity.getResourceIdentifier()));
+            return Collections.singleton(entity.getResourceIdentifier());
         }
     }
 }

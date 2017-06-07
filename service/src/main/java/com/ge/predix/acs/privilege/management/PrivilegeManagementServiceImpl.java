@@ -16,8 +16,20 @@
 
 package com.ge.predix.acs.privilege.management;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ge.predix.acs.model.Attribute;
-import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationCacheCircuitBreaker;
+import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationCache;
 import com.ge.predix.acs.privilege.management.dao.ResourceEntity;
 import com.ge.predix.acs.privilege.management.dao.ResourceRepositoryProxy;
 import com.ge.predix.acs.privilege.management.dao.SubjectEntity;
@@ -26,16 +38,6 @@ import com.ge.predix.acs.rest.BaseResource;
 import com.ge.predix.acs.rest.BaseSubject;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 import com.ge.predix.acs.zone.resolver.ZoneResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * The implementation of privilege management.
@@ -49,11 +51,11 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     private static final Logger LOGGER = LoggerFactory.getLogger(PrivilegeManagementServiceImpl.class);
 
     @Autowired
-    private PolicyEvaluationCacheCircuitBreaker cache;
+    private PolicyEvaluationCache cache;
 
     @Autowired
     private SubjectRepositoryProxy subjectRepository;
-    
+
     @Autowired
     private ResourceRepositoryProxy resourceRepository;
 
@@ -66,7 +68,7 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     public void appendResources(final List<BaseResource> resources) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
 
-        if (resources == null || resources.size() == 0) {
+        if (CollectionUtils.isEmpty(resources)) {
             throw new PrivilegeManagementException("Null Or Empty list of resources");
         }
         // fail fast if identifiers are missing or null
@@ -80,18 +82,13 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     private void appendResourcesInTransaction(final List<BaseResource> resources, final ZoneEntity zone,
             final List<ResourceEntity> entities) {
         for (BaseResource resource : resources) {
-            ResourceEntity persistedResource = this.resourceRepository.getByZoneAndResourceIdentifier(zone,
-                    resource.getResourceIdentifier());
+            ResourceEntity persistedResource = this.resourceRepository
+                    .getByZoneAndResourceIdentifier(zone, resource.getResourceIdentifier());
 
             ResourceEntity entity = this.privilegeConverter.toResourceEntity(zone, resource);
             if (persistedResource != null) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(
-                            String.format(
-                                    "Found an existing resource with resourceIdentifier = %s, zone = %s."
-                                            + " Upserting the same.",
-                                    resource.getResourceIdentifier(), zone.toString()));
-                }
+                LOGGER.debug("Found an existing resource with resourceIdentifier = {}, zone = {}. Upserting the same.",
+                        resource.getResourceIdentifier(), zone);
                 entity.setId(persistedResource.getId());
             }
             entities.add(entity);
@@ -102,8 +99,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
             this.resourceRepository.save(entities);
         } catch (Exception e) {
 
-            String message = String.format(
-                    "Unable to persist Resource(s) for zone = %s." + " Transaction was rolled back.", zone.toString());
+            String message = String.format("Unable to persist Resource(s) for zone = %s. Transaction was rolled back.",
+                    zone.toString());
             if (constrainViolation(e)) {
                 message = String.format("Duplicate Resource(s) identified by zone = %s.", zone.toString());
             }
@@ -120,7 +117,7 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
         List<BaseResource> resources = new ArrayList<>();
         List<ResourceEntity> resourceEntities = this.resourceRepository.findByZone(zone);
 
-        if (resourceEntities != null && resourceEntities.size() > 0) {
+        if (!CollectionUtils.isEmpty(resourceEntities)) {
             for (ResourceEntity resourceEntity : resourceEntities) {
                 resources.add(this.privilegeConverter.toResource(resourceEntity));
             }
@@ -132,8 +129,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Transactional(readOnly = true)
     public BaseResource getByResourceIdentifier(final String resourceIdentifier) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        ResourceEntity resourceEntity = this.resourceRepository.getByZoneAndResourceIdentifier(zone,
-                resourceIdentifier);
+        ResourceEntity resourceEntity = this.resourceRepository
+                .getByZoneAndResourceIdentifier(zone, resourceIdentifier);
         return createResource(resourceIdentifier, zone, resourceEntity);
     }
 
@@ -141,17 +138,17 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Transactional(readOnly = true)
     public BaseResource getByResourceIdentifierWithInheritedAttributes(final String resourceIdentifier) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-		ResourceEntity resourceEntity = this.resourceRepository.getResourceWithInheritedAttributes(zone,
-                resourceIdentifier);
+        ResourceEntity resourceEntity = this.resourceRepository
+                .getResourceWithInheritedAttributes(zone, resourceIdentifier);
         return createResource(resourceIdentifier, zone, resourceEntity);
     }
 
     private BaseResource createResource(final String resourceIdentifier, final ZoneEntity zone,
             final ResourceEntity resourceEntity) {
         BaseResource resource = this.privilegeConverter.toResource(resourceEntity);
-        if (LOGGER.isDebugEnabled() && resource == null) {
-            LOGGER.debug(String.format("Unable to find the resource for resourceIdentifier = %s , zone = %s.",
-                    resourceIdentifier, zone.toString()));
+        if (resource == null) {
+            LOGGER.debug("Unable to find the resource for resourceIdentifier = {} , zone = {}.", resourceIdentifier,
+                    zone);
         }
         return resource;
     }
@@ -172,22 +169,17 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Transactional
     private ResourceEntity upsertResourceInTransaction(final BaseResource resource, final ZoneEntity zone,
             final ResourceEntity updatedResource) {
-        ResourceEntity persistedResource = this.resourceRepository.getByZoneAndResourceIdentifier(zone,
-                resource.getResourceIdentifier());
+        ResourceEntity persistedResource = this.resourceRepository
+                .getByZoneAndResourceIdentifier(zone, resource.getResourceIdentifier());
 
         if (persistedResource != null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format(
-                        "Found an existing resource with resourceIdentifier = %s, " + "zone = %s. Upserting the same.",
-                        resource.getResourceIdentifier(), zone.toString()));
-            }
+            LOGGER.debug("Found an existing resource with resourceIdentifier = {}, " + "zone = {}. Upserting the same.",
+                    resource.getResourceIdentifier(), zone);
             updatedResource.setId(persistedResource.getId());
         } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        String.format("Found no existing resource. Creating a new one with the resourceIdentifier = %s,"
-                                + " zone = %s.", resource.getResourceIdentifier(), zone.toString()));
-            }
+            LOGGER.debug(
+                    "Found no existing resource. Creating a new one with the resourceIdentifier = {}," + " zone = {}.",
+                    resource.getResourceIdentifier(), zone);
         }
 
         try {
@@ -195,11 +187,11 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
                     this.resourceRepository.getResourceEntityAndDescendantsIds(updatedResource));
             this.resourceRepository.save(updatedResource);
         } catch (Exception e) {
-            String message = String.format(
-                    "Unable to persist Resource identified by resourceIdentifier = %s ," + "  zone = %s.",
-                    resource.getResourceIdentifier(), zone.toString());
+            String message = String
+                    .format("Unable to persist Resource identified by resourceIdentifier = %s , zone = %s.",
+                            resource.getResourceIdentifier(), zone.toString());
             if (constrainViolation(e)) {
-                message = String.format("Duplicate Resource identified by resourceIdentifier = %s," + " zone = %s.",
+                message = String.format("Duplicate Resource identified by resourceIdentifier = %s, zone = %s.",
                         resource.getResourceIdentifier(), zone.toString());
             }
             LOGGER.error(message, e);
@@ -222,15 +214,14 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     public boolean deleteResource(final String resourceIdentifier) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
         boolean deleted = false;
-        ResourceEntity resourceEntity = this.resourceRepository.getByZoneAndResourceIdentifier(zone,
-                resourceIdentifier);
+        ResourceEntity resourceEntity = this.resourceRepository
+                .getByZoneAndResourceIdentifier(zone, resourceIdentifier);
         if (resourceEntity != null) {
             this.cache.resetForResourcesByIds(zone.getName(),
                     this.resourceRepository.getResourceEntityAndDescendantsIds(resourceEntity));
             this.resourceRepository.delete(resourceEntity.getId());
             deleted = true;
-            LOGGER.info(String.format("Deleted resource with resourceId = %s, zone = %s.", resourceIdentifier,
-                    zone.toString()));
+            LOGGER.info("Deleted resource with resourceId = {}, zone = {}.", resourceIdentifier, zone);
         }
         return deleted;
     }
@@ -238,7 +229,7 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Override
     public void appendSubjects(final List<BaseSubject> subjects) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        if (subjects == null || subjects.size() == 0) {
+        if (CollectionUtils.isEmpty(subjects)) {
             throw new PrivilegeManagementException("Null Or Empty list of subjects.");
         }
         // fail fast if identifiers are missing or null
@@ -253,8 +244,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     private void appendSubjectsInTransaction(final List<BaseSubject> subjects, final ZoneEntity zone,
             final List<SubjectEntity> subjectEntities) {
         for (BaseSubject subject : subjects) {
-            SubjectEntity persistedSubject = this.subjectRepository.getByZoneAndSubjectIdentifier(zone,
-                    subject.getSubjectIdentifier());
+            SubjectEntity persistedSubject = this.subjectRepository
+                    .getByZoneAndSubjectIdentifier(zone, subject.getSubjectIdentifier());
             SubjectEntity entity = this.privilegeConverter.toSubjectEntity(zone, subject);
             if (persistedSubject != null) {
                 entity.setId(persistedSubject.getId());
@@ -265,8 +256,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
             this.cache.resetForSubjects(zone.getName(), subjectEntities);
             this.subjectRepository.save(subjectEntities);
         } catch (Exception e) {
-            String message = String.format(
-                    "Unable to persist Subject(s) for zone = %s." + " Transcation was rolled back.", zone.toString());
+            String message = String.format("Unable to persist Subject(s) for zone = %s. Transaction was rolled back.",
+                    zone.toString());
             if (constrainViolation(e)) {
                 message = String.format("Duplicate Subject(s) identified by zone = %s", zone.toString());
             }
@@ -282,7 +273,7 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
         List<BaseSubject> subjects = new ArrayList<>();
 
         List<SubjectEntity> subjectEntities = this.subjectRepository.findByZone(zone);
-        if (subjectEntities != null && subjectEntities.size() > 0) {
+        if (!CollectionUtils.isEmpty(subjectEntities)) {
             for (SubjectEntity subjectEntity : subjectEntities) {
                 subjects.add(this.privilegeConverter.toSubject(subjectEntity));
             }
@@ -302,17 +293,15 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Transactional(readOnly = true)
     public BaseSubject getBySubjectIdentifierWithInheritedAttributes(final String subjectIdentifier) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        SubjectEntity subjectEntity = this.subjectRepository .getSubjectWithInheritedAttributes(zone,
-                subjectIdentifier);
+        SubjectEntity subjectEntity = this.subjectRepository.getSubjectWithInheritedAttributes(zone, subjectIdentifier);
         return createSubject(subjectIdentifier, zone, subjectEntity);
     }
 
     private BaseSubject createSubject(final String subjectIdentifier, final ZoneEntity zone,
             final SubjectEntity subjectEntity) {
         BaseSubject subject = this.privilegeConverter.toSubject(subjectEntity);
-        if (LOGGER.isDebugEnabled() && subject == null) {
-            LOGGER.debug(String.format("Unable to find the subject for subjectIdentifier = %s, zone = %s.",
-                    subjectIdentifier, zone));
+        if (subject == null) {
+            LOGGER.debug("Unable to find the subject for subjectIdentifier = {}, zone = {}.", subjectIdentifier, zone);
         }
         return subject;
     }
@@ -321,8 +310,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Transactional(readOnly = true)
     public BaseSubject getBySubjectIdentifierAndScopes(final String subjectIdentifier, final Set<Attribute> scopes) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
-        SubjectEntity subjectEntity = this.subjectRepository.getSubjectWithInheritedAttributesForScopes(zone,
-                subjectIdentifier, scopes);
+        SubjectEntity subjectEntity = this.subjectRepository
+                .getSubjectWithInheritedAttributesForScopes(zone, subjectIdentifier, scopes);
         return createSubject(subjectIdentifier, zone, subjectEntity);
     }
 
@@ -345,8 +334,8 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
     @Transactional
     private SubjectEntity upsertSubjectInTransaction(final BaseSubject subject, final ZoneEntity zone,
             final SubjectEntity updatedSubject) {
-        SubjectEntity persistedSubject = this.subjectRepository.getByZoneAndSubjectIdentifier(zone,
-                subject.getSubjectIdentifier());
+        SubjectEntity persistedSubject = this.subjectRepository
+                .getByZoneAndSubjectIdentifier(zone, subject.getSubjectIdentifier());
 
         if (persistedSubject != null) {
             updatedSubject.setId(persistedSubject.getId());
@@ -357,11 +346,11 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
                     this.subjectRepository.getSubjectEntityAndDescendantsIds(updatedSubject));
             this.subjectRepository.save(updatedSubject);
         } catch (Exception e) {
-            String message = String.format(
-                    "Unable to persist Subject identified by subjectIidentifier = %s , " + "zone = %s.",
-                    subject.getSubjectIdentifier(), zone.toString());
+            String message = String
+                    .format("Unable to persist Subject identified by subjectIidentifier = %s , zone = %s.",
+                            subject.getSubjectIdentifier(), zone.toString());
             if (constrainViolation(e)) {
-                message = String.format("Duplicate Subject identified by subjectIidentifier = %s, " + "zone = %s.",
+                message = String.format("Duplicate Subject identified by subjectIidentifier = %s, zone = %s.",
                         subject.getSubjectIdentifier(), zone.toString());
             }
             LOGGER.error(message, e);
@@ -383,8 +372,7 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
                     this.subjectRepository.getSubjectEntityAndDescendantsIds(subjectEntity));
             this.subjectRepository.delete(subjectEntity.getId());
             deleted = true;
-            LOGGER.info(String.format("Deleted subject with subjectIdentifier=%s, zone = %s.", subjectIdentifier,
-                    zone.toString()));
+            LOGGER.info("Deleted subject with subjectIdentifier={}, zone = {}.", subjectIdentifier, zone);
         }
         return deleted;
     }
@@ -404,8 +392,9 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
         }
 
         if (!s.isIdentifierValid()) {
-            throw new PrivilegeManagementException(String.format(
-                    "Subject missing subjectIdentifier = %s this is mandatory for POST API", s.getSubjectIdentifier()));
+            throw new PrivilegeManagementException(
+                    String.format("Subject missing subjectIdentifier = %s this is mandatory for POST API",
+                            s.getSubjectIdentifier()));
         }
     }
 
@@ -428,7 +417,7 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
         }
     }
 
-    public void setCache(final PolicyEvaluationCacheCircuitBreaker cache) {
+    public void setCache(final PolicyEvaluationCache cache) {
         this.cache = cache;
     }
 }

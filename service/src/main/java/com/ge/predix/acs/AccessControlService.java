@@ -22,11 +22,11 @@ import static springfox.documentation.builders.PathSelectors.regex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
 
+import com.ge.predix.acs.monitoring.ManagementSecurityRoleFilter;
 import com.ge.predix.acs.request.context.AcsRequestEnrichingFilter;
 import com.google.common.base.Predicate;
 
@@ -42,13 +42,15 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @author 212304931
  */
 @SpringBootApplication
-@EnableCircuitBreaker
 @EnableSwagger2
 @ImportResource(value = "classpath:security-config.xml")
 public class AccessControlService {
 
     @Autowired
     private AcsRequestEnrichingFilter acsRequestEnrichingFilter;
+
+    @Autowired
+    private ManagementSecurityRoleFilter managementSecurityRoleFilter;
 
     private String serviceId;
 
@@ -73,6 +75,14 @@ public class AccessControlService {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
         filterRegistrationBean.setEnabled(false);
         filterRegistrationBean.setFilter(this.acsRequestEnrichingFilter);
+        return filterRegistrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean monitoringFilterRegistrationBean() {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(this.managementSecurityRoleFilter);
+        filterRegistrationBean.addUrlPatterns("/health*");
+        filterRegistrationBean.setOrder(1);
         return filterRegistrationBean;
     }
 

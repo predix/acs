@@ -33,7 +33,7 @@ import com.ge.predix.acs.commons.policy.condition.groovy.GroovyConditionCache;
 import com.ge.predix.acs.model.Attribute;
 import com.ge.predix.acs.model.Effect;
 import com.ge.predix.acs.model.PolicySet;
-import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationCacheCircuitBreaker;
+import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationCache;
 import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationRequestCacheKey;
 import com.ge.predix.acs.rest.BaseResource;
 import com.ge.predix.acs.rest.BaseSubject;
@@ -58,7 +58,7 @@ public class PolicyEvaluationWithAttributeReaderTest extends AbstractTestNGSprin
     @Mock
     private ZoneResolver zoneResolver;
     @Mock
-    private PolicyEvaluationCacheCircuitBreaker cache;
+    private PolicyEvaluationCache cache;
     @Mock
     private AttributeReaderFactory attributeReaderFactory;
     @Mock
@@ -122,8 +122,8 @@ public class PolicyEvaluationWithAttributeReaderTest extends AbstractTestNGSprin
     @Test
     public void testPolicyEvaluationWhenAdaptersTimeOut() throws Exception {
         String attributeRetrievalExceptionMessage = "attribute retrieval exception";
-        when(this.externalResourceAttributeReader.getAttributes(Mockito.anyString())).thenThrow(
-                new AttributeRetrievalException(attributeRetrievalExceptionMessage, new Exception()));
+        when(this.externalResourceAttributeReader.getAttributes(Mockito.anyString()))
+                .thenThrow(new AttributeRetrievalException(attributeRetrievalExceptionMessage, new Exception()));
 
         PolicyEvaluationResult evalResult = this.evaluationService
                 .evalPolicy(createRequest(RESOURCE_IDENTIFIER, SUBJECT_IDENTIFIER, ACTION));

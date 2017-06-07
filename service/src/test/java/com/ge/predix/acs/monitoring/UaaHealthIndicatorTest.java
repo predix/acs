@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright 2016 General Electric Company.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ */
 package com.ge.predix.acs.monitoring;
 
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -29,34 +29,42 @@ public class UaaHealthIndicatorTest {
     @Value("${uaaCheckHealthUrl}")
     private String uaaCheckHealthUrl;
 
-    private final UaaHealthIndicator uaaHealthIndicator = new UaaHealthIndicator();
-
-    @Test(dataProvider = "dp")
-    public void health(final RestTemplate restTemplate, final Status status) {
-
-        Whitebox.setInternalState(this.uaaHealthIndicator, "uaaTemplate", restTemplate);
-        Assert.assertEquals(status, this.uaaHealthIndicator.health().getStatus());
+    @Test(dataProvider = "statuses")
+    public void testHealth(final RestTemplate restTemplate, final Status status,
+            final AcsMonitoringUtilities.HealthCode healthCode) throws Exception {
+        UaaHealthIndicator uaaHealthIndicator = new UaaHealthIndicator(restTemplate);
+        Assert.assertEquals(status, uaaHealthIndicator.health().getStatus());
+        Assert.assertEquals(uaaHealthIndicator.getDescription(),
+                uaaHealthIndicator.health().getDetails().get(AcsMonitoringUtilities.DESCRIPTION_KEY));
+        if (healthCode == AcsMonitoringUtilities.HealthCode.AVAILABLE) {
+            Assert.assertFalse(uaaHealthIndicator.health().getDetails().containsKey(AcsMonitoringUtilities.CODE_KEY));
+        } else {
+            Assert.assertEquals(healthCode,
+                    uaaHealthIndicator.health().getDetails().get(AcsMonitoringUtilities.CODE_KEY));
+        }
     }
 
     @DataProvider
-    public Object[][] dp() {
-        return new Object[][] { new Object[] { mockRestWithUp(), Status.UP },
-                new Object[] { mockRestWithException(), new Status(AcsMonitoringConstants.UAA_OUT_OF_SERVICE) }, };
+    public Object[][] statuses() {
+        return new Object[][] {
+                new Object[] { mockRestWithUp(), Status.UP, AcsMonitoringUtilities.HealthCode.AVAILABLE },
+
+                { mockRestWithException(new RestClientException("")), Status.DOWN,
+                        AcsMonitoringUtilities.HealthCode.UNREACHABLE },
+
+                { mockRestWithException(new RuntimeException()), Status.DOWN,
+                        AcsMonitoringUtilities.HealthCode.ERROR }, };
     }
 
     private RestTemplate mockRestWithUp() {
         RestTemplate restTemplate = Mockito.mock(RestTemplate.class);
-
         Mockito.when(restTemplate.getForObject(this.uaaCheckHealthUrl, String.class)).thenReturn("OK");
-
         return restTemplate;
     }
 
-    private RestTemplate mockRestWithException() {
+    private RestTemplate mockRestWithException(final Exception e) {
         RestTemplate restTemplate = Mockito.mock(RestTemplate.class);
-
-        Mockito.when(restTemplate.getForObject(this.uaaCheckHealthUrl, String.class)).thenThrow(new RuntimeException());
-
+        Mockito.when(restTemplate.getForObject(this.uaaCheckHealthUrl, String.class)).thenThrow(e);
         return restTemplate;
     }
 }

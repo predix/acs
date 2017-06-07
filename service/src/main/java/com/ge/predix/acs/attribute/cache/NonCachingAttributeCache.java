@@ -1,23 +1,22 @@
 package com.ge.predix.acs.attribute.cache;
 
-import java.util.Set;
-
-import com.ge.predix.acs.model.Attribute;
+import com.ge.predix.acs.attribute.readers.CachedAttributes;
 
 public class NonCachingAttributeCache implements AttributeCache {
 
     @Override
-    public void set(final String key, final Set<Attribute> value) throws StorageLimitExceededException {
+    public void set(final String key, final CachedAttributes value) {
+        //Intentionally left empty to satisfy interface
     }
 
     @Override
-    public Set<Attribute> get(final String key) {
+    public CachedAttributes get(final String key) {
         return null;
     }
 
     @Override
     public void flushAll() {
-
+        //Intentionally left empty to satisfy interface
     }
 
     @Override
