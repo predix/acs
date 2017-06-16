@@ -348,6 +348,23 @@
                         <version>${exec-maven-plugin.version}</version>
                         <executions>
                             <execution>
+                                <id>store-cf-logs</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cf</executable>
+                                    <arguments>
+                                        <argument>logs</argument>
+                                        <argument>${acs.appname}</argument>
+                                        <argument>--recent</argument>
+                                        <argument>></argument>
+                                        <argument>log.txt</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>cf-update-redis-service</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
@@ -441,6 +458,16 @@
                         <artifactId>exec-maven-plugin</artifactId>
                         <version>${exec-maven-plugin.version}</version>
                         <executions>
+                            <execution>
+                                <id>store-cf-logs</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>acs-ci-config/scripts/upload_logs.sh</executable>
+                                </configuration>
+                            </execution>
                             <execution>
                                 <id>cf-update-redis-service</id>
                                 <phase>post-integration-test</phase>
