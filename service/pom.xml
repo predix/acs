@@ -28,7 +28,6 @@
     <artifactId>acs-service</artifactId>
     <name>Predix Access Control Service Implementation</name>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -37,6 +36,25 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>gremlin-driver</artifactId>
+            <version>3.2.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
@@ -426,6 +444,7 @@
     <properties>
         <start-class>com.ge.predix.acs.AccessControlService</start-class>
         <jenkins.build.number>dev</jenkins.build.number>
+        <elasticsearch.version>1.5.1</elasticsearch.version>
     </properties>
 
     <build>
