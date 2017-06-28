@@ -125,6 +125,7 @@
     </build>
 
     <dependencies>
+        <!-- Begin dependencies added for Hystrix circuit breaker functionality. -->
         <dependency>
             <groupId>com.ge.predix</groupId>
             <artifactId>acs-commons</artifactId>
