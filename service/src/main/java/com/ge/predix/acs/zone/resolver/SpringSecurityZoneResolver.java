@@ -15,18 +15,21 @@
  *******************************************************************************/
 package com.ge.predix.acs.zone.resolver;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import com.ge.predix.acs.request.context.AcsRequestContext;
 import com.ge.predix.acs.request.context.AcsRequestContext.ACSRequestContextAttribute;
 import com.ge.predix.acs.request.context.AcsRequestContextHolder;
 import com.ge.predix.acs.service.InvalidACSRequestException;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 import com.ge.predix.uaa.token.lib.ZoneOAuth2Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SpringSecurityZoneResolver implements ZoneResolver {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringSecurityZoneResolver.class);
 
     public static ZoneEntity getZoneEntity() {
         AcsRequestContext acsRequestContext = AcsRequestContextHolder.getAcsRequestContext();
@@ -38,16 +41,29 @@ public class SpringSecurityZoneResolver implements ZoneResolver {
                     .getAuthentication();
             throw new InvalidACSRequestException("The zone '" + zoneAuth.getZoneId() + "' does not exist.");
         }
-
         return result;
     }
     
     @Override
     public ZoneEntity getZoneEntityOrFail() {
-        return getZoneEntity();
+        ZoneEntity result = null;
+        try {
+        result = getZoneEntity();
+        } catch (InvalidACSRequestException e) {
+            LOGGER.debug(e.getMessage());
+            return null;
+        }
+        return result;
     }
     
     public static String getZoneName() {
-        return getZoneEntity().getName();
+        String result = null;
+        try {
+            result = getZoneEntity().getName();
+        } catch (InvalidACSRequestException e) {
+            LOGGER.debug(e.getMessage());
+            return null;
+        }
+        return result;
     }
 }
