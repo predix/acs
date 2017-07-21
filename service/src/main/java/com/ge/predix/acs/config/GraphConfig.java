@@ -76,7 +76,7 @@ public class GraphConfig {
     private Graph graph;
 
     @PostConstruct
-    public void init() throws InterruptedException {
+       public void init() throws InterruptedException {
         this.graph = createGraph();
     }
 
