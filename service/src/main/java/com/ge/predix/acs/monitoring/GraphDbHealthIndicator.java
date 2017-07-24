@@ -12,9 +12,6 @@ import org.springframework.stereotype.Component;
 
 import com.ge.predix.acs.privilege.management.dao.GraphResourceRepository;
 import com.ge.predix.acs.privilege.management.dao.TitanMigrationManager;
-import com.thinkaurelius.titan.core.QueryException;
-import com.thinkaurelius.titan.core.TitanConfigurationException;
-import com.thinkaurelius.titan.diskstorage.ResourceUnavailableException;
 
 @Component
 @Profile({ "titan" })
@@ -54,15 +51,15 @@ public class GraphDbHealthIndicator implements HealthIndicator {
                     .checkVersionVertexExists(TitanMigrationManager.INITIAL_ATTRIBUTE_GRAPH_VERSION)) {
                 healthCode = AcsMonitoringUtilities.HealthCode.AVAILABLE;
             }
-        } catch (QueryException e) {
-            healthCode = AcsMonitoringUtilities.logError(AcsMonitoringUtilities.HealthCode.INVALID_QUERY, LOGGER,
-                    ERROR_MESSAGE_FORMAT, e);
-        } catch (ResourceUnavailableException e) {
-            healthCode = AcsMonitoringUtilities.logError(AcsMonitoringUtilities.HealthCode.UNAVAILABLE, LOGGER,
-                    ERROR_MESSAGE_FORMAT, e);
-        } catch (TitanConfigurationException e) {
-            healthCode = AcsMonitoringUtilities.logError(AcsMonitoringUtilities.HealthCode.MISCONFIGURATION, LOGGER,
-                    ERROR_MESSAGE_FORMAT, e);
+//        } catch (QueryException e) {
+//            healthCode = AcsMonitoringUtilities.logError(AcsMonitoringUtilities.HealthCode.INVALID_QUERY, LOGGER,
+//                    ERROR_MESSAGE_FORMAT, e);
+//        } catch (ResourceUnavailableException e) {
+//            healthCode = AcsMonitoringUtilities.logError(AcsMonitoringUtilities.HealthCode.UNAVAILABLE, LOGGER,
+//                    ERROR_MESSAGE_FORMAT, e);
+//        } catch (TitanConfigurationException e) {
+//            healthCode = AcsMonitoringUtilities.logError(AcsMonitoringUtilities.HealthCode.MISCONFIGURATION, LOGGER,
+//                    ERROR_MESSAGE_FORMAT, e);
         } catch (Exception e) {
             healthCode = AcsMonitoringUtilities.logError(AcsMonitoringUtilities.HealthCode.ERROR, LOGGER,
                     ERROR_MESSAGE_FORMAT, e);

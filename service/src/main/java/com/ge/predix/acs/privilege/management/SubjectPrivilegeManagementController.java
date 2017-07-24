@@ -62,7 +62,7 @@ public class SubjectPrivilegeManagementController extends BaseRestApi {
 
     private Boolean getTitanProfileActive() {
         if (this.titanProfileActive == null) {
-            this.titanProfileActive = Arrays.asList(this.getEnvironment().getActiveProfiles()).contains("titan");
+            this.titanProfileActive = Arrays.asList(this.getEnvironment().getActiveProfiles()).contains("DSE");
         }
 
         return this.titanProfileActive;

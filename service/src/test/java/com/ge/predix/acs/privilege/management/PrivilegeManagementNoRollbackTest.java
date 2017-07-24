@@ -36,8 +36,8 @@ import com.ge.predix.acs.attribute.connector.management.AttributeConnectorServic
 import com.ge.predix.acs.attribute.readers.AttributeReaderFactory;
 import com.ge.predix.acs.attribute.readers.PrivilegeServiceResourceAttributeReader;
 import com.ge.predix.acs.attribute.readers.PrivilegeServiceSubjectAttributeReader;
+import com.ge.predix.acs.config.DseGraphConfig;
 import com.ge.predix.acs.config.GraphBeanDefinitionRegistryPostProcessor;
-import com.ge.predix.acs.config.GraphConfig;
 import com.ge.predix.acs.config.InMemoryDataSourceConfig;
 import com.ge.predix.acs.model.Attribute;
 import com.ge.predix.acs.policy.evaluation.cache.InMemoryPolicyEvaluationCache;
@@ -55,7 +55,7 @@ import com.ge.predix.acs.zone.resolver.SpringSecurityZoneResolver;
 
 @ContextConfiguration(classes = { AcsRequestContextHolder.class, InMemoryDataSourceConfig.class,
         InMemoryPolicyEvaluationCache.class, AttributeCacheFactory.class, PrivilegeManagementServiceImpl.class,
-        GraphBeanDefinitionRegistryPostProcessor.class, GraphConfig.class, ZoneServiceImpl.class,
+        GraphBeanDefinitionRegistryPostProcessor.class, DseGraphConfig.class, ZoneServiceImpl.class,
         SpringSecurityPolicyContextResolver.class, SpringSecurityZoneResolver.class, SubjectRepositoryProxy.class,
         ResourceRepositoryProxy.class, AttributeConnectorServiceImpl.class, AttributeReaderFactory.class,
         PrivilegeServiceResourceAttributeReader.class, PrivilegeServiceSubjectAttributeReader.class })

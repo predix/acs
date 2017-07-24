@@ -17,6 +17,6 @@
 #*******************************************************************************
 
 unset PROXY_OPTS
-export SPRING_PROFILES_ACTIVE='h2,public,simple-cache,titan'
+export SPRING_PROFILES_ACTIVE='h2,public,simple-cache,DSE'
 export DIR=$( dirname "$( python -c "import os; print os.path.abspath('${BASH_SOURCE[0]}')" )" )
 source "${DIR}/start-acs.sh" "$@"

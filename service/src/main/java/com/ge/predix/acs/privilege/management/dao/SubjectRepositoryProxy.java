@@ -41,7 +41,7 @@ public class SubjectRepositoryProxy implements SubjectRepository, SubjectHierarc
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (Arrays.asList(this.environment.getActiveProfiles()).contains("titan")) {
+        if (Arrays.asList(this.environment.getActiveProfiles()).contains("DSE")) {
             this.activeRepository = this.graphRepository;
             LOGGER.info("Subject hierarchical repository enabled.");
         } else {

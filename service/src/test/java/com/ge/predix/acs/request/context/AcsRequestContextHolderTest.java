@@ -9,7 +9,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.ge.predix.acs.config.GraphConfig;
+import com.ge.predix.acs.config.DseGraphConfig;
 import com.ge.predix.acs.config.InMemoryDataSourceConfig;
 import com.ge.predix.acs.request.context.AcsRequestContext.ACSRequestContextAttribute;
 import com.ge.predix.acs.rest.Zone;
@@ -21,7 +21,7 @@ import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 
 @ContextConfiguration(
         classes = { InMemoryDataSourceConfig.class, ZoneServiceImpl.class, AcsRequestContextHolder.class,
-                GraphConfig.class })
+                DseGraphConfig.class })
 @ActiveProfiles(resolver = TestActiveProfilesResolver.class)
 @Test
 public class AcsRequestContextHolderTest extends AbstractTestNGSpringContextTests {

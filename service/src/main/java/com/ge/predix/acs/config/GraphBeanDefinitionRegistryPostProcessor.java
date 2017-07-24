@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.ge.predix.acs.privilege.management.dao.GraphResourceRepository;
 import com.ge.predix.acs.privilege.management.dao.GraphSubjectRepository;
 
-@Profile("titan")
+@Profile("DSE")
 @Component
 public class GraphBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
 

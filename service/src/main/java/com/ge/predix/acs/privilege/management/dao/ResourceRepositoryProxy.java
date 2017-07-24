@@ -40,7 +40,7 @@ public class ResourceRepositoryProxy implements ResourceRepository, ResourceHier
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (Arrays.asList(this.environment.getActiveProfiles()).contains("titan")) {
+        if (Arrays.asList(this.environment.getActiveProfiles()).contains("DSE")) {
             this.activeRepository = this.graphRepository;
             LOGGER.info("Resource hierarchical repository enabled.");
         } else {

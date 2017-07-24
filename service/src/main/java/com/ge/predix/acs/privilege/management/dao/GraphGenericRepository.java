@@ -36,7 +36,6 @@ import com.ge.predix.acs.rest.Parent;
 import com.ge.predix.acs.utils.JsonUtils;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 import com.google.common.collect.Sets;
-import com.thinkaurelius.titan.core.SchemaViolationException;
 
 public abstract class GraphGenericRepository<E extends ZonableEntity> implements JpaRepository<E, Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphGenericRepository.class);
@@ -218,8 +217,9 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
 
     private void verifyEntityNotSelfReferencing(final E entity) {
         if (entity.getParents().contains(new Parent(getEntityId(entity)))) {
-            throw new SchemaViolationException(
-                    String.format("The entity '%s' references itself as a parent.", getEntityId(entity)));
+//            throw new SchemaViolationException(
+//                    String.format("The entity '%s' references itself as a parent.", getEntityId(entity)));
+            System.out.println("ScehamVioloation");
         }
     }
 
@@ -231,9 +231,10 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
         this.graphTraversal.V(entity.getId()).has(getEntityIdKey()).emit().repeat(in().has(getEntityIdKey()))
                 .until(eq(null)).values(getEntityIdKey()).toStream().forEach(id -> {
             if (entity.getParents().contains(new Parent((String) id))) {
-                throw new SchemaViolationException(
-                        String.format("Updating entity '%s' with parent '%s' introduces a cyclic reference.",
-                                getEntityId(entity), id));
+//                throw new SchemaViolationException(
+//                        String.format("Updating entity '%s' with parent '%s' introduces a cyclic reference.",
+//                                getEntityId(entity), id));
+                System.out.println("ScehamVioloation");
             }
         });
     }
@@ -353,7 +354,7 @@ public abstract class GraphGenericRepository<E extends ZonableEntity> implements
                     String.format("There are two entities with the same %s.", getEntityIdKey()));
             return entity;
         } finally {
-            this.graphTraversal.tx().commit();
+            System.out.println("In finally");
         }
     }
 
