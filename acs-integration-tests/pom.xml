@@ -14,9 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
  -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>acs-integration-tests</artifactId>
     <name>Predix Access Control Service Integration Tests</name>
@@ -25,7 +23,7 @@
     <parent>
         <groupId>com.ge.predix</groupId>
         <artifactId>acs</artifactId>
-        <version>4.8.1</version>
+        <version>4.8.2</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -164,7 +162,7 @@
         <dependency>
             <groupId>com.ge.predix</groupId>
             <artifactId>acs-service</artifactId>
-            <version>4.8.1</version>
+            <version>4.8.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -348,7 +346,7 @@
                         <version>${exec-maven-plugin.version}</version>
                         <executions>
                             <execution>
-                                <id>cf-update-redis-service</id>
+                                <id>cf-update-decision-redis-service</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
@@ -357,7 +355,39 @@
                                     <executable>cf</executable>
                                     <arguments>
                                         <argument>update-service</argument>
-                                        <argument>${ACS_REDIS}</argument>
+                                        <argument>${DECISION_CACHE_NAME}</argument>
+                                        <argument>-t</argument>
+                                        <argument>""</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>cf-update-resource-redis-service</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cf</executable>
+                                    <arguments>
+                                        <argument>update-service</argument>
+                                        <argument>${RESOURCE_CACHE_NAME}</argument>
+                                        <argument>-t</argument>
+                                        <argument>""</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>cf-update-subject-redis-service</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cf</executable>
+                                    <arguments>
+                                        <argument>update-service</argument>
+                                        <argument>${SUBJECT_CACHE_NAME}</argument>
                                         <argument>-t</argument>
                                         <argument>""</argument>
                                     </arguments>
@@ -442,7 +472,7 @@
                         <version>${exec-maven-plugin.version}</version>
                         <executions>
                             <execution>
-                                <id>cf-update-redis-service</id>
+                                <id>cf-update-decision-redis-service</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
@@ -451,7 +481,39 @@
                                     <executable>cf</executable>
                                     <arguments>
                                         <argument>update-service</argument>
-                                        <argument>${ACS_REDIS}</argument>
+                                        <argument>${DECISION_CACHE_NAME}</argument>
+                                        <argument>-t</argument>
+                                        <argument>""</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>cf-update-resource-redis-service</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cf</executable>
+                                    <arguments>
+                                        <argument>update-service</argument>
+                                        <argument>${RESOURCE_CACHE_NAME}</argument>
+                                        <argument>-t</argument>
+                                        <argument>""</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>cf-update-subject-redis-service</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cf</executable>
+                                    <arguments>
+                                        <argument>update-service</argument>
+                                        <argument>${SUBJECT_CACHE_NAME}</argument>
                                         <argument>-t</argument>
                                         <argument>""</argument>
                                     </arguments>
@@ -491,7 +553,52 @@
                             <groupId>commons-io</groupId>
                             <artifactId>commons-io</artifactId>
                         </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-handler</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-codec-http</artifactId>
+                        </exclusion>
                     </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>com.ge.predix.eventhub</groupId>
+                    <artifactId>predix-event-hub-sdk</artifactId>
+                    <version>1.2.2-SNAPSHOT</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>io.grpc</groupId>
+                            <artifactId>grpc-stub</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.grpc</groupId>
+                            <artifactId>grpc-protobuf</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-handler</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>commons-io</groupId>
+                            <artifactId>commons-io</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-codec-http</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-stub</artifactId>
+                    <version>1.0.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-protobuf</artifactId>
+                    <version>1.0.1</version>
                 </dependency>
             </dependencies>
             <build>
@@ -502,7 +609,7 @@
                         <configuration>
                             <forkCount>0</forkCount>
                             <parallel>methods</parallel>
-                            <argLine></argLine>
+                            <argLine/>
                             <systemPropertyVariables>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
                                 <spring.profiles.active>h2,predix,simple-cache</spring.profiles.active>
@@ -562,7 +669,7 @@
                         <configuration>
                             <forkCount>0</forkCount>
                             <parallel>methods</parallel>
-                            <argLine></argLine>
+                            <argLine/>
                             <systemPropertyVariables>
                                 <ZAC_UAA_URL>${ZAC_UAA_URL}</ZAC_UAA_URL>
                                 <spring.profiles.active>h2,predix,simple-cache,titan</spring.profiles.active>
@@ -829,7 +936,52 @@
                             <groupId>commons-io</groupId>
                             <artifactId>commons-io</artifactId>
                         </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-handler</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-codec-http</artifactId>
+                        </exclusion>
                     </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>com.ge.predix.eventhub</groupId>
+                    <artifactId>predix-event-hub-sdk</artifactId>
+                    <version>1.2.2-SNAPSHOT</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>io.grpc</groupId>
+                            <artifactId>grpc-stub</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.grpc</groupId>
+                            <artifactId>grpc-protobuf</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-handler</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>commons-io</groupId>
+                            <artifactId>commons-io</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>io.netty</groupId>
+                            <artifactId>netty-codec-http</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-stub</artifactId>
+                    <version>1.0.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-protobuf</artifactId>
+                    <version>1.0.1</version>
                 </dependency>
             </dependencies>
             <build>

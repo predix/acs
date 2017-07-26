@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import com.ge.predix.audit.rest.PredixAuditRequest;
 import com.ge.predix.audit.rest.PredixAuditResponse;
 import com.ge.predix.test.utils.ACSRestTemplateFactory;
+import com.ge.predix.test.utils.ACSTestUtil;
 import com.ge.predix.test.utils.ZoneHelper;
 
 @ContextConfiguration("classpath:integration-test-spring-context.xml")
@@ -49,7 +50,7 @@ public class PredixAuditIT extends AbstractTestNGSpringContextTests {
 
     private OAuth2RestTemplate auditRestTemplate;
 
-    @BeforeClass
+    @BeforeClass(enabled = false)
     public void setup() {
         ClientCredentialsResourceDetails resource = new ClientCredentialsResourceDetails();
 
@@ -63,12 +64,12 @@ public class PredixAuditIT extends AbstractTestNGSpringContextTests {
         this.auditRestTemplate.setRequestFactory(requestFactory);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAudit() throws Exception {
         long startTime = Instant.now().toEpochMilli();
         this.zoneHelper.createTestZone(this.acsRestTemplateFactory.getACSTemplateWithPolicyScope(), "predix-audit-zone",
                 true);
-        HttpHeaders headers = new HttpHeaders();
+        HttpHeaders headers = ACSTestUtil.httpHeaders();
         headers.add("Predix-Zone-Id", this.auditZoneId);
         Thread.sleep(5000);
         PredixAuditRequest request = new PredixAuditRequest(1, 10, startTime, Instant.now().toEpochMilli());

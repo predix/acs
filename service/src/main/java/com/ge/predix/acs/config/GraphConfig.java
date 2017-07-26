@@ -12,13 +12,13 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -41,7 +41,6 @@ import com.thinkaurelius.titan.graphdb.database.management.ManagementSystem;
 
 @Configuration
 @Profile({ "titan" })
-@EnableAutoConfiguration
 public class GraphConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfig.class);
 
@@ -86,9 +85,8 @@ public class GraphConfig {
         if (this.cassandraEnabled) {
             Builder titanBuilder = TitanFactory.build().set("storage.backend", "cassandra")
                     .set("storage.cassandra.keyspace", this.cassandraKeyspace)
-                    .set("storage.hostname", Arrays.asList(hostname.split(",")))
-                    .set("storage.port", this.port).set("cache.db-cache", this.cacheEnabled)
-                    .set("cache.db-cache-clean-wait", this.titanCacheCleanWait)
+                    .set("storage.hostname", Arrays.asList(hostname.split(","))).set("storage.port", this.port)
+                    .set("cache.db-cache", this.cacheEnabled).set("cache.db-cache-clean-wait", this.titanCacheCleanWait)
                     .set("cache.db-cache-time", this.titanCacheTime).set("cache.db-cache-size", this.titanCacheSize);
             if (StringUtils.isNotEmpty(this.username)) {
                 titanBuilder = titanBuilder.set("storage.username", this.username);
@@ -215,7 +213,7 @@ public class GraphConfig {
     }
 
     @Bean
-    Graph graph() {
-        return this.graph;
+    GraphTraversalSource graphTraversal() {
+        return this.graph.traversal();
     }
 }
