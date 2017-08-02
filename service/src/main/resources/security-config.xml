@@ -210,23 +210,33 @@
                 after="BASIC_AUTH_FILTER" />
     </http>
 
-    <!-- Authorization Configuration For V1 APIS -->
+    <!-- Authorization Configuration For V1 Zone APIS -->
     <http pattern="/v1/zone/**" request-matcher="ant" create-session="stateless"
-        xmlns="http://www.springframework.org/schema/security"
-        disable-url-rewriting="true" use-expressions="true"
-        entry-point-ref="preAuthenticationEntryPoint">
+          xmlns="http://www.springframework.org/schema/security"
+          disable-url-rewriting="true" use-expressions="true"
+          entry-point-ref="preAuthenticationEntryPoint">
         <csrf disabled="true"/>
 
         <!-- ZacTokenService will only verify the token against defaultTrustedIssuerId
             for requests with no zone. Additional scope acs.zones.admin needs to be asserted
             here. -->
         <intercept-url pattern="/v1/zone/**"
-            access="isFullyAuthenticated() and hasAnyAuthority('acs.zones.admin')" />
+                       access="isFullyAuthenticated() and hasAnyAuthority('acs.zones.admin')" />
 
         <!-- This filter must always be first in the Spring Security filter chain for this URI pattern -->
         <custom-filter ref="zoneHttpMethodsFilter" before="FIRST"/>
         <custom-filter ref="oauth2remoteTokenFilter"
-            position="PRE_AUTH_FILTER" />
+                       position="PRE_AUTH_FILTER" />
+    </http>
+
+    <!-- Authorization Configuration For V1 APIS -->
+    <http pattern="/v1/**" request-matcher="ant" create-session="stateless"
+          xmlns="http://www.springframework.org/schema/security"
+          disable-url-rewriting="true" use-expressions="true"
+          entry-point-ref="preAuthenticationEntryPoint">
+        <csrf disabled="true"/>
+
+        <intercept-url pattern="/v1/**" access="denyAll()" />
     </http>
 
     <!-- Authorization Configuration For Monitoring APIs -->
