@@ -15,19 +15,12 @@
  *******************************************************************************/
 package com.ge.predix.acs.service.policy.evaluation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ge.predix.acs.rest.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +44,6 @@ import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationCache;
 import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationRequestCacheKey;
 import com.ge.predix.acs.policy.evaluation.cache.PolicyEvaluationRequestCacheKey.Builder;
 import com.ge.predix.acs.privilege.management.dao.AttributeLimitExceededException;
-import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
-import com.ge.predix.acs.rest.PolicyEvaluationResult;
 import com.ge.predix.acs.service.policy.admin.PolicyManagementService;
 import com.ge.predix.acs.service.policy.matcher.MatchResult;
 import com.ge.predix.acs.service.policy.matcher.PolicyMatchCandidate;
@@ -156,6 +147,41 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
             }
         }
         return result;
+    }
+
+    @Override
+    public PolicyEvaluationBatchResult evalpoicyBatch(PolicyEvaluationBatchRequestV2 request) {
+        ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
+        Iterator<ResourceRequest> resourceItr = request.getAllResources().iterator();
+        String subjectIdentifier = request.getSubjectIdentifier();
+        String action = request.getAction();
+        LinkedHashSet<String> policySetsEvaluationOrder = request.getPolicySetsEvaluationOrder();
+        LinkedHashMap<String, LinkedHashSet<PolicySet>> filteredPolicySets = new LinkedHashMap<>();
+        LinkedHashMap<String, ResourceRequest> resources = new LinkedHashMap<>();
+        List<PolicySet> allPolicySets = this.policyService.getAllPolicySets();
+
+        if (allPolicySets.isEmpty()) {
+
+            //To-Do add Effect as evalPolicy
+            return new PolicyEvaluationBatchResult();
+        }
+        while(resourceItr.hasNext()) {
+            String uri = resourceItr.next().getResourceIdentifier();
+
+            if (uri == null || subjectIdentifier == null || action == null) {
+                LOGGER.error("Policy evaluation request is missing required input parameters: "
+                        + "resourceURI='{}' subjectIdentifier='{}' action='{}'", uri, subjectIdentifier, action);
+
+                throw new IllegalArgumentException("Policy evaluation request is missing required input parameters. "
+                        + "Please review and resubmit the request.");
+            }
+            filteredPolicySets.put(uri, filterPolicySetsByPriority(subjectIdentifier, uri, allPolicySets,
+                    policySetsEvaluationOrder));
+            resources.put(uri, resourceItr.next());
+
+        }
+
+        return null;
     }
 
     LinkedHashSet<PolicySet> filterPolicySetsByPriority(final String subjectIdentifier, final String uri,

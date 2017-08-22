@@ -17,6 +17,7 @@ package com.ge.predix.acs.service.policy.evaluation;
 
 import static com.ge.predix.acs.commons.web.AcsApiUriTemplates.POLICY_EVALUATION_URL;
 import static com.ge.predix.acs.commons.web.AcsApiUriTemplates.V1;
+import static com.ge.predix.acs.commons.web.AcsApiUriTemplates.V2;
 import static com.ge.predix.acs.commons.web.ResponseEntityBuilder.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -55,6 +56,20 @@ public class PolicyEvaluationController extends BaseRestApi {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<PolicyEvaluationResult> evalPolicyV1(@RequestBody final PolicyEvaluationRequestV1 request) {
+        return ok(this.service.evalPolicy(request));
+    }
+
+    @Autowired
+    private PolicyEvaluationService service;
+
+    @ApiOperation(value = "Evaluates all applicable policies and returns decision result",
+            tags = { "Policy Evaluation" }, response = PolicyEvaluationResult.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Policy evaluation was successful",
+            response = PolicyEvaluationResult.class), })
+    @RequestMapping(method = POST, value = V2 + POLICY_EVALUATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<PolicyEvaluationResult> evalPolicyV2(@RequestBody final PolicyEvaluationRequestV1 request) {
         return ok(this.service.evalPolicy(request));
     }
 }
