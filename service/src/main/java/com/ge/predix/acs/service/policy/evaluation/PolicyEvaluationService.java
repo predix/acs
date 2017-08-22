@@ -15,15 +15,12 @@
  *******************************************************************************/
 package com.ge.predix.acs.service.policy.evaluation;
 
-import com.ge.predix.acs.rest.PolicyEvaluationBatchRequestV2;
-import com.ge.predix.acs.rest.PolicyEvaluationBatchResult;
 import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
 import com.ge.predix.acs.rest.PolicyEvaluationResult;
 
 @FunctionalInterface
 public interface PolicyEvaluationService {
-    PolicyEvaluationResult evalPolicy(PolicyEvaluationRequestV1 request);
 
-    PolicyEvaluationBatchResult evalpoicyBatch(PolicyEvaluationBatchRequestV2 request);
+    PolicyEvaluationResult evalPolicy(PolicyEvaluationRequestV1 request);
 
 }

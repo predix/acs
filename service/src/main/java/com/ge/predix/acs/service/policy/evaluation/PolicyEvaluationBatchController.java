@@ -16,8 +16,7 @@
 package com.ge.predix.acs.service.policy.evaluation;
 
 import static com.ge.predix.acs.commons.web.AcsApiUriTemplates.POLICY_EVALUATION_URL;
-import static com.ge.predix.acs.commons.web.AcsApiUriTemplates.V1;
-import static com.ge.predix.acs.commons.web.ResponseEntityBuilder.ok;
+import static com.ge.predix.acs.commons.web.AcsApiUriTemplates.V2;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.ge.predix.acs.commons.web.BaseRestApi;
-import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
+import com.ge.predix.acs.rest.PolicyEvaluationBatchRequestV2;
 import com.ge.predix.acs.rest.PolicyEvaluationResult;
 
 import io.swagger.annotations.ApiOperation;
@@ -37,25 +34,32 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 /**
- * Policy evaluator REST controller.
+ * Batch Policy evaluator REST controller.
  *
- * @author 212304931
+ * @author 212560038
  */
-@RestController
-public class PolicyEvaluationController extends BaseRestApi {
+public class PolicyEvaluationBatchController {
 
     @Autowired
     private PolicyEvaluationService service;
 
     @ApiOperation(value = "Evaluates all applicable policies and returns decision result",
-            tags = { "Policy Evaluation" }, response = PolicyEvaluationResult.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Policy evaluation was successful",
+            tags = { "Policy Evaluation" },
+            response = PolicyEvaluationResult.class)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+            message = "Policy evaluation was successful",
             response = PolicyEvaluationResult.class), })
-    @RequestMapping(method = POST, value = V1 + POLICY_EVALUATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(method = POST,
+            value = V2 + POLICY_EVALUATION_URL,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<PolicyEvaluationResult> evalPolicyV1(@RequestBody final PolicyEvaluationRequestV1 request) {
-        return ok(this.service.evalPolicy(request));
+    public ResponseEntity<PolicyEvaluationResult> evalPolicyBatchV2(
+            @RequestBody
+            final PolicyEvaluationBatchRequestV2 request) {
+
+        throw new UnsupportedOperationException("Not supported yet");
+        
     }
 
 }

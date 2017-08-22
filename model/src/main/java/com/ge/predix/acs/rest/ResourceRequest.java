@@ -1,17 +1,26 @@
 package com.ge.predix.acs.rest;
 
-import com.ge.predix.acs.model.Attribute;
-
 import java.util.Set;
 
+import com.ge.predix.acs.model.Attribute;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+/**
+ * Represents a Requested Resource in the system identified by a subjectIdentifier.
+ */
+@ApiModel(description = "Represents a managed protected resource for V2.")
 public class ResourceRequest {
 
-
+    @ApiModelProperty(value = "Resource identifier provided by the requestor")
     private String resourceIdentifier;
 
+    @ApiModelProperty(value = "Supplemental resource attributes provided by the requestor")
     private Set<Attribute> resourceAttributes;
 
-    private Set<String> actions;
+    @ApiModelProperty(value = "Action provided by the requestor")
+    private String action;
 
     public String getResourceIdentifier() {
         return resourceIdentifier;
@@ -29,12 +38,12 @@ public class ResourceRequest {
         this.resourceAttributes = resourceAttributes;
     }
 
-    public Set<String> getActions() {
-        return actions;
+    public String getAction() {
+        return action;
     }
 
-    public void setActions(Set<String> actions) {
-        this.actions = actions;
+    public void setAction(String action) {
+        this.action = action;
     }
 
 }

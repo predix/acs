@@ -15,16 +15,18 @@
  *******************************************************************************/
 package com.ge.predix.acs.rest;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ge.predix.acs.model.Attribute;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import java.util.Collections;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import java.util.Collections;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ge.predix.acs.model.Attribute;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Represents a Resource in the system identified by a subjectIdentifier.
