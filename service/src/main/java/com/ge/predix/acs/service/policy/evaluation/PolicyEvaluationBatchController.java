@@ -57,9 +57,9 @@ public class PolicyEvaluationBatchController {
     public ResponseEntity<PolicyEvaluationResult> evalPolicyBatchV2(
             @RequestBody
             final PolicyEvaluationBatchRequestV2 request) {
-
-        throw new UnsupportedOperationException("Not supported yet");
         
+        throw new UnsupportedOperationException("Not supported yet");
+
     }
 
 }
