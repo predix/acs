@@ -48,7 +48,8 @@ public class UriTemplateVariableResolverTest {
                 // no attribute_uri variable in template
                 { "/v1/site/123/asset/345/report", new UriTemplate("/v1{non_existent_variable}"), null },
                 // multiple attribute_uri variables in template
-                { "/v1/site/123/asset/345", new UriTemplate("/v1{attribute_uri}/{attribute_uri}"), "345" }, };
-    }
+                { "/v1/site/123/asset/345", new UriTemplate("/v1{attribute_uri}/{attribute_uri}"), "345" },
 
+                { "/resource/abcd_r1", new UriTemplate("/resource/{prefix:\\w*}_{attribute_uri:\\w*}"), "r1" }, };
+    }
 }

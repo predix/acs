@@ -74,7 +74,12 @@ public class ResourceAttributeResolverTest {
                 // attributeUriTemplate not defined
                 { "/v1/site/123/asset/456", null, null },
                 // attributeUriTemplate defined as " "
-                { "/v1/site/123/asset/456", " ", null } };
+                { "/v1/site/123/asset/456", " ", null },
+
+                { "/abcd_r1", "/{prefix}_{attribute_uri}", "r1" },
+                { "/abcd_r1/xyz", "/{prefix}_{attribute_uri}", "r1/xyz" },
+                { "/abcd_r1/xyz", "/{prefix}_{attribute_uri:\\w*}", "r1" }
+        };
     }
 
     public void testResolveResourceUriNoPolicy() {

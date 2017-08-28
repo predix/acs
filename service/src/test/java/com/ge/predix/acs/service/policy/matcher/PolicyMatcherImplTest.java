@@ -400,7 +400,6 @@ public class PolicyMatcherImplTest {
      */
     @Test(dataProvider = "uriTemplateMatchDataProvider")
     public void testURITemplateMatch(final String uriTemplate, final String uri,
-
             final Boolean uriTemplateExpectedMatch, final String[] varNames, final String[] varValues) {
         doTestForURITemplateMatch(uriTemplate, uri, uriTemplateExpectedMatch, varNames, varValues);
     }
@@ -429,6 +428,17 @@ public class PolicyMatcherImplTest {
                  * Each entry has the following data: uriTemplate, HTTP request URI, URITemplate expected match
                  * result, Expected expanded URITemplate variable values
                  */
+                { "/resource/{prefix:\\w*}_{resource_uri:\\w*}", "/resource/abcd_r1", Boolean.TRUE,
+                        new String[] { "prefix", "resource_uri" },
+                        new String[] { "abcd", "r1" } },
+                { "/resource/{prefix:\\w*}_{resource_uri:\\w*}", "/resource/abcd_efg_r1", Boolean.TRUE,
+                        new String[] { "prefix", "resource_uri" },
+                        new String[] { "abcd_efg", "r1" } },
+                { "/resource/{prefix:\\w*}_{resource_uri:\\w*}", "/resource/abcd_r1/efg", Boolean.FALSE,
+                        new String[] { "n/a" }, new String[] { "n/a" } },
+                { "/resource/{prefix:\\w*}_{resource_uri:\\w*}", "/resource/abcd/efg_r1", Boolean.FALSE,
+                        new String[] { "n/a" }, new String[] { "n/a" } },
+
                 // exact match
                 { "/one/{var1}", "/one/two", Boolean.TRUE, new String[] { "var1" }, new String[] { "two" } },
                 { "/one/{var1}", "/one", Boolean.FALSE, new String[] { "n/a" }, new String[] { "n/a" } },

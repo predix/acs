@@ -48,7 +48,7 @@ public class PolicyEvaluationResult {
                     + "the attribute uri templates defined in the policy set. For example, a policy request of"
                     + "    /v1/site/1/plant/asset/1\n" + "against a policy set with attribute uri templates:\n"
                     + "    /v1{attribute_uri}/plant/asset/{asset_id}\n"
-                    + "    /v1/site/{site_id}/plant/asset/{asset_id}\n" + "would include:\n" + "    /site/1\n"
+                    + "    /v1/site/{site_id}/plant{attribute_uri}\n" + "would include:\n" + "    /site/1\n"
                     + "    /asset/2\n" + "in this set.",
             required = false)
     private Set<String> resolvedResourceUris;
@@ -123,7 +123,8 @@ public class PolicyEvaluationResult {
     @Override
     public String toString() {
         return "PolicyEvaluationResult [effect=" + this.effect + ", subjectAttributes=" + this.subjectAttributes
-                + ", resourceAttributes=" + this.resourceAttributes + "]";
+                + ", resourceAttributes=" + this.resourceAttributes + ", resolvedResourceUris" + resolvedResourceUris
+                + "]";
     }
 
     public String getMessage() {
