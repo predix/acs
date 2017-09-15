@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,29 +42,13 @@ import com.ge.predix.acs.rest.BaseSubject;
 import com.ge.predix.acs.rest.Parent;
 import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
 import com.ge.predix.acs.rest.PolicyEvaluationResult;
-import com.ge.predix.test.TestConfig;
-import com.ge.predix.test.utils.ACSRestTemplateFactory;
-import com.ge.predix.test.utils.ACSTestUtil;
 import com.ge.predix.test.utils.PolicyHelper;
 import com.ge.predix.test.utils.PrivilegeHelper;
-import com.ge.predix.test.utils.UaaTestUtil;
-import com.ge.predix.test.utils.ZacTestUtil;
-import com.ge.predix.test.utils.ZoneHelper;
+import com.ge.predix.test.utils.v2.ACSITSetUpFactory;
 
 @ContextConfiguration("classpath:integration-test-spring-context.xml")
 @SuppressWarnings({ "nls" })
 public class PolicyEvalCachingWithGraphDBIT extends AbstractTestNGSpringContextTests {
-
-    @Value("${ACS_URL}")
-    private String acsUrl;
-
-    @Value("${ACS_UAA_URL}")
-    private String uaaUrl;
-
-    private String acsZone1Name;
-
-    @Autowired
-    private ACSRestTemplateFactory acsRestTemplateFactory;
 
     @Autowired
     private PolicyHelper policyHelper;
@@ -75,16 +57,11 @@ public class PolicyEvalCachingWithGraphDBIT extends AbstractTestNGSpringContextT
     private PrivilegeHelper privilegeHelper;
 
     @Autowired
-    private ZacTestUtil zacTestUtil;
+    private ACSITSetUpFactory acsitSetUpFactory;
 
-    @Autowired
-    private Environment env;
-
-    @Autowired
-    private ZoneHelper zoneHelper;
     private OAuth2RestTemplate acsAdminRestTemplate;
-    private UaaTestUtil uaaTestUtil;
-    private final HttpHeaders acsZone1Headers = ACSTestUtil.httpHeaders();
+
+    private HttpHeaders acsZone1Headers;
 
     private static final String ISSUER_URI = "acs.example.org";
     private static final Attribute TOP_SECRET_CLASSIFICATION = new Attribute(ISSUER_URI, "classification",
@@ -97,31 +74,15 @@ public class PolicyEvalCachingWithGraphDBIT extends AbstractTestNGSpringContextT
     private static final String AGENT_MULDER = "mulder";
     private static final String AGENT_SCULLY = "scully";
     public static final String EVIDENCE_SCULLYS_TESTIMONY_ID = "/evidence/scullys-testimony";
+    private String acsUrl;
+
 
     @BeforeClass
     public void setup() throws JsonParseException, JsonMappingException, IOException {
-        TestConfig.setupForEclipse(); // Starts ACS when running the test in eclipse.
-
-        this.acsZone1Name = this.zoneHelper.getZone1Name();
-        this.acsZone1Headers.add("Predix-Zone-Id", this.acsZone1Name);
-        if (Arrays.asList(this.env.getActiveProfiles()).contains("public")) {
-            setupPublicACS();
-        } else {
-            setupPredixACS();
-        }
-    }
-
-    private void setupPredixACS() throws JsonParseException, JsonMappingException, IOException {
-        this.zacTestUtil.assumeZacServerAvailable();
-        this.acsAdminRestTemplate = this.acsRestTemplateFactory.getACSTemplateWithPolicyScope();
-        this.zoneHelper.createPrimaryTestZone();
-    }
-
-    private void setupPublicACS() throws JsonParseException, JsonMappingException, IOException {
-        this.uaaTestUtil = new UaaTestUtil(this.acsRestTemplateFactory.getOAuth2RestTemplateForUaaAdmin(), this.uaaUrl);
-        this.uaaTestUtil.setup(Arrays.asList(new String[] { this.acsZone1Name }));
-        this.acsAdminRestTemplate = this.acsRestTemplateFactory.getOAuth2RestTemplateForAcsAdmin();
-        this.zoneHelper.createTestZone(this.acsAdminRestTemplate, this.acsZone1Name, false);
+        this.acsitSetUpFactory.setUp();
+        this.acsZone1Headers = this.acsitSetUpFactory.getZone1Headers();
+        this.acsAdminRestTemplate = this.acsitSetUpFactory.getAcsZoneAdminRestTemplate();
+        this.acsUrl = this.acsitSetUpFactory.getAcsUrl();
     }
 
     @AfterMethod
@@ -129,6 +90,7 @@ public class PolicyEvalCachingWithGraphDBIT extends AbstractTestNGSpringContextT
         this.privilegeHelper.deleteResources(this.acsAdminRestTemplate, this.acsUrl, this.acsZone1Headers);
         this.privilegeHelper.deleteSubjects(this.acsAdminRestTemplate, this.acsUrl, this.acsZone1Headers);
         this.policyHelper.deletePolicySets(this.acsAdminRestTemplate, this.acsUrl, this.acsZone1Headers);
+        this.acsitSetUpFactory.destroy();
     }
 
     /**

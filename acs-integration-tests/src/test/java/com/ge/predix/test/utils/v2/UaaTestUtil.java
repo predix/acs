@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -60,6 +61,29 @@ public class UaaTestUtil {
                 Collections.singletonList(new SimpleGrantedAuthority("acs.zones.admin")));
     }
 
+    public OAuth2RestTemplate createAcsAdminClient(final List<String> acsZones) {
+
+        if (this.acsRestTemplateFactory == null) {
+            throw new IllegalStateException("ACSRestTemplateFactory is null");
+        }
+        String clientId = "super-admin-" + acsZones.get(0);
+        String clientSecret = "super-adminSecret-" + acsZones.get(0);
+        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority("acs.zones.admin"));
+        authorities.add(new SimpleGrantedAuthority("acs.attributes.read"));
+        authorities.add(new SimpleGrantedAuthority("acs.attributes.write"));
+        authorities.add(new SimpleGrantedAuthority("acs.policies.read"));
+        authorities.add(new SimpleGrantedAuthority("acs.policies.write"));
+        authorities.add(new SimpleGrantedAuthority("acs.connectors.read"));
+        authorities.add(new SimpleGrantedAuthority("acs.connectors.write"));
+        for (int i = 0; i < acsZones.size(); i++) {
+            authorities.add(new SimpleGrantedAuthority("predix-acs.zones." + acsZones.get(i) + ".admin"));
+            authorities.add(new SimpleGrantedAuthority("predix-acs.zones." + acsZones.get(i) + ".user"));
+        }
+        createClientWithAuthorities(clientId, clientSecret, authorities);
+        return this.acsRestTemplateFactory.getOAuth2RestTemplateForClient(this.tokenUrl, clientId, clientSecret);
+    }
+
     public OAuth2RestTemplate createAcsAdminClientAndGetTemplate(final String zoneName) {
         if (this.acsRestTemplateFactory == null) {
             throw new IllegalStateException("ACSRestTemplateFactory is null");
@@ -80,16 +104,46 @@ public class UaaTestUtil {
         return this.acsRestTemplateFactory.getOAuth2RestTemplateForClient(this.tokenUrl, clientId, clientSecret);
     }
 
+    public OAuth2RestTemplate createReadOnlyPolicyScopeClient(final String zoneName) {
+
+        String clientId = "admin-" + zoneName + "-readonly";
+        String clientSecret = "adminSecret-" + zoneName + "-readonly";
+        createReadOnlyPolicyScopeClient(clientId, clientSecret, zoneName);
+        return this.acsRestTemplateFactory.getOAuth2RestTemplateForClient(this.tokenUrl, clientId, clientSecret);
+    }
+
     public void createReadOnlyPolicyScopeClient(final String clientId, final String clientSecret, final String zone) {
         this.createClientWithAuthorities(clientId, clientSecret,
                 Arrays.asList(new SimpleGrantedAuthority("predix-acs.zones." + zone + ".user"),
                         new SimpleGrantedAuthority("acs.policies.read")));
     }
 
+    public OAuth2RestTemplate createNoPolicyScopeClient(final String zoneName) {
+        String clientId = "admin-" + zoneName + "-nopolicy";
+        String clientSecret = "adminSecret-" + zoneName + "-nopolicy";
+        this.createNoPolicyScopeClient(clientId, clientSecret, zoneName);
+        return this.acsRestTemplateFactory.getOAuth2RestTemplateForClient(this.tokenUrl, clientId, clientSecret);
+    }
+
     public void createNoPolicyScopeClient(final String clientId, final String clientSecret, final String zone) {
         this.createClientWithAuthorities(clientId, clientSecret,
                 Collections.singletonList(new SimpleGrantedAuthority("predix-acs.zones." + zone + ".user")));
     }
+
+    public OAuth2RestTemplate createReadOnlyConnectorScopeClient(final String zoneName) {
+        String clientId = "admin-connector-" + zoneName + "-readonly";
+        String clientSecret = "adminSecret-connector-" + zoneName + "-readonly";
+        this.createReadOnlyConnectorScopeClient(clientId, clientSecret, zoneName);
+        return this.acsRestTemplateFactory.getOAuth2RestTemplateForClient(this.tokenUrl, clientId, clientSecret);
+    }
+
+    public OAuth2RestTemplate createAdminConnectorScopeClient(final String zoneName) {
+        String clientId = "admin-connector-" + zoneName;
+        String clientSecret = "adminSecret-connector-" + zoneName;
+        this.createAdminConnectorScopeClient(clientId, clientSecret, zoneName);
+        return this.acsRestTemplateFactory.getOAuth2RestTemplateForClient(this.tokenUrl, clientId, clientSecret);
+    }
+
 
     public void createReadOnlyConnectorScopeClient(final String zone, final String clientId,
             final String clientSecret) {
@@ -113,6 +167,7 @@ public class UaaTestUtil {
             add(new SimpleGrantedAuthority("acs.policies.read"));
             add(new SimpleGrantedAuthority("acs.policies.write"));
             add(new SimpleGrantedAuthority(serviceId + ".zones." + acsZone + ".user"));
+            add(new SimpleGrantedAuthority(serviceId + ".zones." + acsZone + ".admin"));
         }};
         createClientWithAuthorities(clientId, clientSecret, authorities);
     }

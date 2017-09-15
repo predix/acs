@@ -40,11 +40,9 @@ import org.testng.annotations.Test;
 
 import com.ge.predix.acs.rest.PolicyEvaluationRequestV1;
 import com.ge.predix.acs.rest.PolicyEvaluationResult;
-import com.ge.predix.test.utils.ACSRestTemplateFactory;
 import com.ge.predix.test.utils.ACSTestUtil;
 import com.ge.predix.test.utils.PolicyHelper;
-import com.ge.predix.test.utils.ZacTestUtil;
-import com.ge.predix.test.utils.ZoneHelper;
+import com.ge.predix.test.utils.v2.ACSITSetUpFactory;
 import com.nurego.Nurego;
 import com.nurego.model.Entitlement;
 import com.nurego.model.Subscription;
@@ -54,11 +52,6 @@ import com.nurego.model.Subscription;
 public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
     private static final Logger LOGGER = LoggerFactory.getLogger(ACSMeteringIT.class);
 
-    @Autowired
-    private ACSRestTemplateFactory acsRestTemplateFactory;
-
-    @Autowired
-    private ZoneHelper zoneHelper;
 
     @Autowired
     private PolicyHelper policyHelper;
@@ -90,21 +83,20 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
     private static final int NUREGO_UPDATE_SLEEP_MS = 1000;
     private Subscription subscription;
 
+    @Autowired
+    private ACSITSetUpFactory acsitSetUpFactory;
+
     private String zoneId;
 
     private String acsUrl;
 
-    @Autowired
-    private ZacTestUtil zacTestUtil;
-
     @BeforeClass
     public void setup() throws Exception {
-        this.zacTestUtil.assumeZacServerAvailable();
 
-        this.zoneId = this.zoneHelper
-                .createTestZone(this.acsRestTemplateFactory.getACSTemplateWithPolicyScope(), "test-zone-pipe3", true)
-                .getSubdomain();
-        this.acsUrl = this.zoneHelper.getAcsBaseURL();
+        this.acsitSetUpFactory.setUp();
+        this.zoneId = this.acsitSetUpFactory.getZone1().getSubdomain();
+        this.acsUrl = this.acsitSetUpFactory.getAcsUrl();
+
         Nurego.setApiBase(this.nuregoApiBase);
         Nurego.setApiCredentials(nuregoUsername, nuregoPassword, nuregoInstanceId);
 
@@ -118,7 +110,7 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
         String testPolicyName = null;
         PolicyEvaluationRequestV1 policyEvaluationRequest = this.policyHelper
                 .createEvalRequest(MARISSA_V1.getSubjectIdentifier(), "sanramon");
-        OAuth2RestTemplate acsRestTemplate = this.acsRestTemplateFactory.getACSTemplateWithPolicyScope();
+        OAuth2RestTemplate acsRestTemplate = this.acsitSetUpFactory.getAcsZoneAdminRestTemplate();
         try {
             // Get meter readings before
             Double beforePolicyUpdateMeterCount = getEntitlementUsageByFeatureId(POLICY_UPDATE_FEATURE_ID, this.zoneId);
@@ -233,7 +225,7 @@ public class ACSMeteringIT extends AbstractTestNGSpringContextTests {
 
     @AfterClass
     public void cleanUp() {
-        this.zoneHelper.deleteZone(this.zoneId);
+        this.acsitSetUpFactory.destroy();
         // cancelNuregoSubscription();
     }
 
