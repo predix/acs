@@ -19,7 +19,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="testAll">
-    <test name="public">
+    <test name="public" parallel="classes" thread-count="4">
         <classes>
             <class name="com.ge.predix.test.TestConfig"/>
             <class name="com.ge.predix.integration.test.AttributeConnectorConfigurationIT" />
@@ -28,6 +28,10 @@
             <class name="com.ge.predix.integration.test.PrivilegeManagementAccessControlServiceIT"/>
             <class name="com.ge.predix.integration.test.PolicyEvaluationCachingIT"/>
             <class name="com.ge.predix.integration.test.ACSCorsFilterIT" />
+        </classes>
+    </test>
+    <test name="public-cucumber">
+        <classes>
             <class name="com.ge.predix.acceptance.test.policy.admin.PolicyCreationCucumberTest" />
             <class name="com.ge.predix.acceptance.test.policy.evaluation.PolicyEvaluationCucumberTest" />
             <class name="com.ge.predix.acceptance.test.zone.admin.ZoneEnforcementCucumberTest" />
