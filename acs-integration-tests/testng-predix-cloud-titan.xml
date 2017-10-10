@@ -28,7 +28,6 @@
             <class name="com.ge.predix.acceptance.test.zone.admin.DefaultZoneAuthorizationIT"/>
             <class name="com.ge.predix.integration.test.AccessControlServiceIT"/>
             <class name="com.ge.predix.integration.test.ACSCorsFilterIT"/>
-            <class name="com.ge.predix.integration.test.ACSMeteringIT"/>
             <class name="com.ge.predix.integration.test.AcsMonitoringIT"/>
             <class name="com.ge.predix.integration.test.AttributeConnectorConfigurationIT"/>
             <class name="com.ge.predix.integration.test.PolicyEvalCachingWithGraphDBIT"/>
@@ -41,6 +40,7 @@
     </test>
     <test name="predix-cloud-titan-cucumber">
         <classes>
+            <class name="com.ge.predix.integration.test.ACSMeteringIT"/>
             <class name="com.ge.predix.acceptance.test.policy.admin.PolicyCreationCucumberTest"/>
             <class name="com.ge.predix.acceptance.test.policy.evaluation.PolicyEvaluationCucumberTest"/>
             <class name="com.ge.predix.acceptance.test.zone.admin.ZoneEnforcementCucumberTest"/>
