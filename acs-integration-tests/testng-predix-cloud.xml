@@ -19,18 +19,13 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="testAll">
-    <test name="predix-cloud">
+    <test name="predix-cloud" parallel="classes" thread-count="4">
         <classes>
             <class name="com.ge.predix.acs.cloudfoundry.PushMockedAdapterApplication"/>
             <class name="com.ge.predix.acs.cloudfoundry.PushPredixCloudApplication"/>
-
             <class name="com.ge.predix.acs.cloudfoundry.ApplicationHealthChecks"/>
-
             <class name="com.ge.predix.acceptance.test.ACSAcceptanceIT"/>
-            <class name="com.ge.predix.acceptance.test.policy.admin.PolicyCreationCucumberTest"/>
-            <class name="com.ge.predix.acceptance.test.policy.evaluation.PolicyEvaluationCucumberTest"/>
             <class name="com.ge.predix.acceptance.test.zone.admin.DefaultZoneAuthorizationIT"/>
-            <class name="com.ge.predix.acceptance.test.zone.admin.ZoneEnforcementCucumberTest"/>
             <class name="com.ge.predix.integration.test.AccessControlServiceIT"/>
             <class name="com.ge.predix.integration.test.ACSCorsFilterIT"/>
             <class name="com.ge.predix.integration.test.ACSMeteringIT"/>
@@ -40,8 +35,14 @@
             <class name="com.ge.predix.integration.test.PolicyEvaluationWithAttributeConnectorIT"/>
             <class name="com.ge.predix.integration.test.PredixAuditIT"/>
             <class name="com.ge.predix.integration.test.PrivilegeManagementAccessControlServiceIT"/>
-
             <class name="com.ge.predix.acs.cloudfoundry.DeleteApplications"/>
+        </classes>
+    </test>
+    <test name="predix-cloud-cucumber">
+        <classes>
+            <class name="com.ge.predix.acceptance.test.policy.admin.PolicyCreationCucumberTest"/>
+            <class name="com.ge.predix.acceptance.test.policy.evaluation.PolicyEvaluationCucumberTest"/>
+            <class name="com.ge.predix.acceptance.test.zone.admin.ZoneEnforcementCucumberTest"/>
         </classes>
     </test>
 </suite>

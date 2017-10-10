@@ -90,6 +90,9 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.18.1</version>
                 <configuration>
+                    <forkCount>2.0C</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <parallel>classes</parallel>
                     <properties>
                         <property>
                             <name>listener</name>
