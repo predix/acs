@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright 2017 General Electric Company
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+
 package com.ge.predix.acs.cloudfoundry;
 
 import java.nio.file.Path;
@@ -62,6 +78,9 @@ final class PushAcsApplication {
             put("ACS_UAA_URL", System.getenv("ACS_UAA_URL"));
             put("ZAC_URL", System.getenv("ZAC_URL"));
             put("ENABLED_REDIS_HEALTH_CHECK", "true");
+            put("ENABLE_DECISION_CACHING", "true");
+            put("ENABLE_RESOURCE_CACHING", "true");
+            put("ENABLE_SUBJECT_CACHING", "true");
             put("DEPLOYMENT_TYPE", System.getenv("DEPLOYMENT_TYPE"));
             put("BASE_APP_NAME", System.getenv("BASE_APP_NAME"));
             put("CONFIG_CLIENT_ID", System.getenv("CONFIG_CLIENT_ID"));

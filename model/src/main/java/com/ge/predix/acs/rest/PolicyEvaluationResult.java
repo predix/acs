@@ -1,11 +1,11 @@
 /*******************************************************************************
- * Copyright 2016 General Electric Company.
+ * Copyright 2017 General Electric Company
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
 package com.ge.predix.acs.rest;
 
 import java.util.Collections;
@@ -46,12 +47,11 @@ public class PolicyEvaluationResult {
     @ApiModelProperty(
             value = "The resources that matched the policy evaluation request's resource identifier based on "
                     + "the attribute uri templates defined in the policy set. For example, a policy request of"
-                    + "    /v1/site/1/plant/asset/1\n" + "against a policy set with attribute uri templates:\n"
-                    + "    /v1{attribute_uri}/plant/asset/{asset_id}\n"
-                    + "    /v1/site/{site_id}/plant/asset/{asset_id}\n" + "would include:\n" + "    /site/1\n"
-                    + "    /asset/2\n" + "in this set.",
+                    + "    /v1/site/1/plant/asset/1\nagainst a policy set with attribute uri templates:\n"
+                    + "    /v1{attribute_uri}/plant/asset/{asset_id}\n    /v1/site/{site_id}/plant{attribute_uri}\n"
+                    + "would include:\n" + "    /site/1\n    /asset/2\n" + "in this set, respectively.",
             required = false)
-    private Set<String> resolvedResourceUris;
+    private Set<String> resolvedResourceUris = Collections.emptySet();
 
     private long timestamp;
 

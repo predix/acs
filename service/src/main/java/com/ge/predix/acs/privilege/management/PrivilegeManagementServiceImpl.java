@@ -1,11 +1,11 @@
 /*******************************************************************************
- * Copyright 2016 General Electric Company.
+ * Copyright 2017 General Electric Company
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.ge.predix.acs.privilege.management;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -176,15 +177,17 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
             LOGGER.debug("Found an existing resource with resourceIdentifier = {}, " + "zone = {}. Upserting the same.",
                     resource.getResourceIdentifier(), zone);
             updatedResource.setId(persistedResource.getId());
+            this.cache.resetForResourcesByIds(zone.getName(),
+                    this.resourceRepository.getResourceEntityAndDescendantsIds(updatedResource));
         } else {
             LOGGER.debug(
                     "Found no existing resource. Creating a new one with the resourceIdentifier = {}," + " zone = {}.",
                     resource.getResourceIdentifier(), zone);
+            this.cache.resetForResourcesByIds(zone.getName(),
+                    Collections.singleton(updatedResource.getResourceIdentifier()));
         }
 
         try {
-            this.cache.resetForResourcesByIds(zone.getName(),
-                    this.resourceRepository.getResourceEntityAndDescendantsIds(updatedResource));
             this.resourceRepository.save(updatedResource);
         } catch (Exception e) {
             String message = String
@@ -339,11 +342,14 @@ public class PrivilegeManagementServiceImpl implements PrivilegeManagementServic
 
         if (persistedSubject != null) {
             updatedSubject.setId(persistedSubject.getId());
+            this.cache.resetForSubjectsByIds(zone.getName(),
+                    this.subjectRepository.getSubjectEntityAndDescendantsIds(updatedSubject));
+        } else {
+            this.cache.resetForSubjectsByIds(zone.getName(),
+                    Collections.singleton(updatedSubject.getSubjectIdentifier()));
         }
 
         try {
-            this.cache.resetForSubjectsByIds(zone.getName(),
-                    this.subjectRepository.getSubjectEntityAndDescendantsIds(updatedSubject));
             this.subjectRepository.save(updatedSubject);
         } catch (Exception e) {
             String message = String

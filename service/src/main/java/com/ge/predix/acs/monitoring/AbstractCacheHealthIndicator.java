@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright 2017 General Electric Company
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+
 package com.ge.predix.acs.monitoring;
 
 import java.util.function.Supplier;
@@ -19,7 +35,6 @@ public abstract class AbstractCacheHealthIndicator implements CacheHealthIndicat
 
     private RedisConnectionFactory redisConnectionFactory;
 
-    @Value("${ENABLE_CACHING:false}")
     private boolean cachingEnabled;
 
     @Value("${ENABLED_REDIS_HEALTH_CHECK:false}")
@@ -27,21 +42,23 @@ public abstract class AbstractCacheHealthIndicator implements CacheHealthIndicat
 
     private String cacheType;
 
-    public AbstractCacheHealthIndicator(final RedisConnectionFactory redisConnectionFactory, final String cacheType) {
+    public AbstractCacheHealthIndicator(final RedisConnectionFactory redisConnectionFactory, final String cacheType,
+            final boolean cachingEnabled) {
         Assert.notNull(redisConnectionFactory, "ConnectionFactory must not be null");
         this.redisConnectionFactory = redisConnectionFactory;
         this.cacheType = cacheType;
+        this.cachingEnabled = cachingEnabled;
     }
 
     @Override
     public Health health() {
-        if (!this.cachingEnabled) {
-            return AcsMonitoringUtilities
-                    .health(Status.UNKNOWN, AcsMonitoringUtilities.HealthCode.DISABLED, DESCRIPTION);
-        }
         if (!this.healthCheckEnabled) {
             return AcsMonitoringUtilities
                     .health(Status.UNKNOWN, AcsMonitoringUtilities.HealthCode.HEALTH_CHECK_DISABLED, DESCRIPTION);
+        }
+        if (!this.cachingEnabled) {
+            return AcsMonitoringUtilities
+                    .health(Status.UNKNOWN, AcsMonitoringUtilities.HealthCode.DISABLED, DESCRIPTION);
         }
         return cacheHealth(redisConnectionFactory, this.cacheType, DESCRIPTION, this::getRedisConnection);
     }
@@ -75,6 +92,7 @@ public abstract class AbstractCacheHealthIndicator implements CacheHealthIndicat
         }
     }
 
+    @Override
     public RedisConnection getRedisConnection() {
         return RedisConnectionUtils.getConnection(this.redisConnectionFactory);
     }

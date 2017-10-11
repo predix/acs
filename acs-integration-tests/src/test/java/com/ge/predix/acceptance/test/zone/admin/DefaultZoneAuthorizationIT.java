@@ -1,11 +1,11 @@
 /*******************************************************************************
- * Copyright 2016 General Electric Company.
+ * Copyright 2017 General Electric Company
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
 package com.ge.predix.acceptance.test.zone.admin;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,47 +34,32 @@ import org.testng.annotations.Test;
 
 import com.ge.predix.acs.rest.BaseResource;
 import com.ge.predix.acs.rest.Zone;
-import com.ge.predix.test.utils.ACSRestTemplateFactory;
+import com.ge.predix.test.utils.ACSITSetUpFactory;
 import com.ge.predix.test.utils.ACSTestUtil;
 import com.ge.predix.test.utils.PolicyHelper;
 import com.ge.predix.test.utils.PrivilegeHelper;
-import com.ge.predix.test.utils.ZacTestUtil;
-import com.ge.predix.test.utils.ZoneHelper;
 
 @Test
 @ContextConfiguration("classpath:integration-test-spring-context.xml")
 public class DefaultZoneAuthorizationIT extends AbstractTestNGSpringContextTests {
 
     @Autowired
-    private ZoneHelper zoneHelper;
-
-    @Autowired
-    private ACSRestTemplateFactory acsRestTemplateFactory;
-    @Autowired
     private PrivilegeHelper privilegeHelper;
-
-    @Value("${zone2UaaUrl}")
-    private String zone2IssuerUrl;
-
-    @Value("${ZONE2_NAME}")
-    private String zone2Name;
-
     @Autowired
-    private ZacTestUtil zacTestUtil;
+    private ACSITSetUpFactory acsitSetUpFactory;
+
+    private String zone2Name;
 
     @BeforeClass
     public void setup() throws Exception {
-        this.zacTestUtil.assumeZacServerAvailable();
-
-        // create and register acs zone2 with a trusted issuer different from default acs zone
-        Map<String, Object> trustedIssuers = new HashMap<>();
-        trustedIssuers.put("trustedIssuerIds", Arrays.asList(this.zone2IssuerUrl + "/oauth/token"));
-        this.zoneHelper.createZone(this.zone2Name, this.zone2Name, "this is: " + this.zone2Name, trustedIssuers);
+        this.acsitSetUpFactory.setUp();
+        this.zone2Name = this.acsitSetUpFactory.getZone2().getName();
     }
 
     @AfterClass
     public void cleanup() {
-        this.zoneHelper.deleteZone(this.zone2Name);
+        this.acsitSetUpFactory.destroy();
+        
     }
 
     /**
@@ -90,19 +71,19 @@ public class DefaultZoneAuthorizationIT extends AbstractTestNGSpringContextTests
      * @throws Exception
      */
     public void testAccessGlobalResourceWithZoneIssuer() throws Exception {
-        OAuth2RestTemplate zone2AcsTemplate = this.acsRestTemplateFactory.getACSZone2RogueTemplate();
+        OAuth2RestTemplate zone2AcsTemplate = this.acsitSetUpFactory.getAcsZone2AdminRestTemplate();
 
         HttpHeaders zoneTwoHeaders = ACSTestUtil.httpHeaders();
-        zoneTwoHeaders.set(PolicyHelper.PREDIX_ZONE_ID, this.zoneHelper.getZone2Name());
+        zoneTwoHeaders.set(PolicyHelper.PREDIX_ZONE_ID, this.zone2Name);
 
         // Write a resource to zone2. This should work
         ResponseEntity<Object> responseEntity = this.privilegeHelper.postResources(zone2AcsTemplate,
-                zoneHelper.getAcsBaseURL(), zoneTwoHeaders, new BaseResource("/sites/sanramon"));
+                this.acsitSetUpFactory.getAcsUrl(), zoneTwoHeaders, new BaseResource("/sites/sanramon"));
         Assert.assertEquals(responseEntity.getStatusCode(), HttpStatus.NO_CONTENT);
 
         // Try to get global resource from global/baseUrl. This should FAIL
         try {
-            zone2AcsTemplate.exchange(this.zoneHelper.getAcsBaseURL() + "/v1/zone/" + this.zone2Name, HttpMethod.GET,
+            zone2AcsTemplate.exchange(this.acsitSetUpFactory.getAcsUrl() + "/v1/zone/" + this.zone2Name, HttpMethod.GET,
                     null, Zone.class);
             Assert.fail("Able to access non-zone specific resource with a zone specific issuer token!");
         } catch (HttpClientErrorException e) {
@@ -111,7 +92,7 @@ public class DefaultZoneAuthorizationIT extends AbstractTestNGSpringContextTests
 
         // Try to get global resource from zone2Url. This should FAIL
         try {
-            zone2AcsTemplate.exchange(this.zoneHelper.getAcsBaseURL() + "/v1/zone/" + this.zone2Name, HttpMethod.GET,
+            zone2AcsTemplate.exchange(this.acsitSetUpFactory.getAcsUrl() + "/v1/zone/" + this.zone2Name, HttpMethod.GET,
                     new HttpEntity<>(zoneTwoHeaders), Zone.class);
             Assert.fail("Able to access non-zone specific resource from a zone specific URL, "
                     + "with a zone specific issuer token!");

@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright 2017 General Electric Company
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+
 package com.ge.predix.integration.test;
 
 import java.util.Arrays;
@@ -24,7 +40,6 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ge.predix.acs.monitoring.AcsMonitoringUtilities;
-import com.ge.predix.acs.rest.AttributeAdapterConnection;
 
 @ContextConfiguration("classpath:integration-test-spring-context.xml")
 public class AcsMonitoringIT extends AbstractTestNGSpringContextTests {
@@ -57,7 +72,6 @@ public class AcsMonitoringIT extends AbstractTestNGSpringContextTests {
     }
 
     private ResponseEntity<String> hitHealthCheckUrl(final String uaaTokenUrl, final String clientId) {
-        AttributeAdapterConnection attributeAdapterConnection = new AttributeAdapterConnection();
         ClientCredentialsResourceDetails resource = new ClientCredentialsResourceDetails();
         resource.setAccessTokenUri(uaaTokenUrl);
         resource.setClientId(clientId);
@@ -112,9 +126,11 @@ public class AcsMonitoringIT extends AbstractTestNGSpringContextTests {
         List<String> activeProfiles = Arrays.asList(this.environment.getActiveProfiles());
         Assert.assertTrue(activeProfiles.contains("titan") == isDependencyStatusUp(responseJson, "graphDb"));
         Assert.assertTrue(activeProfiles.contains("predix") == isDependencyStatusUp(responseJson, "zac"));
-        Assert.assertTrue((activeProfiles.contains("redis")
-                || activeProfiles.contains("cloud-redis")) == isDependencyStatusAsExpected(responseJson,
-                        "decisionCache", Status.UNKNOWN));
+        if (activeProfiles.contains("redis") || activeProfiles.contains("cloud-redis")) {
+            Assert.assertTrue(isDependencyStatusUp(responseJson, "decisionCache"));
+            Assert.assertTrue(isDependencyStatusUp(responseJson, "resourceCache"));
+            Assert.assertTrue(isDependencyStatusUp(responseJson, "subjectCache"));
+        }
     }
 
     @Test

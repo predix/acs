@@ -1,11 +1,11 @@
 /*******************************************************************************
- * Copyright 2016 General Electric Company.
+ * Copyright 2017 General Electric Company
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
 package com.ge.predix.acs.service.policy.evaluation;
 
 import java.util.ArrayList;
@@ -148,11 +149,18 @@ public class PolicyEvaluationServiceImpl implements PolicyEvaluationService {
 
             LOGGER.info("Processed Policy Evaluation for: " + "resourceUri='{}', subjectIdentifier='{}', action='{}',"
                     + " result='{}'", uri, subjectIdentifier, action, result.getEffect());
-            try {
-                this.cache.set(key, result);
-            } catch (Exception e) {
-                LOGGER.error(String.format("Unable to set cache key '%s' to value '%s' due to exception", key, result),
-                        e);
+
+            // A policy evaluation result with an INDETERMINATE effect is almost always due to transient errors.
+            // Caching such results will inevitably cause users to get back a stale result for a period of time
+            // even when the transient error is fixed.
+            if (result.getEffect() != Effect.INDETERMINATE) {
+                try {
+                    this.cache.set(key, result);
+                } catch (Exception e) {
+                    LOGGER.error(
+                            String.format("Unable to set cache key '%s' to value '%s' due to exception", key, result),
+                            e);
+                }
             }
         }
         return result;
