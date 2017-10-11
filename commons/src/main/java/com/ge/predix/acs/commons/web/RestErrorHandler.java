@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
@@ -47,7 +48,7 @@ public class RestErrorHandler {
         restApiErrorResponse.setErrorCode(restApiException.getAppErrorCode());
     }
 
-    /**
+    /**createApiErrorResponse
      * Handles the given exception and generates a response with error code and message description.
      *
      * @param e
@@ -85,6 +86,9 @@ public class RestErrorHandler {
         } else if (HttpMessageNotReadableException.class.isAssignableFrom(e.getClass())) {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
             restApiErrorResponse.setErrorMessage("Malformed JSON syntax. " + e.getLocalizedMessage());
+        } else if (HttpMediaTypeNotSupportedException.class.isAssignableFrom(e.getClass())) {
+            populateResponsesFromException(new RestApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                    HttpStatus.UNSUPPORTED_MEDIA_TYPE.getReasonPhrase()), response, restApiErrorResponse);
         }
 
         return new ModelAndView(new MappingJackson2JsonView(), "ErrorDetails", restApiErrorResponse);

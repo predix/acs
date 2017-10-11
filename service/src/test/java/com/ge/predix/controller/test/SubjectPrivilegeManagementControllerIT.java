@@ -124,7 +124,12 @@ public class SubjectPrivilegeManagementControllerIT extends AbstractTestNGSpring
         // Append a list of subjects
         MockMvcContext postContext =
             TEST_UTILS.createWACWithCustomPOSTRequestBuilder(this.wac, this.testZone.getSubdomain(), SUBJECT_BASE_URL);
-        postContext.getMockMvc().perform(postContext.getBuilder().contentType(MediaType.APPLICATION_JSON)
+        postContext.getMockMvc().perform(postContext.getBuilder().contentType(MediaType.TEXT_PLAIN)
+                .content(OBJECT_MAPPER.writeValueAsString(subjects))).andExpect(status().isUnsupportedMediaType());
+
+        MockMvcContext postContext1 =
+            TEST_UTILS.createWACWithCustomPOSTRequestBuilder(this.wac, this.testZone.getSubdomain(), SUBJECT_BASE_URL);
+        postContext1.getMockMvc().perform(postContext1.getBuilder().contentType(MediaType.APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(subjects))).andExpect(status().isNoContent());
 
         // Get the list of subjects
@@ -231,6 +236,7 @@ public class SubjectPrivilegeManagementControllerIT extends AbstractTestNGSpring
                 .andExpect(status().isUnprocessableEntity());
 
     }
+
 
     @Test
     public void testTypeMismatchForQueryParameter() throws Exception {
