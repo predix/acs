@@ -28,6 +28,8 @@ public interface ObligationService {
 
     void upsertObligation(Obligation obligation);
 
+    void upsertObligations(List<Obligation> obligations);
+
     List<Obligation> retrieveObligations(String obligationName);
 
     Obligation retrieveObligation(String obligationName);

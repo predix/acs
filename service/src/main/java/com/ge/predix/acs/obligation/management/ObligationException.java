@@ -16,28 +16,28 @@
 
 package com.ge.predix.acs.obligation.management;
 
-public class ObligationManagementException extends RuntimeException {
+public class ObligationException extends RuntimeException {
 
     private static final long serialVersionUID = -1231913762426270378L;
 
-    public ObligationManagementException() {
+    public ObligationException() {
         super();
     }
 
-    public ObligationManagementException(final String message, final Throwable cause, final boolean enableSuppression,
+    public ObligationException(final String message, final Throwable cause, final boolean enableSuppression,
             final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public ObligationManagementException(final String message, final Throwable cause) {
+    public ObligationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public ObligationManagementException(final String message) {
+    public ObligationException(final String message) {
         super(message);
     }
 
-    public ObligationManagementException(final Throwable cause) {
+    public ObligationException(final Throwable cause) {
         super(cause);
     }
 

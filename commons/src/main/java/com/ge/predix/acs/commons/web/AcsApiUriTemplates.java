@@ -52,6 +52,10 @@ public final class AcsApiUriTemplates {
 
     public static final String SUBJECT_CONNECTOR_URL = CONNECTOR_URL + "/subject";
 
+    public static final String OBLIGATIONS_URL = "/obligation";
+
+    public static final String OBLIGATION_URL = " /obligation/{obligationName}";
+
     private AcsApiUriTemplates() {
     }
 
