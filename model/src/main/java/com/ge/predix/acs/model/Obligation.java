@@ -30,7 +30,7 @@ public class Obligation {
 
     private Object actionTemplate;
 
-    private List<ActionArgument> attributes = Collections.emptyList();
+    private List<ActionArgument> actionArguments = Collections.emptyList();
 
     /**
      * @return the name
@@ -95,16 +95,16 @@ public class Obligation {
     /**
      * @return the attributes
      */
-    public List<ActionArgument> getAttributes() {
-        return this.attributes;
+    public List<ActionArgument> getActionArguments() {
+        return this.actionArguments;
     }
 
     /**
      * @param attributes
      *            the attributes to set
      */
-    public void setAttributes(final List<ActionArgument> attributes) {
-        this.attributes = attributes;
+    public void setActionArguments(final List<ActionArgument> actionArguments) {
+        this.actionArguments = actionArguments;
     }
 
 }
