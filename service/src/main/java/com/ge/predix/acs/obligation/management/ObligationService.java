@@ -23,6 +23,8 @@ import com.ge.predix.acs.model.Obligation;
 /**
  *
  * @author Sebastian Torres Brown
+ * 
+ *         Obligation Management Service
  */
 public interface ObligationService {
 
@@ -30,7 +32,7 @@ public interface ObligationService {
 
     void upsertObligations(List<Obligation> obligations);
 
-    List<Obligation> retrieveObligations(String obligationName);
+    List<Obligation> retrieveObligations();
 
     Obligation retrieveObligation(String obligationName);
 

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-
 /**
  * @author Sebastian Torres Brown
- *Obligation management api is hosted on this package
+ * 
+ * DAO layer components are hosted here
  */
-package com.ge.predix.acs.obligation.management;
+package com.ge.predix.acs.obligation.management.dao;

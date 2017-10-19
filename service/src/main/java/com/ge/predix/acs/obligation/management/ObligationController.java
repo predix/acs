@@ -74,7 +74,6 @@ public class ObligationController extends BaseRestApi {
     @RequestMapping(method = PUT, value = OBLIGATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createObligation(@RequestBody final Obligation obligation,
             @PathVariable("obligationName") final String obligationName) {
-        // Will append javax.validation anotations on model
         validateObligationNameOrFail(obligation, obligationName);
 
         try {
@@ -93,7 +92,6 @@ public class ObligationController extends BaseRestApi {
                     message = "Obligation creation successful. Obligation set URI is returned in 'Location' header."), })
     @RequestMapping(method = POST, value = OBLIGATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createObligations(@RequestBody final List<Obligation> obligations) {
-        // Will append javax.validation anotations on model
         try {
             this.service.upsertObligations(obligations);
             URI obligationUri = UriTemplateUtils.expand(OBLIGATIONS_URL);
@@ -112,7 +110,7 @@ public class ObligationController extends BaseRestApi {
             @RequestParam(value = "url_encoded_name", required = false) final String obligationName) {
 
         if (StringUtils.isEmpty(obligationName)) {
-            List<Obligation> results = this.service.retrieveObligations(obligationName);
+            List<Obligation> results = this.service.retrieveObligations();
             if (!CollectionUtils.isEmpty(results)) {
                 return ok(results);
 
@@ -129,8 +127,10 @@ public class ObligationController extends BaseRestApi {
     @ApiOperation(value = "Deletes a policy set for the given zone.", tags = { "Obligation Management" })
     @RequestMapping(method = DELETE, value = OBLIGATION_URL)
     public ResponseEntity<Void> deletePolicySet(@PathVariable("obligationName") final String obligationName) {
-        this.service.deleteObligation(obligationName);
-        return noContent();
+        if (this.service.deleteObligation(obligationName)) {
+            return noContent();
+        }
+        return notFound();
     }
 
     private void validateObligationNameOrFail(final Obligation obligation, final String obligationName) {

@@ -210,6 +210,37 @@
         <custom-filter ref="acsRequestEnrichingFilter"
                 after="BASIC_AUTH_FILTER" />
     </http>
+        
+        <!-- Authorization Configuration For V1 obligation APIS -->
+    <http pattern="/v1/obligation/*" request-matcher="ant" create-session="stateless"
+        xmlns="http://www.springframework.org/schema/security"
+        disable-url-rewriting="true" use-expressions="true"
+        entry-point-ref="preAuthenticationEntryPoint">
+        <csrf disabled="true"/>
+
+        <intercept-url pattern="/v1/obligation/*" method="GET"
+            access="hasAnyAuthority('acs.obligations.read') " />
+        <intercept-url pattern="/v1/obligation/*" method="HEAD"
+            access="hasAnyAuthority('acs.obligations.read') " />
+        <intercept-url pattern="/v1/obligation/*" method="OPTIONS"
+            access="hasAnyAuthority('acs.obligations.read') " />
+
+        <intercept-url pattern="/v1/obligation/*" method="PUT"
+            access="hasAnyAuthority('acs.obligations.write') " />
+        <intercept-url pattern="/v1/obligation/*" method="POST"
+            access="hasAnyAuthority('acs.obligations.write') " />
+        <intercept-url pattern="/v1/obligation/*" method="DELETE"
+            access="hasAnyAuthority('acs.obligations.write') " />
+        <intercept-url pattern="/v1/obligation/*" method="PATCH"
+            access="hasAnyAuthority('acs.obligations.write') "/>
+
+        <!-- This filter must always be first in the Spring Security filter chain for this URI pattern -->
+        <custom-filter ref="obligationHttpMethodsFilter" before="FIRST"/>
+        <custom-filter ref="oauth2remoteTokenFilter"
+            position="PRE_AUTH_FILTER" />
+        <custom-filter ref="acsRequestEnrichingFilter"
+                after="BASIC_AUTH_FILTER" />
+    </http>
 
     <!-- Authorization Configuration For V1 APIS -->
     <http pattern="/v1/zone/**" request-matcher="ant" create-session="stateless"
@@ -263,6 +294,7 @@
         <bean id="connectorHttpMethodsFilter" class="com.ge.predix.acs.attribute.connector.ConnectorHttpMethodsFilter"/>
         <bean id="zoneHttpMethodsFilter" class="com.ge.predix.acs.zone.management.ZoneHttpMethodsFilter"/>
         <bean id="monitoringHttpMethodsFilter" class="com.ge.predix.acs.monitoring.MonitoringHttpMethodsFilter"/>
+        <bean id="obligationHttpMethodsFilter" class="com.ge.predix.acs.obligation.management.ObligationHttpMethodsFilter"/>
     </beans>
 
     <beans profile="!httpValidation">
@@ -273,5 +305,6 @@
         <bean id="connectorHttpMethodsFilter" class="com.ge.predix.acs.security.EmptyHttpMethodsFilter"/>
         <bean id="zoneHttpMethodsFilter" class="com.ge.predix.acs.security.EmptyHttpMethodsFilter"/>
         <bean id="monitoringHttpMethodsFilter" class="com.ge.predix.acs.security.EmptyHttpMethodsFilter"/>
+        <bean id="obligationHttpMethodsFilter" class="com.ge.predix.acs.obligation.management.ObligationHttpMethodsFilter"/>
     </beans>
 </beans>

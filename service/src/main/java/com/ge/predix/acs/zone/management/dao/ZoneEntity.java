@@ -34,6 +34,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ge.predix.acs.obligation.management.dao.ObligationEntity;
 import com.ge.predix.acs.privilege.management.dao.ResourceEntity;
 import com.ge.predix.acs.privilege.management.dao.SubjectEntity;
 import com.ge.predix.acs.rest.AttributeConnector;
@@ -79,6 +80,12 @@ public class ZoneEntity {
             cascade = { CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE },
             fetch = FetchType.LAZY)
     private Set<PolicySetEntity> policySets;
+    
+    @OneToMany(
+            mappedBy = "zone",
+            cascade = { CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE },
+            fetch = FetchType.LAZY)
+    private Set<ObligationEntity> obligations;
 
     @Column(name = "resource_attribute_connector_json", nullable = true)
     private String resourceConnectorJson;
