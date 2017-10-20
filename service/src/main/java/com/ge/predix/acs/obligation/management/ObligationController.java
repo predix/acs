@@ -70,7 +70,8 @@ public class ObligationController extends BaseRestApi {
     @ApiResponses(
             value = { @ApiResponse(
                     code = 201,
-                    message = "Obligation creation successful. Obligation set URI is returned in 'Location' header."), })
+                    message = "Obligation creation successful. Obligation set URI is returned "
+                            + "in 'Location' header."), })
     @RequestMapping(method = PUT, value = OBLIGATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createObligation(@RequestBody final Obligation obligation,
             @PathVariable("obligationName") final String obligationName) {
@@ -89,7 +90,8 @@ public class ObligationController extends BaseRestApi {
     @ApiResponses(
             value = { @ApiResponse(
                     code = 201,
-                    message = "Obligation creation successful. Obligation set URI is returned in 'Location' header."), })
+                    message = "Obligation creation successful. Obligation set URI is returned in "
+                            + "'Location' header."), })
     @RequestMapping(method = POST, value = OBLIGATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createObligations(@RequestBody final List<Obligation> obligations) {
         try {

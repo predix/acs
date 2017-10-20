@@ -39,7 +39,7 @@ import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 @Entity
 @Table(
         name = "obligation",
-        uniqueConstraints = { @UniqueConstraint(columnNames = { "authorization_zone_id", "oligation_id" }) })
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "authorization_zone_id", "obligation_id" }) })
 public class ObligationEntity {
 
     @Id
@@ -55,14 +55,14 @@ public class ObligationEntity {
     @Column(name = "obligation_id", nullable = false)
     private String obligationId;
 
-    /** Clob representing the JSON onligation */
+    /** Clob representing the JSON onligation. */
     @Column(name = "obligation__json", columnDefinition = "CLOB NOT NULL")
     private String obligationJson;
 
-    public ObligationEntity(final ZoneEntity zone, final String oligationID, final String obligationJson) {
+    public ObligationEntity(final ZoneEntity zone, final String oligationId, final String obligationJson) {
         super();
         this.zone = zone;
-        this.obligationId = oligationID;
+        this.obligationId = oligationId;
         this.obligationJson = obligationJson;
     }
 
@@ -78,11 +78,7 @@ public class ObligationEntity {
         this.id = id;
     }
 
-    public void Id(final long id) {
-        this.id = id;
-    }
-
-    public String getObligationID() {
+    public String getObligationId() {
         return this.obligationId;
     }
 
