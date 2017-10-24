@@ -3,6 +3,10 @@ package com.ge.predix.acs.model;
 import java.util.Collections;
 import java.util.List;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import io.swagger.annotations.ApiModel;
 
 /**
@@ -22,12 +26,17 @@ import io.swagger.annotations.ApiModel;
                 + "then it MUST act as if the PDP had returned a 'Deny' authorization decision value.")
 public class Obligation {
 
+    @NotNull(message = "Obligation Name cannot be null")
+    @Min(value = 1, message = "Obligation Name should have one character minimum")
+    @Max(value = 1, message = "Obligation Name should have a maximun of 128 characters")
     private String name;
 
+    @NotNull(message = "Obligation Type should not be null")
     private ObligationType type;
 
     private boolean optional;
 
+    @NotNull(message = "Obligation Action Template cannot be null")
     private Object actionTemplate;
 
     private List<ActionArgument> actionArguments = Collections.emptyList();

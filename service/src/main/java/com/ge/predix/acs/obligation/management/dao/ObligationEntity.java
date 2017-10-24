@@ -56,7 +56,7 @@ public class ObligationEntity {
     private String obligationId;
 
     /** Clob representing the JSON onligation. */
-    @Column(name = "obligation__json", columnDefinition = "CLOB NOT NULL")
+    @Column(name = "obligation_json", columnDefinition = "CLOB NOT NULL")
     private String obligationJson;
 
     public ObligationEntity(final ZoneEntity zone, final String oligationId, final String obligationJson) {

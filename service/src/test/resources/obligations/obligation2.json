@@ -1,0 +1,36 @@
+{
+  "name": "obligation2",
+  "type": "CUSTOM",
+  "optional": false,
+  "actionTemplate": {
+    "filter": "where site = '$1",
+    "select": [
+      {
+        "name": "firstName"
+      },
+      {
+        "name": "lastName"
+      },
+      {
+        "name": "address",
+        "lenStart": "0",
+        "len": "11"
+      },
+      {
+        "name": "ssn",
+        "lenStart": "5",
+        "len": "4"
+      },
+      {
+        "name": "salary",
+        "encrypt": "sha-256"
+      }
+    ]
+  },
+  "actionArguments": [
+    {
+      "name": "subject site",
+      "value": "subject.attributes('https://acs.attributes.int', 'site')"
+    }
+  ]
+}

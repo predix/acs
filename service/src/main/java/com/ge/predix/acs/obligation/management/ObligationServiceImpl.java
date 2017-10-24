@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +31,13 @@ import com.ge.predix.acs.commons.exception.UntrustedIssuerException;
 import com.ge.predix.acs.model.Obligation;
 import com.ge.predix.acs.obligation.management.dao.ObligationEntity;
 import com.ge.predix.acs.obligation.management.dao.ObligationRepository;
+import com.ge.predix.acs.util.collection.ValidList;
 import com.ge.predix.acs.utils.JsonUtils;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 import com.ge.predix.acs.zone.resolver.ZoneResolver;
 
 /**
+ * 
  * @author Sebastian Torres Brown
  *
  */
@@ -53,7 +56,7 @@ public class ObligationServiceImpl implements ObligationService {
 
     @Transactional
     @Override
-    public void upsertObligation(final Obligation obligation) {
+    public void upsertObligation(@Valid final Obligation obligation) {
         try {
             ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
             upsertObligation(zone, obligation);
@@ -65,6 +68,11 @@ public class ObligationServiceImpl implements ObligationService {
     @Transactional
     @Override
     public void upsertObligations(final List<Obligation> obligations) {
+        ValidList<Obligation> validObligations = new ValidList<Obligation>(obligations);
+        upsertObligations(validObligations);
+    }
+
+    private void upsertObligations(@Valid final ValidList<Obligation> obligations) {
         String obligationName = "";
         try {
             ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
@@ -78,7 +86,7 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public List<Obligation> retrieveObligations() {
+    public List<Obligation> getObligations() {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
         ArrayList<Obligation> result = new ArrayList<>();
         List<ObligationEntity> obligationEnityList = this.obligationRepository.findByZone(zone);
@@ -89,7 +97,7 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public Obligation retrieveObligation(final String obligationName) {
+    public Obligation getObligation(final String obligationName) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
         ObligationEntity obligationEntity = this.obligationRepository.getByZoneAndObligationId(zone, obligationName);
         if (obligationEntity != null) {
@@ -145,7 +153,6 @@ public class ObligationServiceImpl implements ObligationService {
         String message = String.format("Creation of Obligation %s failed with the following error %s", obligationName,
                 e.getMessage());
         LOGGER.error(message, e);
-
         if (e instanceof UntrustedIssuerException || e instanceof ObligationException) {
             throw (RuntimeException) e;
         }

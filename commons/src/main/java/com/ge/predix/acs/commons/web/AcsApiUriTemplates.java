@@ -54,7 +54,7 @@ public final class AcsApiUriTemplates {
 
     public static final String OBLIGATIONS_URL = "/obligation";
 
-    public static final String OBLIGATION_URL = " /obligation/{obligationName}";
+    public static final String OBLIGATION_URL = " /obligation/{url_encoded_obligation_name}";
 
     private AcsApiUriTemplates() {
     }

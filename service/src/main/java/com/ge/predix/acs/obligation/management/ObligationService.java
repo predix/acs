@@ -32,9 +32,9 @@ public interface ObligationService {
 
     void upsertObligations(List<Obligation> obligations);
 
-    List<Obligation> retrieveObligations();
+    List<Obligation> getObligations();
 
-    Obligation retrieveObligation(String obligationName);
+    Obligation getObligation(String obligationName);
 
     Boolean deleteObligation(String obligationName);
 

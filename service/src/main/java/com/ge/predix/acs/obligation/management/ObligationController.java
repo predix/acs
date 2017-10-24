@@ -31,6 +31,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 import java.net.URI;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,6 +49,7 @@ import com.ge.predix.acs.commons.web.BaseRestApi;
 import com.ge.predix.acs.commons.web.RestApiException;
 import com.ge.predix.acs.commons.web.UriTemplateUtils;
 import com.ge.predix.acs.model.Obligation;
+import com.ge.predix.acs.util.collection.ValidList;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -73,8 +75,8 @@ public class ObligationController extends BaseRestApi {
                     message = "Obligation creation successful. Obligation set URI is returned "
                             + "in 'Location' header."), })
     @RequestMapping(method = PUT, value = OBLIGATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> createObligation(@RequestBody final Obligation obligation,
-            @PathVariable("obligationName") final String obligationName) {
+    public ResponseEntity<String> createObligation(@RequestBody @Valid final Obligation obligation,
+            @PathVariable("url_encoded_obligation_name") final String obligationName) {
         validateObligationNameOrFail(obligation, obligationName);
 
         try {
@@ -93,7 +95,7 @@ public class ObligationController extends BaseRestApi {
                     message = "Obligation creation successful. Obligation set URI is returned in "
                             + "'Location' header."), })
     @RequestMapping(method = POST, value = OBLIGATION_URL, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createObligations(@RequestBody final List<Obligation> obligations) {
+    public ResponseEntity<Void> createObligations(@RequestBody @Valid final ValidList<Obligation> obligations) {
         try {
             this.service.upsertObligations(obligations);
             URI obligationUri = UriTemplateUtils.expand(OBLIGATIONS_URL);
@@ -103,32 +105,36 @@ public class ObligationController extends BaseRestApi {
         }
     }
 
+    @ApiOperation(value = "Retrieves Obligation for the given zone.", tags = { "Obligation Management" })
+    @RequestMapping(method = GET, value = OBLIGATIONS_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Obligation> getObligation(
+            @PathVariable(value = "url_encoded_obligation_name") final String obligationName) {
+        Obligation result = this.service.getObligation(obligationName);
+        if (result != null) {
+            return ok(result);
+        }
+
+        return notFound();
+    }
+
     @ApiOperation(
             value = "Retrieves Obligations for the given zone. Can filter given an obligation name",
             tags = { "Obligation Management" })
     @RequestMapping(method = GET, value = OBLIGATIONS_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<?> getObligations(
-            @RequestParam(value = "url_encoded_name", required = false) final String obligationName) {
-
-        if (StringUtils.isEmpty(obligationName)) {
-            List<Obligation> results = this.service.retrieveObligations();
-            if (!CollectionUtils.isEmpty(results)) {
-                return ok(results);
-
-            }
-        } else {
-            Obligation result = this.service.retrieveObligation(obligationName);
-            if (result != null) {
-                return ok(result);
-            }
+    public ResponseEntity<List<Obligation>> getObligations() {
+        List<Obligation> results = this.service.getObligations();
+        if (!CollectionUtils.isEmpty(results)) {
+            return ok(results);
         }
         return notFound();
     }
 
     @ApiOperation(value = "Deletes a policy set for the given zone.", tags = { "Obligation Management" })
     @RequestMapping(method = DELETE, value = OBLIGATION_URL)
-    public ResponseEntity<Void> deletePolicySet(@PathVariable("obligationName") final String obligationName) {
+    public ResponseEntity<Void> deletePolicySet(
+            @PathVariable("url_encoded_obligation_name") final String obligationName) {
         if (this.service.deleteObligation(obligationName)) {
             return noContent();
         }
@@ -136,10 +142,6 @@ public class ObligationController extends BaseRestApi {
     }
 
     private void validateObligationNameOrFail(final Obligation obligation, final String obligationName) {
-        if (obligation == null) {
-            throw new RestApiException(HttpStatus.UNPROCESSABLE_ENTITY, "Policy Set cannot be empty or null");
-        }
-
         String name = obligation.getName();
         if (!StringUtils.isEmpty(name) && !obligationName.equals(name)) {
             throw new RestApiException(HttpStatus.UNPROCESSABLE_ENTITY,
