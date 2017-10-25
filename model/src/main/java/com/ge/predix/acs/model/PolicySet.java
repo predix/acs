@@ -25,11 +25,15 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * @author 212314537
  */
-@ApiModel(description = "A collection of access control policies evaluated in order. The first applicable policy"
-        + " determines the access control effect.")
+@ApiModel(
+        description = "A collection of access control policies evaluated in order. The first applicable policy"
+                + " determines the access control effect.")
 @SuppressWarnings("javadoc")
 public class PolicySet {
     private List<Policy> policies = new ArrayList<>();
+
+    private List<Obligation> obligations = new ArrayList<>();
+
     private String name;
 
     public PolicySet() {
@@ -43,21 +47,35 @@ public class PolicySet {
     /**
      * @return All policies in this policy set.
      */
-    @ApiModelProperty(value = "A non empty list of Policies that define the Policy set",
-            required = true)
+    @ApiModelProperty(value = "A non empty list of Policies that define the Policy set", required = true)
     public List<Policy> getPolicies() {
         return this.policies;
     }
 
     /**
-     * @param policies the policies to set
+     * @param policies
+     *            the policies to set
      */
     public void setPolicies(final List<Policy> policies) {
         this.policies = policies;
     }
 
-    @ApiModelProperty(value = "User defined name for the Policy set",
-            required = false)
+    /**
+     * @return the obligations in this policy set
+     */
+    public List<Obligation> getObligations() {
+        return this.obligations;
+    }
+
+    /**
+     * @param obligations
+     *            the obligations for this policy set
+     */
+    public void setObligations(List<Obligation> obligations) {
+        this.obligations = obligations;
+    }
+
+    @ApiModelProperty(value = "User defined name for the Policy set", required = false)
     public String getName() {
         return this.name;
     }

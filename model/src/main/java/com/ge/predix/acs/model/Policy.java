@@ -32,6 +32,7 @@ public class Policy {
     private String name;
     private Target target;
     private List<Condition> conditions = Collections.emptyList();
+    private List<String> obligationIds = Collections.emptyList();
     private Effect effect;
 
     public String getName() {
@@ -65,6 +66,21 @@ public class Policy {
      */
     public void setConditions(final List<Condition> conditions) {
         this.conditions = conditions;
+    }
+
+    /**
+     * @return the obligationIds
+     */
+    public List<String> getObligationIds() {
+        return this.obligationIds;
+    }
+
+    /**
+     * @param obligationIds
+     *            the obligationIds to set
+     */
+    public void setObligationIds(List<String> obligationIds) {
+        this.obligationIds = obligationIds;
     }
 
     @ApiModelProperty(required = true)
