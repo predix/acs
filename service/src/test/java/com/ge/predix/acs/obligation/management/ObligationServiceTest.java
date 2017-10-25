@@ -16,16 +16,11 @@
 
 package com.ge.predix.acs.obligation.management;
 
-import static org.mockito.Mockito.mock;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,60 +36,71 @@ import com.ge.predix.acs.SpringSecurityPolicyContextResolver;
 import com.ge.predix.acs.config.InMemoryDataSourceConfig;
 import com.ge.predix.acs.model.Obligation;
 import com.ge.predix.acs.model.ObligationType;
+import com.ge.predix.acs.obligation.management.dao.ObligationRepository;
+import com.ge.predix.acs.request.context.AcsRequestContextHolder;
+import com.ge.predix.acs.rest.Zone;
+import com.ge.predix.acs.testutils.MockAcsRequestContext;
+import com.ge.predix.acs.testutils.MockSecurityContext;
 import com.ge.predix.acs.testutils.TestActiveProfilesResolver;
 import com.ge.predix.acs.utils.JsonUtils;
 import com.ge.predix.acs.zone.management.dao.ZoneEntity;
 import com.ge.predix.acs.zone.management.dao.ZoneRepository;
 import com.ge.predix.acs.zone.resolver.SpringSecurityZoneResolver;
-import com.ge.predix.acs.zone.resolver.ZoneResolver;
 
 @Test
 @TestPropertySource("classpath:application.properties")
 @ActiveProfiles(resolver = TestActiveProfilesResolver.class)
 @ContextConfiguration(
-        classes = { InMemoryDataSourceConfig.class, ObligationServiceImpl.class,
-                SpringSecurityPolicyContextResolver.class, SpringSecurityZoneResolver.class })
+        classes = { ObligationServiceImpl.class, ObligationRepository.class, InMemoryDataSourceConfig.class,
+                AcsRequestContextHolder.class, SpringSecurityZoneResolver.class,
+                SpringSecurityPolicyContextResolver.class })
 public class ObligationServiceTest extends AbstractTransactionalTestNGSpringContextTests {
+
+    private static final String ZONE1 = "obligationZone1";
+    private static final String ZONE2 = "obligationZone2";
+    private static final String ZONEDEFAULT = "obligationDefaultZone";
+
+    private static final String ZONEDESCRIPTION = "obligationDefaultZone";
 
     private static final String SUBDOMAIN1 = "obligationTenant1";
     private static final String SUBDOMAIN2 = "obligationTenant2";
     private static final String DEFAULT_SUBDOMAIN = "obligationDefaultTenant";
 
     @Autowired
-    @InjectMocks
-    private ObligationServiceImpl obligationService;
-
-    @Autowired
     private ZoneRepository zoneRepository;
 
-    @Mock
-    private final ZoneResolver mockZoneResolver = mock(ZoneResolver.class);
+    @Autowired
+    private ObligationServiceImpl obligationService;
 
     private final JsonUtils jsonUtils = new JsonUtils();
 
-    private final ZoneEntity zone1 = this.createZone("obligationZone1", SUBDOMAIN1, "description for Zone1");
-    private final ZoneEntity zone2 = this.createZone("obligationZone2", SUBDOMAIN2, "description for Zone2");
-    private final ZoneEntity defaultZone = this.createZone("obligationDefaultZone", DEFAULT_SUBDOMAIN,
+    private final Zone zone1 = new Zone(ZONE1, SUBDOMAIN1, ZONEDESCRIPTION);
+    private final ZoneEntity zoneEntity1 = this.createZone("obligationZone1", SUBDOMAIN1, ZONEDESCRIPTION);
+
+    private final Zone zone2 = new Zone(ZONE2, SUBDOMAIN2, ZONEDESCRIPTION);
+    private final ZoneEntity zoneEntity2 = this.createZone("obligationZone2", SUBDOMAIN2, "description for Zone2");
+
+    private final Zone defaultZone = new Zone(ZONEDEFAULT, DEFAULT_SUBDOMAIN, ZONEDESCRIPTION);
+    private final ZoneEntity defaultZoneEntity = this.createZone("obligationDefaultZone", DEFAULT_SUBDOMAIN,
             "description for defaultZone");
 
     @BeforeClass
     public void beforeClass() {
-        this.zoneRepository.save(this.zone1);
-        this.zoneRepository.save(this.zone2);
-        this.zoneRepository.save(this.defaultZone);
+        this.zoneRepository.save(this.zoneEntity1);
+        this.zoneRepository.save(this.zoneEntity2);
+        this.zoneRepository.save(this.defaultZoneEntity);
     }
 
     @AfterClass
     public void afterClass() {
 
-        this.zoneRepository.delete(this.defaultZone);
-        this.zoneRepository.delete(this.zone1);
-        this.zoneRepository.delete(this.zone2);
+        this.zoneRepository.delete(this.defaultZoneEntity);
+        this.zoneRepository.delete(this.zoneEntity1);
+        this.zoneRepository.delete(this.zoneEntity2);
     }
 
     @BeforeMethod
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         initializeDefaultResolverBehavior();
     }
 
@@ -102,7 +108,7 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
         Obligation obligation = this.jsonUtils.deserializeFromFile("obligations/obligation.json", Obligation.class);
         this.obligationService.upsertObligation(obligation);
         this.obligationService.deleteObligation(obligation.getName());
-        Obligation retrievedObligation = this.obligationService.getObligation(obligation.getName());
+        Obligation retrievedObligation = this.obligationService.getObligationByZoneAndName(obligation.getName());
         Assert.assertNull(retrievedObligation);
     }
 
@@ -121,7 +127,7 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
         Obligation obligation = this.jsonUtils.deserializeFromFile("obligations/obligation2.json", Obligation.class);
         String obligationName = obligation.getName();
         this.obligationService.upsertObligation(obligation);
-        Obligation savedObligation = this.obligationService.getObligation(obligationName);
+        Obligation savedObligation = this.obligationService.getObligationByZoneAndName(obligationName);
         Assert.assertNotNull(savedObligation);
         Assert.assertEquals(savedObligation.getName(), "obligation2");
         Assert.assertEquals(savedObligation.getType(), ObligationType.CUSTOM);
@@ -139,7 +145,7 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
 
         this.obligationService.upsertObligation(obligation);
 
-        Obligation retObligation = this.obligationService.getObligation(obligation.getName());
+        Obligation retObligation = this.obligationService.getObligationByZoneAndName(obligation.getName());
         Assert.assertEquals(retObligation.getName(), obligation.getName());
 
         HashMap<String, Object> retActionTemplate = (HashMap<String, Object>) retObligation.getActionTemplate();
@@ -151,7 +157,7 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
                 .deserializeFromFile("obligations/obligation-update-replacement.json", Obligation.class);
         this.obligationService.upsertObligation(obligationUpdate);
 
-        Obligation retObligationUpdate = this.obligationService.getObligation(obligationUpdate.getName());
+        Obligation retObligationUpdate = this.obligationService.getObligationByZoneAndName(obligationUpdate.getName());
 
         HashMap<String, Object> retUpdateActionTemplate = (HashMap<String, Object>) retObligationUpdate
                 .getActionTemplate();
@@ -160,7 +166,7 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
                 retUpdateActionTemplate.keySet().contains("resource site"));
 
         this.obligationService.deleteObligation(obligationUpdate.getName());
-        Assert.assertEquals(this.obligationService.getObligations().size(), 0);
+        Assert.assertEquals(this.obligationService.getObligationsForZone().size(), 0);
 
     }
 
@@ -173,12 +179,12 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
         obligations.add(obligation);
         obligations.add(obligation2);
         this.obligationService.upsertObligations(obligations);
-        List<Obligation> expectedObligations = this.obligationService.getObligations();
+        List<Obligation> expectedObligations = this.obligationService.getObligationsForZone();
         Assert.assertEquals(expectedObligations.size(), 2);
 
         this.obligationService.deleteObligation(obligation.getName());
         this.obligationService.deleteObligation(obligation2.getName());
-        Assert.assertEquals(this.obligationService.getObligations().size(), 0);
+        Assert.assertEquals(this.obligationService.getObligationsForZone().size(), 0);
 
     }
 
@@ -191,9 +197,9 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
 
     @Test()
     public void testGetAllObligationAndReturnEmptyList() {
-        Mockito.when(this.mockZoneResolver.getZoneEntityOrFail()).thenReturn(this.zone1);
+        Mockito.when(this.zoneResolver.getZoneEntityOrFail()).thenReturn(this.zone1);
 
-        List<Obligation> allObligations = this.obligationService.getObligations();
+        List<Obligation> allObligations = this.obligationService.getObligationsForZone();
         Assert.assertEquals(allObligations.size(), 0);
     }
 
@@ -204,21 +210,27 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
         Obligation zone2Obligation = this.jsonUtils.deserializeFromFile("obligations/obligation2.json",
                 Obligation.class);
 
-        Mockito.when(this.mockZoneResolver.getZoneEntityOrFail()).thenReturn(this.zone1);
+        Mockito.when(this.zoneResolver.getZoneEntityOrFail()).thenReturn(this.zone1);
         this.obligationService.upsertObligation(zone1Obligation);
-        Assert.assertEquals(this.obligationService.getObligations().size(), 1);
+        Assert.assertEquals(this.obligationService.getObligationsForZone().size(), 1);
         this.obligationService.deleteObligation(zone1Obligation.getName());
 
-        Mockito.when(this.mockZoneResolver.getZoneEntityOrFail()).thenReturn(this.zone2);
+        Mockito.when(this.zoneResolver.getZoneEntityOrFail()).thenReturn(this.zone2);
         this.obligationService.upsertObligation(zone2Obligation);
-        Assert.assertEquals(this.obligationService.getObligations().size(), 1);
+        Assert.assertEquals(this.obligationService.getObligationsForZone().size(), 1);
         this.obligationService.deleteObligation(zone2Obligation.getName());
-        Assert.assertEquals(this.obligationService.getObligations().size(), 0);
+        Assert.assertEquals(this.obligationService.getObligationsForZone().size(), 0);
 
+    }
+    
+    private void initializeDefaultResolverBehavior() {
+        MockSecurityContext.mockSecurityContext(this.defaultZone);
+        MockAcsRequestContext.mockAcsRequestContext(this.defaultZone);
     }
 
     private void initializeDefaultResolverBehavior() {
-        Mockito.when(this.mockZoneResolver.getZoneEntityOrFail()).thenReturn(this.defaultZone);
+        MockSecurityContext.mockSecurityContext(this.defaultZone);
+        MockAcsRequestContext.mockAcsRequestContext(this.defaultZone);
     }
 
     private ZoneEntity createZone(final String name, final String subdomain, final String description) {
@@ -228,5 +240,4 @@ public class ObligationServiceTest extends AbstractTransactionalTestNGSpringCont
         zone.setDescription(description);
         return zone;
     }
-
 }

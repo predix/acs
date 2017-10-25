@@ -28,7 +28,7 @@ public class Obligation {
 
     @NotNull(message = "Obligation Name cannot be null")
     @Min(value = 1, message = "Obligation Name should have one character minimum")
-    @Max(value = 1, message = "Obligation Name should have a maximun of 128 characters")
+    @Max(value = 128, message = "Obligation Name should have a maximun of 128 characters")
     private String name;
 
     @NotNull(message = "Obligation Type should not be null")

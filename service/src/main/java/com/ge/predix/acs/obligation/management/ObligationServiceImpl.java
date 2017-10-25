@@ -86,7 +86,7 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public List<Obligation> getObligations() {
+    public List<Obligation> getObligationsForZone() {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
         ArrayList<Obligation> result = new ArrayList<>();
         List<ObligationEntity> obligationEnityList = this.obligationRepository.findByZone(zone);
@@ -97,7 +97,7 @@ public class ObligationServiceImpl implements ObligationService {
     }
 
     @Override
-    public Obligation getObligation(final String obligationName) {
+    public Obligation getObligationByZoneAndName(final String obligationName) {
         ZoneEntity zone = this.zoneResolver.getZoneEntityOrFail();
         ObligationEntity obligationEntity = this.obligationRepository.getByZoneAndObligationId(zone, obligationName);
         if (obligationEntity != null) {

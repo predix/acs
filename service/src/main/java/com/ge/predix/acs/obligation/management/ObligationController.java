@@ -106,11 +106,11 @@ public class ObligationController extends BaseRestApi {
     }
 
     @ApiOperation(value = "Retrieves Obligation for the given zone.", tags = { "Obligation Management" })
-    @RequestMapping(method = GET, value = OBLIGATIONS_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = GET, value = OBLIGATION_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Obligation> getObligation(
             @PathVariable(value = "url_encoded_obligation_name") final String obligationName) {
-        Obligation result = this.service.getObligation(obligationName);
+        Obligation result = this.service.getObligationByZoneAndName(obligationName);
         if (result != null) {
             return ok(result);
         }
@@ -124,7 +124,7 @@ public class ObligationController extends BaseRestApi {
     @RequestMapping(method = GET, value = OBLIGATIONS_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Obligation>> getObligations() {
-        List<Obligation> results = this.service.getObligations();
+        List<Obligation> results = this.service.getObligationsForZone();
         if (!CollectionUtils.isEmpty(results)) {
             return ok(results);
         }
@@ -133,7 +133,7 @@ public class ObligationController extends BaseRestApi {
 
     @ApiOperation(value = "Deletes a policy set for the given zone.", tags = { "Obligation Management" })
     @RequestMapping(method = DELETE, value = OBLIGATION_URL)
-    public ResponseEntity<Void> deletePolicySet(
+    public ResponseEntity<Void> deleteOBligation(
             @PathVariable("url_encoded_obligation_name") final String obligationName) {
         if (this.service.deleteObligation(obligationName)) {
             return noContent();
