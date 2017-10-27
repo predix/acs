@@ -38,10 +38,9 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 @Configuration
 @Profile({ "cloudDbConfig" })
-@EnableJpaRepositories({ "com.ge.predix.acs.service.policy.admin.dao",
-        "com.ge.predix.acs.privilege.management.dao",
-        "com.ge.predix.acs.zone.management.dao",
-        "com.ge.predix.acs.attribute.connector.management.dao" })
+@EnableJpaRepositories({ "com.ge.predix.acs.service.policy.admin.dao", "com.ge.predix.acs.privilege.management.dao",
+        "com.ge.predix.acs.zone.management.dao", "com.ge.predix.acs.attribute.connector.management.dao",
+        "com.ge.predix.acs.obligation.management.dao" })
 public class CloudDataSourceConfig extends AbstractCloudConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudDataSourceConfig.class);
 

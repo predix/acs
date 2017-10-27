@@ -1,0 +1,18 @@
+{
+  "name": "obligation1",
+  "type": "CUSTOM",
+  "optional": true,
+  "actionTemplate": {
+    "sqlStatement": "SELECT firstName, lastName, RIGHT(ssn, 4), LEFT(address, 11) FROM employee_records LIMIT 100 where site = '$1' AND id='$2'"
+  },
+  "actionArguments": [
+    {
+      "name": "resource site",
+      "value": "resource.uriVariable('site_id')"
+    },
+    {
+      "name": "record id",
+      "value": "resource.uriVariable('record_id')"
+    }
+  ]
+}
