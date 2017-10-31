@@ -89,12 +89,6 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe.version}</version>
                 <configuration>
-                    <properties>
-                        <property>
-                            <name>listener</name>
-                            <value>com.ge.predix.test.TestNameLogger</value>
-                        </property>
-                    </properties>
                     <systemPropertyVariables>
                         <ACS_SERVICE_ID>predix-acs</ACS_SERVICE_ID>
                         <ACS_DEFAULT_ISSUER_ID>${ACS_DEFAULT_ISSUER_ID}</ACS_DEFAULT_ISSUER_ID>
@@ -302,7 +296,8 @@
                             <properties>
                                 <property>
                                     <name>listener</name>
-                                    <value>com.ge.predix.test.TestNameLogger,com.ge.predix.test.TestAnnotationTransformer</value>
+                                    <value>com.ge.predix.test.TestNamePredixLogger,com.ge.predix.test
+                                        .TestAnnotationTransformer</value>
                                 </property>
                             </properties>
                             <forkCount>0</forkCount>
@@ -428,7 +423,8 @@
                             <properties>
                                 <property>
                                     <name>listener</name>
-                                    <value>com.ge.predix.test.TestNameLogger,com.ge.predix.test.TestAnnotationTransformer</value>
+                                    <value>com.ge.predix.test.TestNamePredixLogger,com.ge.predix.test
+                                        .TestAnnotationTransformer</value>
                                 </property>
                             </properties>
                             <forkCount>0</forkCount>
@@ -609,6 +605,12 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${maven-failsafe.version}</version>
                         <configuration>
+                            <properties>
+                                <property>
+                                    <name>listener</name>
+                                    <value>com.ge.predix.test.TestNamePublicLogger</value>
+                                </property>
+                            </properties>
                             <forkCount>0</forkCount>
                             <parallel>methods</parallel>
                             <argLine/>
@@ -715,6 +717,12 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${maven-failsafe.version}</version>
                         <configuration>
+                            <properties>
+                                <property>
+                                    <name>listener</name>
+                                    <value>com.ge.predix.test.TestNamePublicLogger</value>
+                                </property>
+                            </properties>
                             <forkCount>0</forkCount>
                             <parallel>methods</parallel>
                             <argLine/>
@@ -817,6 +825,12 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${maven-failsafe.version}</version>
                         <configuration>
+                            <properties>
+                                <property>
+                                    <name>listener</name>
+                                    <value>com.ge.predix.test.TestNamePublicLogger</value>
+                                </property>
+                            </properties>
                             <argLine>${custom-argline}</argLine>
                             <environmentVariables>
                                 <SPRING_PROFILES_ACTIVE>h2,public,simple-cache,httpValidation</SPRING_PROFILES_ACTIVE>
@@ -928,6 +942,12 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${maven-failsafe.version}</version>
                         <configuration>
+                            <properties>
+                                <property>
+                                    <name>listener</name>
+                                    <value>com.ge.predix.test.TestNamePublicLogger</value>
+                                </property>
+                            </properties>
                             <argLine>${custom-argline}</argLine>
                             <environmentVariables>
                                 <SPRING_PROFILES_ACTIVE>h2,public,simple-cache,titan,httpValidation</SPRING_PROFILES_ACTIVE>
@@ -1043,6 +1063,12 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${maven-failsafe.version}</version>
                         <configuration>
+                            <properties>
+                                <property>
+                                    <name>listener</name>
+                                    <value>com.ge.predix.test.TestNamePublicLogger</value>
+                                </property>
+                            </properties>
                             <forkCount>0</forkCount>
                             <parallel>false</parallel>
                             <systemPropertyVariables>

@@ -24,9 +24,7 @@ import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
 import org.testng.SkipException;
 
-import com.ge.predix.acs.cloudfoundry.DeleteApplications;
-
-public class TestNameLogger implements IInvokedMethodListener {
+public class TestNamePublicLogger implements IInvokedMethodListener {
     private enum TestStatus {
 
         STARTING("Starting"),
@@ -45,9 +43,9 @@ public class TestNameLogger implements IInvokedMethodListener {
             return name;
         }
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestNameLogger.class);
     static final String ACS_CLOUD_FOUNDRY_PACKAGE = "com.ge.predix.acs.cloudfoundry";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestNamePublicLogger.class);
 
     private static volatile boolean suiteFailed = false;
 
@@ -64,16 +62,11 @@ public class TestNameLogger implements IInvokedMethodListener {
                 methodType, methodName);
     }
 
-    private static boolean skipTest(final IInvokedMethod method) {
-        return (suiteFailed && !DeleteApplications.class.isAssignableFrom(
-                method.getTestMethod().getTestClass().getRealClass()));
-    }
-
     @Override
     public void beforeInvocation(final IInvokedMethod method, final ITestResult testResult) {
         // Skip the test if the suite has been marked as failing and the test being executed isn't a
         // Cloud-Foundry-related deletion operation (i.e. a normal integration test)
-        if (skipTest(method)) {
+        if (suiteFailed) {
             throw new SkipException("Test skipped due to a failure detected in the suite");
         }
 
@@ -83,14 +76,13 @@ public class TestNameLogger implements IInvokedMethodListener {
     @Override
     public void afterInvocation(final IInvokedMethod method, final ITestResult testResult) {
         // Mark a suite as failing only when a Cloud-Foundry-related push operation fails
-        if (!testResult.isSuccess() && method.getTestMethod().getTestClass().getRealClass().getPackage().getName()
-                .contains(ACS_CLOUD_FOUNDRY_PACKAGE)) {
+        if (!testResult.isSuccess()) {
             suiteFailed = true;
             logInvocation(TestStatus.ERRORED_OUT, method);
             return;
         }
 
-        if (skipTest(method)) {
+        if (suiteFailed) {
             logInvocation(TestStatus.SKIPPING, method);
             return;
         }
