@@ -26,6 +26,8 @@ public final class AcsApiUriTemplates {
 
     public static final String V1 = "/v1";
 
+    public static final String V2 = "/v2";
+
     public static final String POLICY_SETS_URL = "/policy-set";
 
     public static final String POLICY_EVALUATION_URL = "/policy-evaluation";

@@ -21,6 +21,7 @@ import com.ge.predix.acs.rest.PolicyEvaluationResult;
 
 @FunctionalInterface
 public interface PolicyEvaluationService {
+
     PolicyEvaluationResult evalPolicy(PolicyEvaluationRequestV1 request);
 
 }
