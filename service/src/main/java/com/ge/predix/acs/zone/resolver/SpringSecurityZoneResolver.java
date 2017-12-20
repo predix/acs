@@ -12,14 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 package com.ge.predix.acs.zone.resolver;
 
-import com.ge.predix.acs.privilege.management.ZoneDoesNotExistException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.ge.predix.acs.commons.web.ZoneDoesNotExistException;
 import com.ge.predix.acs.request.context.AcsRequestContext;
 import com.ge.predix.acs.request.context.AcsRequestContext.ACSRequestContextAttribute;
 import com.ge.predix.acs.request.context.AcsRequestContextHolder;

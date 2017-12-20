@@ -12,6 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
 ################################################################################
 
 #!/usr/bin/env bash
@@ -30,6 +32,9 @@ function read_args {
                 ;;
             -u|--upsert-copyright-headers)
                 UPSERT_COPYRIGHTS='true'
+                ;;
+            -a|--normalize-authors)
+                NORMALIZE_AUTHORS='true'
                 ;;
             --debug)
                 DEBUG='true'
@@ -65,10 +70,12 @@ distributed under the License is distributed on an \"AS IS\" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+\n
+SPDX-License-Identifier: Apache-2.0
 "
 
 function generate_copyright_header {
-    if [[ "$1" == 'java' ]]; then
+    if [[ "$1" == 'java' || "$1" == 'groovy' ]]; then
         BEGINNING_COMMENT_MARKER='/'
         CONTINUING_COMMENT_MARKER='*'
         ENDING_COMMENT_MARKER='/'
@@ -114,7 +121,7 @@ function generate_copyright_header {
 }
 
 function delete_copyright {
-    if [[ "$1" == 'java' ]]; then
+    if [[ "$1" == 'java' || "$1" == 'groovy' ]]; then
         perl -i -pe 'BEGIN{undef $/;} s/\/\*{79}?\s*?\*\s*?Copyright.*?(\n\s*?\*.*?)+?\n\s*?\*{79}?\/\n{1,}//' "$2"
     elif [[ "$1" == 'xml' ]]; then
         perl -i -pe 'BEGIN{undef $/;} s/<!-{2}?\s*?-\s*?Copyright.*?(\n\s*?-.*?)+?\n\s*?-{2}?>\n{1,}//' "$2"
@@ -148,6 +155,10 @@ function upsert_copyright {
     fi
 }
 
+function normalize_authors {
+    perl -i -pe 's/(\@author\s*)\d{1,}/$1acs-engineers\@ge.com/' "$2"
+}
+
 function modify_copyright_in_file {
     FILENAME="$( basename "$1" )"
     EXTENSION="${FILENAME##*.}"
@@ -155,13 +166,19 @@ function modify_copyright_in_file {
         echo "Deleting copyrights from file: ${1} with extension: .${EXTENSION}"
         delete_copyright "$EXTENSION" "$1"
     elif [[ -n "$UPSERT_COPYRIGHTS" ]]; then
-        echo "Upserting copyrights from file: ${1} with extension: .${EXTENSION}"
+        echo "Upserting copyrights in file: ${1} with extension: .${EXTENSION}"
         upsert_copyright "$EXTENSION" "$1"
+    fi
+
+    if [[ -n "$NORMALIZE_AUTHORS" ]]; then
+        echo "Normalizing author information in file: ${1} with extension: .${EXTENSION}"
+        normalize_authors "$EXTENSION" "$1"
     fi
 }
 
 unset DELETE_COPYRIGHTS
 unset UPSERT_COPYRIGHTS
+unset NORMALIZE_AUTHORS
 unset DEBUG
 unset SRC_FILE
 
@@ -173,6 +190,7 @@ if [[ -n "$DEBUG" ]]; then
     echo 'The following options are set:'
     echo "  DELETE_COPYRIGHTS: ${DELETE_COPYRIGHTS}"
     echo "  UPSERT_COPYRIGHTS: ${UPSERT_COPYRIGHTS}"
+    echo "  NORMALIZE_AUTHORS: ${NORMALIZE_AUTHORS}"
     echo "  DEBUG: ${DEBUG}"
     echo "  SRC_FILE: ${SRC_FILE}"
     echo "  DIR: ${DIR}"
@@ -187,12 +205,13 @@ fi
 
 if [[ -n "$DEBUG" ]]; then
     generate_copyright_header 'java'
+    generate_copyright_header 'groovy'
     generate_copyright_header 'sh'
     generate_copyright_header 'xml'
 fi
 
 if [[ -z "$SRC_FILE" ]]; then
-    for f in $( find "$DIR" \( -not -path '*/\.*' -and -not -path '*/failsafe*' -and -not -path '*/surefire*' \) -type f \( -iname '*.java' -or -iname '*.sh' -or -iname '*.properties' -or -iname '*.xml' \) ); do
+    for f in $( find "$DIR" \( -not -path '*/\.*' -and -not -path '*/failsafe*' -and -not -path '*/surefire*' \) -type f \( -iname '*.groovy' -or -iname '*.java' -or -iname '*.sh' -or -iname '*.properties' -or -iname '*.xml' \) ); do
         modify_copyright_in_file "$f"
     done
 else

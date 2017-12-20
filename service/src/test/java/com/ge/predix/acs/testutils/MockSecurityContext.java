@@ -12,6 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 package com.ge.predix.acs.testutils;
@@ -26,7 +28,7 @@ import com.ge.predix.uaa.token.lib.ZoneOAuth2Authentication;
 
 /**
  *
- * @author 212304931
+ * @author acs-engineers@ge.com
  */
 public final class MockSecurityContext {
     private MockSecurityContext() {
@@ -35,7 +37,9 @@ public final class MockSecurityContext {
 
     public static void mockSecurityContext(final Zone zone) {
         ZoneOAuth2Authentication acsZoneOAuth = Mockito.mock(ZoneOAuth2Authentication.class);
-        when(acsZoneOAuth.getZoneId()).thenReturn(zone.getSubdomain());
+        if (zone != null) {
+            when(acsZoneOAuth.getZoneId()).thenReturn(zone.getSubdomain());
+        }
         SecurityContextHolder.getContext().setAuthentication(acsZoneOAuth);
     }
 }

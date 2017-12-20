@@ -12,6 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 package com.ge.predix.controller.test;
@@ -126,7 +128,7 @@ public class PolicyEvalWithGraphDbControllerIT extends AbstractTestNGSpringConte
         this.zoneService.upsertZone(this.testZone1);
         this.zoneService.upsertZone(this.testZone2);
         MockSecurityContext.mockSecurityContext(this.testZone1);
-        MockAcsRequestContext.mockAcsRequestContext(this.testZone1);
+        MockAcsRequestContext.mockAcsRequestContext();
         this.policySet = this.jsonUtils.deserializeFromFile("complete-sample-policy-set-2.json", PolicySet.class);
         Assert.assertNotNull(this.policySet, "complete-sample-policy-set-2.json file not found or invalid");
     }

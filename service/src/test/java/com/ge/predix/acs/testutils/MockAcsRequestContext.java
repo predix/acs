@@ -12,6 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 package com.ge.predix.acs.testutils;
@@ -20,14 +22,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.ge.predix.acs.request.context.AcsRequestContextHolder;
-import com.ge.predix.acs.rest.Zone;
 
 public final class MockAcsRequestContext {
     private MockAcsRequestContext() {
         // Prevents instantiation.
     }
 
-    public static void mockAcsRequestContext(final Zone zone) {
+    public static void mockAcsRequestContext() {
         try {
             Method method = AcsRequestContextHolder.class.getDeclaredMethod("initialize");
             method.setAccessible(true);

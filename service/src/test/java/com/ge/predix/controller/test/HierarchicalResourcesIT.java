@@ -12,6 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 package com.ge.predix.controller.test;
@@ -75,7 +77,7 @@ public class HierarchicalResourcesIT extends AbstractTestNGSpringContextTests {
 
         this.zoneService.upsertZone(TEST_ZONE);
         MockSecurityContext.mockSecurityContext(TEST_ZONE);
-        MockAcsRequestContext.mockAcsRequestContext(TEST_ZONE);
+        MockAcsRequestContext.mockAcsRequestContext();
     }
 
     @Test
