@@ -25,10 +25,10 @@ import org.testng.annotations.Test;
 import com.ge.predix.acs.commons.policy.condition.ConditionScript;
 
 public class GroovyConditionCacheTest {
-
     @Test
     public void testPutGetAndRemove() {
         GroovyConditionCache cache = new GroovyConditionCache();
+        cache.setCacheEnabled(true);
         ConditionScript compiledScript = Mockito.mock(ConditionScript.class);
         String testScript = "1 == 1";
         cache.put(testScript, compiledScript);
@@ -37,4 +37,15 @@ public class GroovyConditionCacheTest {
         Assert.assertNull(cache.get(testScript));
     }
 
+    @Test
+    public void testPutGetAndRemoveIfDisabled() {
+        GroovyConditionCache cache = new GroovyConditionCache();
+        cache.setCacheEnabled(false);
+        ConditionScript compiledScript = Mockito.mock(ConditionScript.class);
+        String testScript = "1 == 1";
+        cache.put(testScript, compiledScript);
+        Assert.assertNull(cache.get(testScript));
+        cache.remove(testScript);
+        Assert.assertNull(cache.get(testScript));
+    }
 }

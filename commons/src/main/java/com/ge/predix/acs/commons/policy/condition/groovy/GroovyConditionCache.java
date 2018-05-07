@@ -20,6 +20,7 @@ package com.ge.predix.acs.commons.policy.condition.groovy;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
@@ -27,19 +28,28 @@ import com.ge.predix.acs.commons.policy.condition.ConditionScript;
 
 @Component
 public class GroovyConditionCache {
+    @Value("${ENABLE_CONDITION_CACHING:true}")
+    private boolean cacheEnabled;
 
     private final Map<String, ConditionScript> cache = new ConcurrentReferenceHashMap<>();
 
     public ConditionScript get(final String script) {
-        return this.cache.get(script);
+        return cacheEnabled ? this.cache.get(script) : null;
     }
 
     public void put(final String script, final ConditionScript compiledScript) {
-        this.cache.put(script, compiledScript);
+        if (cacheEnabled) {
+            this.cache.put(script, compiledScript);
+        }
     }
 
     public void remove(final String script) {
-        this.cache.remove(script);
+        if (cacheEnabled) {
+            this.cache.remove(script);
+        }
     }
 
+    public void setCacheEnabled(final boolean cacheEnabled) {
+        this.cacheEnabled = cacheEnabled;
+    }
 }
