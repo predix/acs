@@ -20,6 +20,10 @@ package com.ge.predix.acs.commons.policy.condition.groovy;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ConcurrentReferenceHashMap;
@@ -28,6 +32,8 @@ import com.ge.predix.acs.commons.policy.condition.ConditionScript;
 
 @Component
 public class GroovyConditionCache {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GroovyConditionCache.class);
+
     @Value("${ENABLE_CONDITION_CACHING:true}")
     private boolean cacheEnabled;
 
@@ -51,5 +57,10 @@ public class GroovyConditionCache {
 
     public void setCacheEnabled(final boolean cacheEnabled) {
         this.cacheEnabled = cacheEnabled;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        LOGGER.info("Condition caching is " + (cacheEnabled ? "enabled" : "disabled"));
     }
 }
